@@ -27,6 +27,7 @@
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.architectural-pride-spring.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-spring.version>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.archive.pride-solr-indexes.version>
+        <io.springfox.swagger.version>2.6.1</io.springfox.swagger.version>
     </properties>
 
     <dependencies>
@@ -51,6 +52,27 @@
             <artifactId>pride-solr-indexes</artifactId>
             <version>${uk.ac.ebi.pride.archive.pride-solr-indexes.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Swagger Depedencies -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${io.springfox.swagger.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${io.springfox.swagger.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
 
     </dependencies>
 
@@ -102,6 +124,10 @@
                     <remoteTagging>true</remoteTagging>
                     <goals>deploy</goals>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
