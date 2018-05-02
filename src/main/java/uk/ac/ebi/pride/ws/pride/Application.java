@@ -28,17 +28,10 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 import static springfox.documentation.builders.PathSelectors.regex;
 
 /**
- * This code is licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * ==Overview==
- * <p>
- * This class
- * <p>
- * Created by ypriverol (ypriverol@gmail.com) on 02/05/2018.
+ * Retrieve the datasets {@link uk.ac.ebi.pride.archive.dataprovider.dataset.DatasetProvider} from PRIDE Archive and the corresponding information.
+ *
+ * @author ypriverol
+ *
  */
 
 
@@ -75,9 +68,9 @@ public class Application {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Springfox petstore API")
-                .description("description")
-                .contact(new Contact("name", "url", "email"))
+                .title("PRIDE Archive API to retrirve information about datasets from www.ebi.ac.uk/pride/")
+                .description("The PRIDE PRoteomics IDEntifications (PRIDE) database is a centralized, standards compliant, public data repository for proteomics data, including protein and peptide identifications, post-translational modifications and supporting spectral evidence. ")
+                .contact(new Contact("PRIDE Support Team", "www.ebi.ac.uk/pride", "pride-support@ebi.ac.uk"))
                 .license("Apache License Version 2.0")
                 .version("2.0")
                 .build();
