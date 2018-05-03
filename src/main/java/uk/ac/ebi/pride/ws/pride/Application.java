@@ -25,8 +25,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.pride.ws.pride.controllers.DatasetController;
 import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 
-import static springfox.documentation.builders.PathSelectors.regex;
-
 /**
  * Retrieve the datasets {@link uk.ac.ebi.pride.archive.dataprovider.dataset.DatasetProvider} from PRIDE Archive and the corresponding information.
  *
@@ -51,7 +49,7 @@ public class Application {
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
-                .build();
+                .build().apiInfo(apiInfo());
     }
 
     @Component
@@ -68,7 +66,7 @@ public class Application {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("PRIDE Archive API to retrirve information about datasets from www.ebi.ac.uk/pride/")
+                .title("PRIDE Archive Restful WS")
                 .description("The PRIDE PRoteomics IDEntifications (PRIDE) database is a centralized, standards compliant, public data repository for proteomics data, including protein and peptide identifications, post-translational modifications and supporting spectral evidence. ")
                 .contact(new Contact("PRIDE Support Team", "www.ebi.ac.uk/pride", "pride-support@ebi.ac.uk"))
                 .license("Apache License Version 2.0")
