@@ -11,26 +11,20 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * This code is licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * ==Overview==
- * <p>
- * This class
- * <p>
- * Created by ypriverol (ypriverol@gmail.com) on 03/05/2018.
+ * The Resource of each class in the model add different links to make the resource discoverable. You can read more here:
+ * https://spring.io/understanding/HATEOAS
+ *
+ * @author yriverol
  */
-public class ResourceDataset extends Resource<PrideSolrDataset>{
+
+public class ResourceDataset extends Resource<CompactDataset>{
 
     /**
      * Default constructor for Resource Dataset including hateoas links.
      * @param content Object that would be represented
      * @param links links.
      */
-    public ResourceDataset(PrideSolrDataset content, Iterable<Link> links) {
+    public ResourceDataset(CompactDataset content, Iterable<Link> links) {
         super(content, links);
 
     }
