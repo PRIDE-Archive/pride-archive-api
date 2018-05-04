@@ -3,20 +3,17 @@ package uk.ac.ebi.pride.ws.pride.controllers;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrDataset;
+import uk.ac.ebi.pride.solr.indexes.pride.repository.SolrProjectRepository;
 import uk.ac.ebi.pride.ws.pride.mappers.DatasetResourceMapper;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ResourceDataset;
 import org.springframework.http.HttpEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,10 +25,13 @@ import java.util.List;
 @RestController
 public class DatasetController {
 
+    @Autowired
+    SolrProjectRepository solrProjectRepository;
+
     @ApiOperation(notes = "Returns all the datasets from PRIDE", value = "datasets", nickname = "getDatasets", tags = {"datasets"} )
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid ID supplied", response = ApiResponse.class),
-            @ApiResponse(code = 404, message = "Pet not found", response = ApiResponse.class)
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
 
     @RequestMapping(value = "/datasets", method = RequestMethod.GET)
@@ -42,13 +42,10 @@ public class DatasetController {
             @RequestParam(value="sort.field",  defaultValue = "accession" ,required = false) String sortField,
             @RequestParam(value="order",  defaultValue = "asc", required = false) String order){
 
-        PrideSolrDataset dataset = new PrideSolrDataset();
-        dataset.setAccession("PXD00001111");
-        List<PrideSolrDataset> list = new ArrayList<>();
-        list.add(dataset);
-        
+
+        FacetAndHighlightPage<PrideSolrDataset> solrProjects = solrProjectRepository.findAll();
         DatasetResourceMapper assembler = new DatasetResourceMapper(DatasetController.class, ResourceDataset.class);
-        List<ResourceDataset> resources = assembler.toResources(list);
+        List<ResourceDataset> resources = assembler.toResources(solrProjects);
 
         long size = 5;
         long number = 1;
@@ -56,7 +53,7 @@ public class DatasetController {
         long totalPages = totalElements / size;
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, number, totalElements, totalPages);
 
-        PagedResources<ResourceDataset> wrapped = new PagedResources<ResourceDataset>(resources, pageMetadata, ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(DatasetController.class).getDataset(dataset.getAccession())).withSelfRel());
+        PagedResources<ResourceDataset> wrapped = new PagedResources<ResourceDataset>(resources, pageMetadata, ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(DatasetController.class).getDataset("")).withSelfRel());
         return new HttpEntity<>(wrapped);
     }
 
