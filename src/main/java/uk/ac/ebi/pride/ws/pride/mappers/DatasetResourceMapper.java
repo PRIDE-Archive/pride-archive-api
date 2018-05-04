@@ -9,6 +9,7 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.CompactDataset;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ResourceDataset;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -35,7 +36,19 @@ public class DatasetResourceMapper extends ResourceAssemblerSupport<PrideSolrDat
             CompactDataset dataset = CompactDataset.builder()
                     .accession(prideSolrDataset.getAccession())
                     .title(prideSolrDataset.getTitle())
-                    .projectDescription(prideSolrDataset.getProjectDescription()).build();
+                    .projectDescription(prideSolrDataset.getProjectDescription())
+                    .additionalAttributes(new ArrayList<>(prideSolrDataset.getAdditionalAttributes()))
+                    .affiliations(prideSolrDataset.getAffiliations())
+                    .dataProcessingProtocol(prideSolrDataset.getDataProcessingProtocol())
+                    .sampleProcessingProtocol(prideSolrDataset.getSampleProcessingProtocol())
+                    .diseases(prideSolrDataset.getDiseases())
+                    .organisms(prideSolrDataset.getOrganisms())
+                    .organismParts(prideSolrDataset.getOrganismPart())
+                    .instruments(new ArrayList<>(prideSolrDataset.getInstruments()))
+                    .submitters(prideSolrDataset.getSubmitters())
+                    .keywords(prideSolrDataset.getKeywords())
+                    .projectTags(prideSolrDataset.getProjectTags())
+                    .build();
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(DatasetController.class).getDataset(prideSolrDataset.getAccession())).withSelfRel());
             datasets.add(new ResourceDataset(dataset, links));

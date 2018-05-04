@@ -4,8 +4,8 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,27 +17,27 @@ import java.util.Set;
 public class CompactDataset {
     private String accession;
     private String title;
-    private List<String> additionalAttributes;
+    private Collection<String> additionalAttributes;
     private String projectDescription;
     private String sampleProcessingProtocol;
     private String dataProcessingProtocol;
-    private List<String> projectTags;
-    private List<String> keywords;
+    private Collection<String> projectTags;
+    private Collection<String> keywords;
     private String doi;
     private Date submissionDate;
     private Date publicationDate;
     private Date updatedDate;
-    private Set<String> submitters;
-    private List<String> labPIs;
-    private List<String> affiliations;
-    private List<String> instruments;
-    private List<String> softwares;
-    private List<String> quantificationMethods;
+    private Collection<String> submitters;
+    private Collection<String> labPIs;
+    private Collection<String> affiliations;
+    private Collection<String> instruments;
+    private Collection<String> softwares;
+    private Collection<String> quantificationMethods;
     private Set<String> countries;
-    private List<String> sampleAttributes;
-    private Set<String> organisms;
-    private Set<String> organismParts;
-    private Set<String> diseases;
+    private Collection<String> sampleAttributes;
+    private Collection<String> organisms;
+    private Collection<String> organismParts;
+    private Collection<String> diseases;
     private Set<String> references;
     private Set<String> identifiedPTMStrings;
 }
