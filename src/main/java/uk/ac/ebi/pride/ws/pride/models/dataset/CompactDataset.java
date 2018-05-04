@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,8 +21,9 @@ import java.util.Set;
 
 @Data
 @Builder
-@JsonRootName("dataset")
 @XmlRootElement(name = "dataset")
+@JsonRootName("dataset")
+@JsonTypeName("dataset")
 public class CompactDataset implements Serializable {
 
     @XmlElement
@@ -53,4 +55,5 @@ public class CompactDataset implements Serializable {
     private Collection<String> diseases;
     private Set<String> references;
     private Set<String> identifiedPTMStrings;
+    private Map<String, String> highlights;
 }

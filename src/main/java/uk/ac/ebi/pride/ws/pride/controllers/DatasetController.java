@@ -70,8 +70,8 @@ public class DatasetController {
 
     @ApiOperation(notes = "Return the dataset for a given accession", value = "datasets", nickname = "getDataset", tags = {"datasets"} )
     @ApiResponses({
-            @ApiResponse(code = 400, message = "Invalid ID supplied", response = ApiResponse.class),
-            @ApiResponse(code = 404, message = "Pet not found", response = ApiResponse.class)
+            @ApiResponse(code = 200, message = "OK", response = ApiResponse.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
     })
 
     @RequestMapping(value = "/datasets/{accession}", method = RequestMethod.GET)
