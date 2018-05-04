@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -35,10 +36,8 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  *
  */
 
-
-@SpringBootApplication
 @EnableSwagger2
-@ComponentScan(basePackageClasses = {DatasetController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class})
+@SpringBootApplication(scanBasePackageClasses = {DatasetController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class})
 public class Application {
 
     public static void main(String[] args) {
@@ -69,9 +68,10 @@ public class Application {
         public CustomObjectMapper() {
             setSerializationInclusion(JsonInclude.Include.NON_NULL);
             configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
             enable(SerializationFeature.INDENT_OUTPUT);
+
         }
     }
 

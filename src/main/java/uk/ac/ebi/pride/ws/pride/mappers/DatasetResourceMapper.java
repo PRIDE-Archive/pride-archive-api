@@ -48,6 +48,14 @@ public class DatasetResourceMapper extends ResourceAssemblerSupport<PrideSolrDat
                     .submitters(prideSolrDataset.getSubmitters())
                     .keywords(prideSolrDataset.getKeywords())
                     .projectTags(prideSolrDataset.getProjectTags())
+                    .labPIs(prideSolrDataset.getLabPIs())
+                    .identifiedPTMStrings(prideSolrDataset.getIdentifiedPTMStrings())
+                    .publicationDate(prideSolrDataset.getPublicationDate())
+                    .quantificationMethods(prideSolrDataset.getQuantificationMethods())
+                    .references(prideSolrDataset.getReferences())
+                    .softwares(prideSolrDataset.getSoftwares())
+                    .submissionDate(prideSolrDataset.getSubmissionDate())
+                    .updatedDate(prideSolrDataset.getUpdatedDate())
                     .build();
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(DatasetController.class).getDataset(prideSolrDataset.getAccession())).withSelfRel());
