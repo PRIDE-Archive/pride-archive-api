@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.hateoas.RelProvider;
+import org.springframework.hateoas.core.EvoInflectorRelProvider;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -73,6 +75,11 @@ public class Application {
             enable(SerializationFeature.INDENT_OUTPUT);
 
         }
+    }
+
+    @Bean
+    public RelProvider relProvider() {
+        return new EvoInflectorRelProvider();
     }
 
     private ApiInfo apiInfo() {
