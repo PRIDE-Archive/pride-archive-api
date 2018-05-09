@@ -21,10 +21,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 /**
+ * The facet Assembler Resource Component allows to convert Resource Facet into a Hateoas.
+ *
  * @author ypriverol
  */
 @Component
-public class FacetResourceAssembler implements ResourceAssembler<SimpleFacetFieldEntry, Resource<Facet>> {
+public class FacetsResourceAssembler implements ResourceAssembler<SimpleFacetFieldEntry, Resource<Facet>> {
 
     @Override
     public Resource<Facet> toResource(SimpleFacetFieldEntry facetFieldEntry) {
@@ -37,19 +39,19 @@ public class FacetResourceAssembler implements ResourceAssembler<SimpleFacetFiel
 
         String facetField = facetFieldEntry.getKey().getName();
         String facetValue = facetFieldEntry.getValue();
-        List<String> queryParameter = newQueryParams.get(WsContastants.FACET_PARAM_NAME);
+        List<String> queryParameter = newQueryParams.get(WsContastants.HateoasEnum.facets.name());
         String facetConstraint = buildFacetConstraint(facetField, facetValue);
 
         if (queryParameter != null && queryParameter.contains(facetConstraint)) {
             queryParameter.remove(facetConstraint);
             if (queryParameter.isEmpty()) {
-                newQueryParams.remove(WsContastants.FACET_PARAM_NAME);
+                newQueryParams.remove(WsContastants.HateoasEnum.facets.name());
             }
         } else {
-            newQueryParams.add(WsContastants.FACET_PARAM_NAME, facetConstraint);
+            newQueryParams.add(WsContastants.HateoasEnum.facets.name(), facetConstraint);
         }
         uriComponentsBuilder.replaceQueryParams(newQueryParams);
-        return new Link(uriComponentsBuilder.build().toUriString(), WsContastants.FACET_PARAM_NAME);
+        return new Link(uriComponentsBuilder.build().toUriString(), WsContastants.HateoasEnum.facets.name());
     }
 
     private static UriComponentsBuilder componentsBuilderFromCurrentRequest() {
@@ -66,7 +68,7 @@ public class FacetResourceAssembler implements ResourceAssembler<SimpleFacetFiel
     }
 
     private static MultiValueMap<String, String> removePaginationParameters(MultiValueMap<String, String> actualQueryParams) {
-        actualQueryParams.remove(WsContastants.PAGE_PARAM_NAME);
+        actualQueryParams.remove(WsContastants.HateoasEnum.facets.name());
         return actualQueryParams;
     }
 

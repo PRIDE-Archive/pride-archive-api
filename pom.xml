@@ -14,14 +14,6 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>PRIDE Archive API</name>
 
-    <!-- This project requires several maven profiles to build and run correctly.
-        // ToDo: should that not be defined in the client that uses this library?
-            Maven profiles to use:
-            db-pride-repo-pridepro              connection config for the PRIDE repo Oracle DB
-            db-pride-repo-pridearch-ro-user     read only user (and schema) for the PRIDE repo Oracle DB
-            pride-archive-solr-cores-prod       solr cores for PRIDE Archive
-      -->
-
     <properties>
         <archive.data.provider.api.version>1.0.0-SNAPSHOT</archive.data.provider.api.version>
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>

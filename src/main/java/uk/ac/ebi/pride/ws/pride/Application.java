@@ -7,17 +7,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.cache.CacheBuilder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.hateoas.RelProvider;
+import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.hateoas.core.EvoInflectorRelProvider;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -28,7 +26,10 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.pride.solr.indexes.pride.config.HttpSolrConfiguration;
+import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrDataset;
 import uk.ac.ebi.pride.ws.pride.controllers.DatasetController;
+import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
+import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 
 /**
@@ -66,7 +67,7 @@ public class Application {
 
     @Component
     @Primary
-    public class CustomObjectMapper extends ObjectMapper {
+    private class CustomObjectMapper extends ObjectMapper {
         public CustomObjectMapper() {
             setSerializationInclusion(JsonInclude.Include.NON_NULL);
             configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -90,5 +91,26 @@ public class Application {
                 .license("Apache License Version 2.0")
                 .version("2.0")
                 .build();
+    }
+
+    @Bean
+    public ResourceAssembler facetResourceAssembler(){
+        return new FacetsResourceAssembler();
+    }
+
+    @Bean
+    public HateoasPageableHandlerMethodArgumentResolver pageableResolver() {
+        return new HateoasPageableHandlerMethodArgumentResolver(sortResolver());
+    }
+
+    @Bean
+    public HateoasSortHandlerMethodArgumentResolver sortResolver() {
+        return new HateoasSortHandlerMethodArgumentResolver();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Bean
+    public CustomPagedResourcesAssembler<PrideSolrDataset> customPagedResourcesAssembler(){
+        return new CustomPagedResourcesAssembler<PrideSolrDataset>(pageableResolver(), facetResourceAssembler());
     }
 }

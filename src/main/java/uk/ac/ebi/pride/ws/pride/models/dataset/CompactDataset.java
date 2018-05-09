@@ -1,19 +1,16 @@
 package uk.ac.ebi.pride.ws.pride.models.dataset;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
+import org.springframework.hateoas.core.Relation;
 
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author ypriverol
@@ -24,6 +21,7 @@ import java.util.Set;
 @XmlRootElement(name = "dataset")
 @JsonRootName("dataset")
 @JsonTypeName("dataset")
+@Relation(collectionRelation = "datasets")
 public class CompactDataset implements Serializable {
 
     @XmlElement
@@ -55,5 +53,5 @@ public class CompactDataset implements Serializable {
     private Collection<String> diseases;
     private Set<String> references;
     private Set<String> identifiedPTMStrings;
-    private Map<String, String> highlights;
+    private Map<String, List<String>> highlights;
 }

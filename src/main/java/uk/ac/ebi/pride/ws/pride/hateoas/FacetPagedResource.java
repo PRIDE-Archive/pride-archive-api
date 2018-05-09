@@ -7,14 +7,15 @@ import org.springframework.hateoas.ResourceSupport;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 /**
+ * Facet and Paged resource in Spring Hateoas. This class enable to implements Paged and Facet in the same resource.
+ *
  * @author ypriverol
  */
 public class FacetPagedResource<T> extends PagedResources<T> {
 
-    private Map<String, Collection<ResourceSupport>> facets = new TreeMap<>();
+    private final Map<String, Collection<ResourceSupport>> facets;
 
     public FacetPagedResource(PagedResources<T> pagedResources, Map<String, Collection<ResourceSupport>> facets) {
         super(pagedResources.getContent(), pagedResources.getMetadata(), pagedResources.getLinks());
@@ -23,11 +24,6 @@ public class FacetPagedResource<T> extends PagedResources<T> {
 
     @JsonProperty("_facets")
     public Map<String, Collection<ResourceSupport>> getFacets() {
-        return facets;
-    }
-
-    @JsonProperty("_highlights")
-    public Map<String, Collection<ResourceSupport>> getHighlights() {
         return facets;
     }
 
