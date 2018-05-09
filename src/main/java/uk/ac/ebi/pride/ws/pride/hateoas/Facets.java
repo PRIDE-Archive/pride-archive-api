@@ -1,10 +1,13 @@
 package uk.ac.ebi.pride.ws.pride.hateoas;
 
+import org.springframework.hateoas.core.Relation;
+
 import java.util.List;
 
 /**
  * @author ypriverol
  */
+@Relation(collectionRelation = "facets")
 public class Facets {
 
     String field;

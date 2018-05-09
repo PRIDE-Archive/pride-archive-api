@@ -92,17 +92,17 @@ public class DatasetController {
     @RequestMapping(value = "/facets", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
     public HttpEntity facets(
             @RequestParam(value="query", defaultValue = "*:*", required = false) String query,
-            @RequestParam(value="limit", defaultValue = "100", required = false) long size,
-            @RequestParam(value="start", defaultValue = "0" ,required = false)   long start){
+            @RequestParam(value="limit", defaultValue = "40", required = false) long size,
+            @RequestParam(value="start", defaultValue = "0" ,required = false)   int start){
 
 
-        Page<PrideSolrDataset> solrProjects = solrProjectRepository.findAllFacetIgnoreCase(new PageRequest(0,200));
-        FacetResourceAssembler assembler = new FacetResourceAssembler(DatasetController.class, FacetResource.class);
+        Page<PrideSolrDataset> solrProjects = solrProjectRepository.findAllFacetIgnoreCase(new PageRequest(start,(int)size));
+        FacetResourceAssembler assembler = new FacetResourceAssembler(DatasetController.class, FacetResource.class, start);
 
         List<FacetResource> resources = assembler.toResources(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
-        long totalPages = totalElements / size;
+        int totalPages = (int) (totalElements / size);
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
 
         PagedResources pagedResources = new PagedResources(resources, pageMetadata,

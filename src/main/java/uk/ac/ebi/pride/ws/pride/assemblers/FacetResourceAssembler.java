@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrDataset, FacetResource> {
 
-    public FacetResourceAssembler(Class<?> controller, Class<FacetResource> resourceType) {
+    public FacetResourceAssembler(Class<?> controller, Class<FacetResource> resourceType, long page) {
         super(controller, resourceType);
     }
 
