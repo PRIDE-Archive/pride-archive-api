@@ -1,5 +1,8 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author ypriverol
  */
@@ -13,4 +16,5 @@ public class WsContastants {
     public static final String FACET_PARAM_NAME = "facet";
 
     public static final long MAX_PAGINATION_SIZE = 100;
+
 }

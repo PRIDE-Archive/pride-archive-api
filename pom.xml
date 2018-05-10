@@ -61,6 +61,12 @@
             <version>1.2.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-lucene4</artifactId>
+            <version>${querydsl.version}</version>
+        </dependency>
+
 
         <!-- Swagger Dependencies -->
         <dependency>

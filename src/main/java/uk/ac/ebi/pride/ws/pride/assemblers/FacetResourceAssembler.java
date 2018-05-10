@@ -1,14 +1,11 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
-import org.assertj.core.groups.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrDataset;
+import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.hateoas.Facet;
 import uk.ac.ebi.pride.ws.pride.hateoas.Facets;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
@@ -22,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author ypriverol
  */
-public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrDataset, FacetResource> {
+public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrProject, FacetResource> {
 
     public FacetResourceAssembler(Class<?> controller, Class<FacetResource> resourceType, long page) {
         super(controller, resourceType);
@@ -30,13 +27,13 @@ public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrDa
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<FacetResource> toResources(Iterable<? extends PrideSolrDataset> entities) {
+    public List<FacetResource> toResources(Iterable<? extends PrideSolrProject> entities) {
 
         List<FacetResource> facets = new ArrayList<>();
-        FacetPage<PrideSolrDataset> facetPages;
+        FacetPage<PrideSolrProject> facetPages;
 
         if(entities instanceof FacetAndHighlightPage){
-            facetPages = (FacetPage<PrideSolrDataset>) entities;
+            facetPages = (FacetPage<PrideSolrProject>) entities;
             Map<String, List<FacetEntry>> values = new HashMap<>();
             for(Page<? extends FacetEntry> facet: facetPages.getAllFacets()){
                values.putAll(facet.getContent().stream().collect(Collectors.groupingBy(entry -> entry.getKey().toString())));
@@ -49,6 +46,6 @@ public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrDa
 
 
     @Override
-    public FacetResource toResource(PrideSolrDataset prideSolrDataset) {
+    public FacetResource toResource(PrideSolrProject prideSolrDataset) {
         return null;
     }}

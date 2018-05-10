@@ -11,14 +11,14 @@ import org.springframework.hateoas.Resource;
  * @author yriverol
  */
 
-public class DatasetREsource extends Resource<CompactDataset>{
+public class ProjectResource extends Resource<CompactProject>{
 
     /**
      * Default constructor for Resource Dataset including hateoas links.
      * @param content Object that would be represented
      * @param links links.
      */
-    public DatasetREsource(CompactDataset content, Iterable<Link> links) {
+    public ProjectResource(CompactProject content, Iterable<Link> links) {
         super(content, links);
 
     }

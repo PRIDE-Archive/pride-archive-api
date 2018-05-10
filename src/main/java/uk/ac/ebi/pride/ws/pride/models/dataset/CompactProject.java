@@ -18,11 +18,11 @@ import java.util.*;
 
 @Data
 @Builder
-@XmlRootElement(name = "dataset")
-@JsonRootName("dataset")
-@JsonTypeName("dataset")
-@Relation(collectionRelation = "datasets")
-public class CompactDataset implements Serializable {
+@XmlRootElement(name = "project")
+@JsonRootName("project")
+@JsonTypeName("project")
+@Relation(collectionRelation = "projects")
+public class CompactProject implements Serializable {
 
     @XmlElement
     private String accession;

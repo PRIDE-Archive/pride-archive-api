@@ -5,10 +5,10 @@ import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrDataset;
-import uk.ac.ebi.pride.ws.pride.controllers.DatasetController;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactDataset;
-import uk.ac.ebi.pride.ws.pride.models.dataset.DatasetREsource;
+import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
+import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
+import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
+import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,26 +17,26 @@ import java.util.stream.Collectors;
  *
  * @author ypriverol
  */
-public class DatasetResourceAssembler extends ResourceAssemblerSupport<PrideSolrDataset, DatasetREsource> {
+public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolrProject, ProjectResource> {
 
-    public DatasetResourceAssembler(Class<?> controller, Class<DatasetREsource> resourceType) {
+    public ProjectResourceAssembler(Class<?> controller, Class<ProjectResource> resourceType) {
         super(controller, resourceType);
     }
 
     @Override
-    public DatasetREsource toResource(PrideSolrDataset prideSolrDataset) {
+    public ProjectResource toResource(PrideSolrProject prideSolrDataset) {
         return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<DatasetREsource> toResources(Iterable<? extends PrideSolrDataset> entities) {
+    public List<ProjectResource> toResources(Iterable<? extends PrideSolrProject> entities) {
 
-        List<DatasetREsource> datasets = new ArrayList<>();
+        List<ProjectResource> datasets = new ArrayList<>();
 
-        for(PrideSolrDataset prideSolrDataset: entities){
+        for(PrideSolrProject prideSolrDataset: entities){
 
-            CompactDataset dataset = CompactDataset.builder()
+            CompactProject dataset = CompactProject.builder()
                     .accession(prideSolrDataset.getAccession())
                     .title(prideSolrDataset.getTitle())
                     .projectDescription(prideSolrDataset.getProjectDescription())
@@ -61,12 +61,12 @@ public class DatasetResourceAssembler extends ResourceAssemblerSupport<PrideSolr
                     .updatedDate(prideSolrDataset.getUpdatedDate())
                     .build();
             if(entities instanceof FacetAndHighlightPage){
-                FacetAndHighlightPage<PrideSolrDataset> facetPages = (FacetAndHighlightPage<PrideSolrDataset>) entities;
+                FacetAndHighlightPage<PrideSolrProject> facetPages = (FacetAndHighlightPage<PrideSolrProject>) entities;
                 dataset.setHighlights(facetPages.getHighlights(prideSolrDataset).stream().collect(Collectors.toMap(x -> x.getField().getName(), HighlightEntry.Highlight::getSnipplets)));
             }
             List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(DatasetController.class).getDataset(prideSolrDataset.getAccession())).withSelfRel());
-            datasets.add(new DatasetREsource(dataset, links));
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getDataset(prideSolrDataset.getAccession())).withSelfRel());
+            datasets.add(new ProjectResource(dataset, links));
         }
 
         return datasets;

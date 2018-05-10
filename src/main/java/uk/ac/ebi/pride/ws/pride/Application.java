@@ -25,22 +25,23 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import uk.ac.ebi.pride.archive.dataprovider.dataset.ProjectProvider;
 import uk.ac.ebi.pride.solr.indexes.pride.config.HttpSolrConfiguration;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrDataset;
-import uk.ac.ebi.pride.ws.pride.controllers.DatasetController;
+import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
+import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 
 /**
- * Retrieve the datasets {@link uk.ac.ebi.pride.archive.dataprovider.dataset.DatasetProvider} from PRIDE Archive and the corresponding information.
+ * Retrieve the projects {@link ProjectProvider} from PRIDE Archive and the corresponding information.
  *
  * @author ypriverol
  *
  */
 
 @EnableSwagger2
-@SpringBootApplication(scanBasePackageClasses = {DatasetController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class})
+@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class})
 public class Application {
 
     public static void main(String[] args) {
@@ -110,7 +111,7 @@ public class Application {
 
     @SuppressWarnings("unchecked")
     @Bean
-    public CustomPagedResourcesAssembler<PrideSolrDataset> customPagedResourcesAssembler(){
-        return new CustomPagedResourcesAssembler<PrideSolrDataset>(pageableResolver(), facetResourceAssembler());
+    public CustomPagedResourcesAssembler<PrideSolrProject> customPagedResourcesAssembler(){
+        return new CustomPagedResourcesAssembler<PrideSolrProject>(pageableResolver(), facetResourceAssembler());
     }
 }
