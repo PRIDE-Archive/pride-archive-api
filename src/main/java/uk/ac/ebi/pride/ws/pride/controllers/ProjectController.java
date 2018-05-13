@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -50,14 +49,13 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)
     })
-    @RequestMapping(value = "/datasets", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
     public HttpEntity<PagedResources<ProjectResource>> projects(
-            @RequestParam(value="query", defaultValue = "*:*", required = false) String query,
+            @RequestParam(value="query", defaultValue = "*:*", required = false) List<String> keywords,
             @RequestParam(value="limit", defaultValue = "100", required = false) int size,
             @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
 
-        SimpleQuery querySolr = new SimpleQuery(query);
-        Page<PrideSolrProject> solrProjects = solrProjectRepository.findByKeyword(querySolr, new PageRequest(start, size));
+        Page<PrideSolrProject> solrProjects = solrProjectRepository.findByKeyword(keywords, new PageRequest(start, size));
         ProjectResourceAssembler assembler = new ProjectResourceAssembler(ProjectController.class, ProjectResource.class);
 
         List<ProjectResource> resources = assembler.toResources(solrProjects);
@@ -67,17 +65,17 @@ public class ProjectController {
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
 
         PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).projects(query, size, start))
+                linkTo(methodOn(ProjectController.class).projects(keywords, size, start))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).projects(query, size, start + 1))
+                linkTo(methodOn(ProjectController.class).projects(keywords, size, start + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).projects(query, size, start - 1))
+                linkTo(methodOn(ProjectController.class).projects(keywords, size, start - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).projects(query, size, 0))
+                linkTo(methodOn(ProjectController.class).projects(keywords, size, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).projects(query, size, (int) totalPages))
+                linkTo(methodOn(ProjectController.class).projects(keywords, size, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name()),
-                linkTo(methodOn(ProjectController.class).facets(query, WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.facets.name())
+                linkTo(methodOn(ProjectController.class).facets(keywords, WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.facets.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);
@@ -88,9 +86,9 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    @RequestMapping(value = "/facet/datasets", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
     public HttpEntity<PagedResources<FacetResource>> facets(
-            @RequestParam(value="query", defaultValue = "*:*", required = false) String query,
+            @RequestParam(value="query", defaultValue = "*:*", required = false) List<String> keywords,
             @RequestParam(value="limit", defaultValue = "40", required = false) long size,
             @RequestParam(value="start", defaultValue = "0" ,required = false)   int start){
 
@@ -105,15 +103,15 @@ public class ProjectController {
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
 
         PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).facets(query, size, start))
+                linkTo(methodOn(ProjectController.class).facets(keywords, size, start))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).facets(query, size, start + 1))
+                linkTo(methodOn(ProjectController.class).facets(keywords, size, start + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).facets(query, size, start - 1))
+                linkTo(methodOn(ProjectController.class).facets(keywords, size, start - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).facets(query, size, 0))
+                linkTo(methodOn(ProjectController.class).facets(keywords, size, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).facets(query, size, totalPages))
+                linkTo(methodOn(ProjectController.class).facets(keywords, size, totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
