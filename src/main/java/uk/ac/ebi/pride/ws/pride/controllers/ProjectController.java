@@ -47,17 +47,18 @@ public class ProjectController {
     }
 
 
-    @ApiOperation(notes = "Search all public projects in PRIDE Archive", value = "projects", nickname = "searchProjects", tags = {"projects"} )
+    @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
+            " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
+            " to filter the results for specific values. The strcuture of the filter _is_: field1:value1, field2:value2.", value = "projects", nickname = "searchProjects", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)
     })
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<ProjectResource>> projects(
-            @RequestParam(value="keyword", defaultValue = "*:*", required = false) List<String> keyword,
-            @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-            @RequestParam(value="limit", defaultValue = "100", required = false) int size,
-            @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<ProjectResource>> projects(@RequestParam(value="List of Keywords", defaultValue = "*:*", required = false) List<String> keyword,
+                                                                @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
+                                                                @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
+                                                                @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
 
         Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, new PageRequest(start, size));
         ProjectResourceAssembler assembler = new ProjectResourceAssembler(ProjectController.class, ProjectResource.class);
@@ -85,17 +86,16 @@ public class ProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
-    @ApiOperation(notes = "Returns the facets for projects search", value = "projects", nickname = "getProjectFacets", tags = {"projects"} )
+    @ApiOperation(notes = "Return the facets for an specific search query. This method is fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _size_, _start_. ", value = "projects", nickname = "getProjectFacets", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<FacetResource>> facets(
-            @RequestParam(value="keyword", defaultValue = "*:*", required = false) List<String> keyword,
-            @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-            @RequestParam(value="limit", defaultValue = "100", required = false) int size,
-            @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<FacetResource>> facets(@RequestParam(value="List of Keywords", defaultValue = "*:*", required = false) List<String> keyword,
+                                                            @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
+                                                            @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
+                                                            @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
 
 
         Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, new PageRequest(start,(int)size));
@@ -137,13 +137,14 @@ public class ProjectController {
 
 
 
-    @ApiOperation(notes = "List of PRIDE Projects", value = "projects", nickname = "getProjects", tags = {"projects"} )
+    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
+            "list is Paginated using the _size_ and _start_.", value = "projects", nickname = "getProjects", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)})
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public HttpEntity<ProjectResource> getProjects(@RequestParam(value="limit", defaultValue = "100", required = false) int size,
-                                                   @RequestParam(value="start", defaultValue = "0" ,  required = false) int start) {
+    public HttpEntity<ProjectResource> getProjects(@RequestParam(value="Number projects per page", defaultValue = "100", required = false) int size,
+                                                   @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start) {
         return null;
     }
 
