@@ -40,7 +40,7 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
                     .accession(prideSolrDataset.getAccession())
                     .title(prideSolrDataset.getTitle())
                     .projectDescription(prideSolrDataset.getProjectDescription())
-                    .additionalAttributes(new ArrayList<>(prideSolrDataset.getAdditionalAttributes()))
+                    .additionalAttributes(prideSolrDataset.getAdditionalAttributes())
                     .affiliations(prideSolrDataset.getAffiliations())
                     .dataProcessingProtocol(prideSolrDataset.getDataProcessingProtocol())
                     .sampleProcessingProtocol(prideSolrDataset.getSampleProcessingProtocol())
@@ -65,7 +65,7 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
                 dataset.setHighlights(facetPages.getHighlights(prideSolrDataset).stream().collect(Collectors.toMap(x -> x.getField().getName(), HighlightEntry.Highlight::getSnipplets)));
             }
             List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getDataset(prideSolrDataset.getAccession())).withSelfRel());
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
             datasets.add(new ProjectResource(dataset, links));
         }
 
