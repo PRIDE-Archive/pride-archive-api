@@ -10,7 +10,7 @@ import java.util.List;
 @Relation(collectionRelation = "facets")
 public class Facets {
 
-    String field;
+    private String field;
     List<Facet> values;
 
     public Facets(String field, List<Facet> values) {

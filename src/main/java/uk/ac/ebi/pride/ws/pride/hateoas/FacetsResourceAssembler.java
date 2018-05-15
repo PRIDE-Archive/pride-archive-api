@@ -16,6 +16,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -37,7 +38,7 @@ public class FacetsResourceAssembler implements ResourceAssembler<SimpleFacetFie
         UriComponentsBuilder uriComponentsBuilder = componentsBuilderFromCurrentRequest();
         MultiValueMap<String, String> newQueryParams = removePaginationParameters(cloneQueryParameters(uriComponentsBuilder.build().getQueryParams()));
 
-        String facetField = facetFieldEntry.getKey().getName();
+        String facetField = Objects.requireNonNull(facetFieldEntry.getKey()).getName();
         String facetValue = facetFieldEntry.getValue();
         List<String> queryParameter = newQueryParams.get(WsContastants.HateoasEnum.facets.name());
         String facetConstraint = buildFacetConstraint(facetField, facetValue);

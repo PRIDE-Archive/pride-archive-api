@@ -1,8 +1,5 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author ypriverol
  */

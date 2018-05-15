@@ -8,10 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
-import uk.ac.ebi.pride.solr.indexes.pride.repository.SolrProjectRepository;
 import uk.ac.ebi.pride.solr.indexes.pride.services.SolrProjectService;
 import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
@@ -23,7 +21,6 @@ import uk.ac.ebi.pride.ws.pride.utils.ErrorInfo;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
@@ -36,7 +33,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 @RestController
 public class ProjectController {
 
-    final SolrProjectService solrProjectService;
+    private final SolrProjectService solrProjectService;
 
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
@@ -98,7 +95,7 @@ public class ProjectController {
                                                             @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
 
 
-        Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, new PageRequest(start,(int)size));
+        Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, new PageRequest(start, size));
         FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, start);
 
         List<FacetResource> resources = assembler.toResources(solrProjects);
