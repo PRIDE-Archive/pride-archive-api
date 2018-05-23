@@ -25,7 +25,9 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
 
     @Override
     public ProjectResource toResource(PrideSolrProject prideSolrDataset) {
-        return null;
+        List<Link> links = new ArrayList<>();
+        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
+        return new ProjectResource(transform(prideSolrDataset), links);
     }
 
     @SuppressWarnings("unchecked")
@@ -35,31 +37,7 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
         List<ProjectResource> datasets = new ArrayList<>();
 
         for(PrideSolrProject prideSolrDataset: entities){
-
-            CompactProject dataset = CompactProject.builder()
-                    .accession(prideSolrDataset.getAccession())
-                    .title(prideSolrDataset.getTitle())
-                    .projectDescription(prideSolrDataset.getProjectDescription())
-                    .additionalAttributes(prideSolrDataset.getAdditionalAttributesStrings())
-                    .affiliations(prideSolrDataset.getAffiliations())
-                    .dataProcessingProtocol(prideSolrDataset.getDataProcessingProtocol())
-                    .sampleProcessingProtocol(prideSolrDataset.getSampleProcessingProtocol())
-                    .diseases(prideSolrDataset.getDiseases())
-                    .organisms(prideSolrDataset.getOrganisms())
-                    .organismParts(prideSolrDataset.getOrganismPart())
-                    .instruments(new ArrayList<>(prideSolrDataset.getInstruments()))
-                    .submitters(prideSolrDataset.getSubmitters())
-                    .keywords(prideSolrDataset.getKeywords())
-                    .projectTags(prideSolrDataset.getProjectTags())
-                    .labPIs(prideSolrDataset.getLabPIs())
-                    .identifiedPTMStrings(prideSolrDataset.getIdentifiedPTMStrings())
-                    .publicationDate(prideSolrDataset.getPublicationDate())
-                    .quantificationMethods(prideSolrDataset.getQuantificationMethods())
-                    .references(prideSolrDataset.getReferences())
-                    .softwares(prideSolrDataset.getSoftwares())
-                    .submissionDate(prideSolrDataset.getSubmissionDate())
-                    .updatedDate(prideSolrDataset.getUpdatedDate())
-                    .build();
+            CompactProject dataset = transform(prideSolrDataset);
             if(entities instanceof FacetAndHighlightPage){
                 FacetAndHighlightPage<PrideSolrProject> facetPages = (FacetAndHighlightPage<PrideSolrProject>) entities;
                 dataset.setHighlights(facetPages.getHighlights(prideSolrDataset).stream().collect(Collectors.toMap(x -> x.getField().getName(), HighlightEntry.Highlight::getSnipplets)));
@@ -70,6 +48,33 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
         }
 
         return datasets;
+    }
+
+    private CompactProject transform(PrideSolrProject prideSolrDataset){
+        return  CompactProject.builder()
+                .accession(prideSolrDataset.getAccession())
+                .title(prideSolrDataset.getTitle())
+                .projectDescription(prideSolrDataset.getProjectDescription())
+                .additionalAttributes(prideSolrDataset.getAdditionalAttributesStrings())
+                .affiliations(prideSolrDataset.getAffiliations())
+                .dataProcessingProtocol(prideSolrDataset.getDataProcessingProtocol())
+                .sampleProcessingProtocol(prideSolrDataset.getSampleProcessingProtocol())
+                .diseases(prideSolrDataset.getDiseases())
+                .organisms(prideSolrDataset.getOrganisms())
+                .organismParts(prideSolrDataset.getOrganismPart())
+                .instruments(new ArrayList<>(prideSolrDataset.getInstruments()))
+                .submitters(prideSolrDataset.getSubmitters())
+                .keywords(prideSolrDataset.getKeywords())
+                .projectTags(prideSolrDataset.getProjectTags())
+                .labPIs(prideSolrDataset.getLabPIs())
+                .identifiedPTMStrings(prideSolrDataset.getIdentifiedPTMStrings())
+                .publicationDate(prideSolrDataset.getPublicationDate())
+                .quantificationMethods(prideSolrDataset.getQuantificationMethods())
+                .references(prideSolrDataset.getReferences())
+                .softwares(prideSolrDataset.getSoftwares())
+                .submissionDate(prideSolrDataset.getSubmissionDate())
+                .updatedDate(prideSolrDataset.getUpdatedDate())
+                .build();
     }
 
 
