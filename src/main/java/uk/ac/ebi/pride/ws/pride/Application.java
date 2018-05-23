@@ -25,23 +25,25 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import uk.ac.ebi.pride.archive.dataprovider.dataset.ProjectProvider;
 import uk.ac.ebi.pride.solr.indexes.pride.config.HttpSolrConfiguration;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
+import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
+import uk.ac.ebi.pride.ws.pride.configs.SecurityJavaConfig;
+import uk.ac.ebi.pride.ws.pride.controllers.FileController;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 
 /**
- * Retrieve the projects {@link ProjectProvider} from PRIDE Archive and the corresponding information.
+ * Retrieve the projects {@link uk.ac.ebi.pride.archive.dataprovider.project.ProjectProvider} from PRIDE Archive and the corresponding information.
  *
  * @author ypriverol
  *
  */
 
 @EnableSwagger2
-@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class})
+@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, FileController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class, SecurityJavaConfig.class, MongoProjectConfig.class})
 public class Application {
 
     public static void main(String[] args) {

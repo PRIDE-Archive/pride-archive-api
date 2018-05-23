@@ -19,7 +19,8 @@
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.architectural-pride-spring.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-spring.version>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.archive.pride-solr-indexes.version>
-        <io.springfox.swagger.version>2.6.1</io.springfox.swagger.version>
+        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
+        <io.springfox.swagger.version>2.7.1</io.springfox.swagger.version>
     </properties>
 
     <dependencies>
@@ -44,6 +45,14 @@
             <artifactId>pride-solr-indexes</artifactId>
             <version>${uk.ac.ebi.pride.archive.pride-solr-indexes.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>uk.ac.ebi.pride.archive</groupId>
+            <artifactId>pride-mongodb-repo</artifactId>
+            <version>${uk.ac.ebi.pride.archive.pride-mongodb-repo.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

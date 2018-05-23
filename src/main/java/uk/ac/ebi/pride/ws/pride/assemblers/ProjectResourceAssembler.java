@@ -40,7 +40,7 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
                     .accession(prideSolrDataset.getAccession())
                     .title(prideSolrDataset.getTitle())
                     .projectDescription(prideSolrDataset.getProjectDescription())
-                    .additionalAttributes(prideSolrDataset.getAdditionalAttributes())
+                    .additionalAttributes(prideSolrDataset.getAdditionalAttributesStrings())
                     .affiliations(prideSolrDataset.getAffiliations())
                     .dataProcessingProtocol(prideSolrDataset.getDataProcessingProtocol())
                     .sampleProcessingProtocol(prideSolrDataset.getSampleProcessingProtocol())
