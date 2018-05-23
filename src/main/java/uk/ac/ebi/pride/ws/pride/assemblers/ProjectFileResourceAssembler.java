@@ -28,8 +28,25 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
     }
 
     @Override
-    public PrideFileResource toResource(MongoPrideFile prideSolrDataset) {
-        return null;
+    public PrideFileResource toResource(MongoPrideFile mongoFile) {
+        PrideFile file = PrideFile.builder()
+                .accession(mongoFile.getAccession())
+                .additionalAttributes(mongoFile.getAdditionalAttributes())
+                .analysisAccessions(mongoFile.getAnalysisAccessions())
+                .projectAccessions(mongoFile.getProjectAccessions())
+                .compress(mongoFile.isCompress())
+                .fileCategory(mongoFile.getFileCategory())
+                .fileName(mongoFile.getFileName())
+                .fileSizeBytes(mongoFile.getFileSizeBytes())
+                .md5Checksum(mongoFile.getMd5Checksum())
+                .publicationDate(mongoFile.getPublicationDate())
+                .publicFileLocations(mongoFile.getPublicFileLocations())
+                .updatedDate(mongoFile.getUpdatedDate())
+                .submissionDate(mongoFile.getSubmissionDate())
+                .build();
+        List<Link> links = new ArrayList<>();
+        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
+        return new PrideFileResource(file, links);
     }
 
     @SuppressWarnings("unchecked")
@@ -39,25 +56,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
         List<PrideFileResource> datasets = new ArrayList<>();
 
         for(MongoPrideFile mongoFile: entities){
-
-            PrideFile dataset = PrideFile.builder()
-                    .accession(mongoFile.getAccession())
-                    .additionalAttributes(mongoFile.getAdditionalAttributes())
-                    .analysisAccessions(mongoFile.getAnalysisAccessions())
-                    .projectAccessions(mongoFile.getProjectAccessions())
-                    .compress(mongoFile.isCompress())
-                    .fileCategory(mongoFile.getFileCategory())
-                    .fileName(mongoFile.getFileName())
-                    .fileSizeBytes(mongoFile.getFileSizeBytes())
-                    .md5Checksum(mongoFile.getMd5Checksum())
-                    .publicationDate(mongoFile.getPublicationDate())
-                    .publicFileLocations(mongoFile.getPublicFileLocations())
-                    .updatedDate(mongoFile.getUpdatedDate())
-                    .submissionDate(mongoFile.getSubmissionDate())
-                    .build();
-            List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
-            datasets.add(new PrideFileResource(dataset, links));
+            datasets.add(toResource(mongoFile));
         }
 
         return datasets;

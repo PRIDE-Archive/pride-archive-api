@@ -9,17 +9,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
+import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideFileMongoService;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.pride.services.SolrProjectService;
 import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 import org.springframework.http.HttpEntity;
 import uk.ac.ebi.pride.ws.pride.utils.ErrorInfo;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
+import java.io.File;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
@@ -37,10 +42,14 @@ public class ProjectController {
 
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
+    final PrideFileMongoService mongoFileService;
+
+
     @Autowired
-    public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler) {
+    public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler, PrideFileMongoService mongoFileService) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
+        this.mongoFileService = mongoFileService;
     }
 
 
@@ -143,6 +152,42 @@ public class ProjectController {
     public HttpEntity<ProjectResource> getProjects(@RequestParam(value="Number projects per page", defaultValue = "100", required = false) int size,
                                                    @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start) {
         return null;
+    }
+
+
+    @ApiOperation(notes = "Get all the Files for an specific project in PRIDE.", value = "projects", nickname = "getFilesByProject", tags = {"projects"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)
+    })
+    @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="Project accession") String projectAccession,
+                                                                           @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
+                                                                           @RequestParam(value="Number files per page ", defaultValue = "100", required = false) int size,
+                                                                           @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+
+        Page<MongoPrideFile> projectFiles = mongoFileService.findFilesByProjectAccessionAndFiler(projectAccession, filter, PageRequest.of(start, size));
+        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
+
+        List<PrideFileResource> resources = assembler.toResources(projectFiles);
+
+        long totalElements = projectFiles.getTotalElements();
+        long totalPages = totalElements / size;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+
+        PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, start)).withSelfRel(),
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, start + 1))
+                        .withRel(WsContastants.HateoasEnum.next.name()),
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession,filter, size, start - 1))
+                        .withRel(WsContastants.HateoasEnum.previous.name()),
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, 0))
+                        .withRel(WsContastants.HateoasEnum.first.name()),
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, (int) totalPages))
+                        .withRel(WsContastants.HateoasEnum.last.name())
+        ) ;
+
+        return new HttpEntity<>(pagedResources);
     }
 
 

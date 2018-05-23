@@ -6,13 +6,11 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideFileMongoService;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
@@ -24,7 +22,9 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.ErrorInfo;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -83,7 +83,21 @@ public class FileController {
         return new HttpEntity<>(pagedResources);
     }
 
-    public HttpEntity<PrideFile> getFile(String fileAccession) {
-        return null;
+    @ApiOperation(notes = "Get a File from PRIDE database", value = "files", nickname = "getFile", tags = {"files"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)
+    })
+    @RequestMapping(value = "/files/{fileAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    public HttpEntity<PrideFileResource> getFile(@PathVariable(value="File accession") String fileAccession) {
+
+        Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(fileAccession);
+
+        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
+        PrideFileResource resource = assembler.toResource(file.get());
+
+        return new HttpEntity<>(resource);
+
+
     }
 }
