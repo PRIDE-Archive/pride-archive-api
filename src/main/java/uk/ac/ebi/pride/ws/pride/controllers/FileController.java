@@ -51,9 +51,9 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<PrideFileResource>> files(@RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
-                                                                @RequestParam(value="Number files per page ", defaultValue = "100", required = false) int size,
-                                                                @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<PrideFileResource>> files(@RequestParam(value="filter", required = false, defaultValue = "''") String filter,
+                                                                @RequestParam(value="size", defaultValue = "100", required = false) int size,
+                                                                @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();
@@ -90,7 +90,7 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/files/{fileAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PrideFileResource> getFile(@PathVariable(value="File accession") String fileAccession) {
+    public HttpEntity<PrideFileResource> getFile(@PathVariable(value="fileAccession") String fileAccession) {
 
         Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(fileAccession);
 
@@ -106,8 +106,8 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources> getFiles(@RequestParam(value="Number files per page ", defaultValue = "100", required = false) int size,
-                                                  @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start) {
+    public HttpEntity<PagedResources> getFiles(@RequestParam(value="size", defaultValue = "100", required = false) int size,
+                                                  @RequestParam(value="start", defaultValue = "0" ,  required = false) int start) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();

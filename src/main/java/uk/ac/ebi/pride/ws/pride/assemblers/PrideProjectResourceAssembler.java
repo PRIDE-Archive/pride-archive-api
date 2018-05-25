@@ -38,16 +38,16 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
     @Override
     public List<ProjectResource> toResources(Iterable<? extends MongoPrideProject> entities) {
 
-        List<ProjectResource> datasets = new ArrayList<>();
+        List<ProjectResource> projects = new ArrayList<>();
 
         for(MongoPrideProject mongoPrideProject: entities){
-            PrideProject dataset = transform(mongoPrideProject);
+            PrideProject project = transform(mongoPrideProject);
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            datasets.add(new ProjectResource(dataset, links));
+            projects.add(new ProjectResource(project, links));
         }
 
-        return datasets;
+        return projects;
     }
 
     /**

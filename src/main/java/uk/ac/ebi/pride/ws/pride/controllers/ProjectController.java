@@ -1,11 +1,10 @@
 package uk.ac.ebi.pride.ws.pride.controllers;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -71,10 +70,10 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<CompactProjectResource>> projects(@RequestParam(value="List of Keywords", defaultValue = "*:*", required = false) List<String> keyword,
-                                                                       @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
-                                                                       @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
-                                                                       @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<CompactProjectResource>> projects(@RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
+                                                                       @RequestParam(name="filter",  defaultValue = "''") String filter,
+                                                                       @RequestParam(name="size",  defaultValue = "100") int size,
+                                                                       @RequestParam(name="start" , defaultValue = "0" ) int start){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();
@@ -112,10 +111,10 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<FacetResource>> facets(@RequestParam(value="List of Keywords", defaultValue = "*:*", required = false) List<String> keyword,
-                                                            @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
-                                                            @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
-                                                            @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<FacetResource>> facets(@RequestParam(value="keyword", defaultValue = "*:*", required = false) List<String> keyword,
+                                                            @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
+                                                            @RequestParam(value="size", defaultValue = "100", required = false) int size,
+                                                            @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();
@@ -171,13 +170,34 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public HttpEntity<CompactProjectResource> getProjects(@RequestParam(value="Number projects per page", defaultValue = "100", required = false) int size,
-                                                          @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start) {
+    public HttpEntity<PagedResources> getProjects(@RequestParam(value="size", defaultValue = "100", required = false) int size,
+                                                          @RequestParam(value="start", defaultValue = "0" ,  required = false) int start) {
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();
         size = pageParams.getValue();
 
-        return null;
+        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(start, size));
+        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(ProjectController.class, ProjectResource.class);
+
+        List<ProjectResource> resources = assembler.toResources(mongoProjects);
+
+        long totalElements = mongoProjects.getTotalElements();
+        long totalPages = totalElements / size;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+
+        PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+                linkTo(methodOn(ProjectController.class).getProjects( size, start)).withSelfRel(),
+                linkTo(methodOn(ProjectController.class).getProjects(size, start + 1))
+                        .withRel(WsContastants.HateoasEnum.next.name()),
+                linkTo(methodOn(ProjectController.class).getProjects( size, start - 1))
+                        .withRel(WsContastants.HateoasEnum.previous.name()),
+                linkTo(methodOn(ProjectController.class).getProjects(size, 0))
+                        .withRel(WsContastants.HateoasEnum.first.name()),
+                linkTo(methodOn(ProjectController.class).getProjects(size, (int) totalPages))
+                        .withRel(WsContastants.HateoasEnum.last.name())
+        ) ;
+
+        return new HttpEntity<>(pagedResources);
     }
 
 
@@ -187,10 +207,10 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="Project accession") String projectAccession,
-                                                                           @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
-                                                                           @RequestParam(value="Number files per page ", defaultValue = "100", required = false) int size,
-                                                                           @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="projectAccession") String projectAccession,
+                                                                           @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
+                                                                           @RequestParam(value="size", defaultValue = "100", required = false) int size,
+                                                                           @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();
