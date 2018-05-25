@@ -1,16 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
-import org.springframework.data.domain.Page;
-import org.springframework.hateoas.PagedResources;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.controllers.FileController;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
-
-import java.util.List;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -26,5 +16,13 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  * Created by ypriverol (ypriverol@gmail.com) on 23/05/2018.
  */
 public class WsUtils {
+
+    public static Tuple<Integer, Integer> validatePageLimit(int start, int size){
+        if(size > WsContastants.MAX_PAGINATION_SIZE || size < 0 )
+            size = WsContastants.MAX_PAGINATION_SIZE;
+        if(start < 0)
+            start = 0;
+        return new Tuple<>(start, size);
+    }
 
 }

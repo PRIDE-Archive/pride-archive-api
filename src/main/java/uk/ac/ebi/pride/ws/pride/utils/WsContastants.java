@@ -12,7 +12,8 @@ public class WsContastants {
     public static final String QUERY_PARAM_NAME = "q";
     public static final String FACET_PARAM_NAME = "facet";
 
-    public static final long MAX_PAGINATION_SIZE = 100;
+    public static final int MAX_PAGINATION_SIZE = 100;
+    public static final int MINOR_PAGINATION     = 0;
 
     public static String CONNECTIONS_PER_HOST = "10";
 
@@ -28,6 +29,9 @@ public class WsContastants {
 
     public static String WRITE_CONCERN = "NORMAL";
 
-    public static String READ_PREFRENCE = "SECONDARY";
+    public static String READ_PREFERENCE = "SECONDARY";
+
+    public static String PX_PROJECT_NOT_FOUND = "The project accession is not in the database -- ";
+    public static String CONTACT_PRIDE = " Contact pride support: pride-support@ebi.ac.uk";
 
 }

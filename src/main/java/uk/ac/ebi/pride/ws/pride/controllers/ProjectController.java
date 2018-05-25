@@ -7,30 +7,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideFileMongoService;
+import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.pride.services.SolrProjectService;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProjectResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.CompactProjectResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
-import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
-import org.springframework.http.HttpEntity;
-import uk.ac.ebi.pride.ws.pride.utils.ErrorInfo;
+import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
+import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
+import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
 /**
- * The dataset Controller enables to retrieve the information for each PRIDE Project/ProjectResource through a RestFull API.
+ * The dataset Controller enables to retrieve the information for each PRIDE Project/CompactProjectResource through a RestFull API.
  *
  * @author ypriverol
  */
@@ -44,12 +49,17 @@ public class ProjectController {
 
     final PrideFileMongoService mongoFileService;
 
+    final PrideProjectMongoService mongoProjectService;
+
 
     @Autowired
-    public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler, PrideFileMongoService mongoFileService) {
+    public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler,
+                             PrideFileMongoService mongoFileService,
+                             PrideProjectMongoService mongoProjectService) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
+        this.mongoProjectService = mongoProjectService;
     }
 
 
@@ -57,25 +67,29 @@ public class ProjectController {
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
             " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"} )
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<ProjectResource>> projects(@RequestParam(value="List of Keywords", defaultValue = "*:*", required = false) List<String> keyword,
-                                                                @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
-                                                                @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
-                                                                @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+    public HttpEntity<PagedResources<CompactProjectResource>> projects(@RequestParam(value="List of Keywords", defaultValue = "*:*", required = false) List<String> keyword,
+                                                                       @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
+                                                                       @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
+                                                                       @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
+        start = pageParams.getKey();
+        size = pageParams.getValue();
 
         Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(start, size));
-        ProjectResourceAssembler assembler = new ProjectResourceAssembler(ProjectController.class, ProjectResource.class);
+        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(ProjectController.class, CompactProjectResource.class);
 
-        List<ProjectResource> resources = assembler.toResources(solrProjects);
+        List<CompactProjectResource> resources = assembler.toResources(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
         long totalPages = totalElements / size;
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
 
-        PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, start))
                         .withSelfRel(),
                 linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, start + 1))
@@ -86,7 +100,7 @@ public class ProjectController {
                         .withRel(WsContastants.HateoasEnum.first.name()),
                 linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, (int) WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.facets.name())
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.facets.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);
@@ -103,6 +117,9 @@ public class ProjectController {
                                                             @RequestParam(value="Number projects per page ", defaultValue = "100", required = false) int size,
                                                             @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
 
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
+        start = pageParams.getKey();
+        size = pageParams.getValue();
 
         Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(start, size));
         FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, start);
@@ -137,8 +154,13 @@ public class ProjectController {
     })
 
     @RequestMapping(value = "/projects/{accession}", method = RequestMethod.GET)
-    public HttpEntity<ProjectResource> getProject(@PathVariable(value = "accession", required = true, name = "accession") String accession) {
-        return null;
+    public ResponseEntity<Object> getProject(@PathVariable(value = "accession", required = true, name = "accession") String accession){
+
+        Optional<MongoPrideProject> project = mongoProjectService.findByAccession(accession);
+        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(ProjectController.class, ProjectResource.class);
+        return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.ACCEPTED))
+                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+
     }
 
 
@@ -146,25 +168,34 @@ public class ProjectController {
     @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
             "list is Paginated using the _size_ and _start_.", value = "projects", nickname = "getProjects", tags = {"projects"} )
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)})
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public HttpEntity<ProjectResource> getProjects(@RequestParam(value="Number projects per page", defaultValue = "100", required = false) int size,
-                                                   @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start) {
+    public HttpEntity<CompactProjectResource> getProjects(@RequestParam(value="Number projects per page", defaultValue = "100", required = false) int size,
+                                                          @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start) {
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
+        start = pageParams.getKey();
+        size = pageParams.getValue();
+
         return null;
     }
 
 
     @ApiOperation(notes = "Get all the Files for an specific project in PRIDE.", value = "projects", nickname = "getFilesByProject", tags = {"projects"} )
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ErrorInfo.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorInfo.class)
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
     public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="Project accession") String projectAccession,
                                                                            @RequestParam(value="Filter by property", required = false, defaultValue = "''") String filter,
                                                                            @RequestParam(value="Number files per page ", defaultValue = "100", required = false) int size,
                                                                            @RequestParam(value="Page number", defaultValue = "0" ,  required = false) int start){
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
+        start = pageParams.getKey();
+        size = pageParams.getValue();
+
 
         Page<MongoPrideFile> projectFiles = mongoFileService.findFilesByProjectAccessionAndFiler(projectAccession, filter, PageRequest.of(start, size));
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);

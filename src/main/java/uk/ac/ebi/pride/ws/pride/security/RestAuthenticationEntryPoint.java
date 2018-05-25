@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.ws.pride.security;
 
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

@@ -1,16 +1,10 @@
 package uk.ac.ebi.pride.ws.pride.configs;
 
-import com.mongodb.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import uk.ac.ebi.pride.mongodb.configs.AbstractPrideMongoConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author ypriverol

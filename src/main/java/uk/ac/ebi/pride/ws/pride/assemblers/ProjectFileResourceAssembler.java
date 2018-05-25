@@ -1,22 +1,15 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
-import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
-import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.controllers.FileController;
-import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFile;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
-import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author ypriverol

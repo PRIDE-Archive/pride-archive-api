@@ -8,7 +8,7 @@ import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
-import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
+import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,24 +17,24 @@ import java.util.stream.Collectors;
  *
  * @author ypriverol
  */
-public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolrProject, ProjectResource> {
+public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolrProject, CompactProjectResource> {
 
-    public ProjectResourceAssembler(Class<?> controller, Class<ProjectResource> resourceType) {
+    public CompactProjectResourceAssembler(Class<?> controller, Class<CompactProjectResource> resourceType) {
         super(controller, resourceType);
     }
 
     @Override
-    public ProjectResource toResource(PrideSolrProject prideSolrDataset) {
+    public CompactProjectResource toResource(PrideSolrProject prideSolrDataset) {
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
-        return new ProjectResource(transform(prideSolrDataset), links);
+        return new CompactProjectResource(transform(prideSolrDataset), links);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ProjectResource> toResources(Iterable<? extends PrideSolrProject> entities) {
+    public List<CompactProjectResource> toResources(Iterable<? extends PrideSolrProject> entities) {
 
-        List<ProjectResource> datasets = new ArrayList<>();
+        List<CompactProjectResource> datasets = new ArrayList<>();
 
         for(PrideSolrProject prideSolrDataset: entities){
             CompactProject dataset = transform(prideSolrDataset);
@@ -44,12 +44,17 @@ public class ProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolr
             }
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
-            datasets.add(new ProjectResource(dataset, links));
+            datasets.add(new CompactProjectResource(dataset, links));
         }
 
         return datasets;
     }
 
+    /**
+     * Transform  Solr Project into Compact Project
+     * @param prideSolrDataset solr project
+     * @return CompactProject
+     */
     private CompactProject transform(PrideSolrProject prideSolrDataset){
         return  CompactProject.builder()
                 .accession(prideSolrDataset.getAccession())
