@@ -1,10 +1,14 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
+import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
+import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
+import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
@@ -25,7 +29,34 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
 
     @Override
     public ProjectResource toResource(MongoPrideProject mongoPrideProject) {
-        PrideProject project = PrideProject.builder().accession(mongoPrideProject.getAccession())
+        List<Link> links = new ArrayList<>();
+        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+        return new ProjectResource(transform(mongoPrideProject), links);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ProjectResource> toResources(Iterable<? extends MongoPrideProject> entities) {
+
+        List<ProjectResource> datasets = new ArrayList<>();
+
+        for(MongoPrideProject mongoPrideProject: entities){
+            PrideProject dataset = transform(mongoPrideProject);
+            List<Link> links = new ArrayList<>();
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+            datasets.add(new ProjectResource(dataset, links));
+        }
+
+        return datasets;
+    }
+
+    /**
+     * Transform the original mongo Project to {@link PrideProject} that is used to external users.
+     * @param mongoPrideProject {@link MongoPrideProject}
+     * @return Pride Project
+     */
+    public PrideProject transform(MongoPrideProject mongoPrideProject){
+        return PrideProject.builder().accession(mongoPrideProject.getAccession())
                 .projectDescription(mongoPrideProject.getDescription())
                 .projectTags(mongoPrideProject.getProjectTags())
                 .additionalAttributes(mongoPrideProject.getAttributes())
@@ -38,8 +69,6 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .doi(mongoPrideProject.getDoi().get())
                 .publicationDate(mongoPrideProject.getPublicationDate())
                 .submissionDate(mongoPrideProject.getSubmissionDate()).build();
-        List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-        return new ProjectResource(project, links);
     }
+
 }
