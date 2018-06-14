@@ -11,6 +11,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.hateoas.RelProvider;
@@ -29,6 +30,8 @@ import uk.ac.ebi.pride.solr.indexes.pride.config.HttpSolrConfiguration;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SecurityJavaConfig;
+import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
+import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
 import uk.ac.ebi.pride.ws.pride.controllers.FileController;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
@@ -42,30 +45,18 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  *
  */
 
-@EnableSwagger2
-@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, FileController.class, SimpleCORSFilter.class, HttpSolrConfiguration.class, SecurityJavaConfig.class, MongoProjectConfig.class})
+
+@SpringBootApplication(scanBasePackageClasses = {ProjectController.class,
+        FileController.class, SimpleCORSFilter.class,
+        SolrCloudConfig.class, SecurityJavaConfig.class,
+        MongoProjectConfig.class, SwaggerConfig.class})
 public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    public Docket swaggerSpringMvcPlugin() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(paths())
-                .build().apiInfo(apiInfo());
-    }
 
-    /**
-     * This function exclude all the paths we don't want to show in the swagger documentation.
-     * @return List of paths
-     */
-    private Predicate<String> paths() {
-            return Predicates.not(PathSelectors.regex("/error"));
-    }
 
 
     @Component
@@ -84,16 +75,6 @@ public class Application {
     @Bean
     public RelProvider relProvider() {
         return new EvoInflectorRelProvider();
-    }
-
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("PRIDE Archive Restful WS")
-                .description("The PRIDE PRoteomics IDEntifications (PRIDE) database is a centralized, standards compliant, public data repository for proteomics data, including protein and peptide identifications, post-translational modifications and supporting spectral evidence. ")
-                .contact(new Contact("PRIDE Support Team", "www.ebi.ac.uk/pride", "pride-support@ebi.ac.uk"))
-                .license("Apache License Version 2.0")
-                .version("2.0")
-                .build();
     }
 
     @Bean

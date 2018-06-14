@@ -56,18 +56,11 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/search/**").permitAll()
-               // .antMatchers("/api/customer/**").permitAll()
-               // .antMatchers("/api/foos/**").authenticated()
-               // .antMatchers("/api/async/**").permitAll()
-               // .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .and()
                 .httpBasic()
-//        .and()
-//        .successHandler(authenticationSuccessHandler)
-//        .failureHandler(new SimpleUrlAuthenticationFailureHandler())
                 .and()
                 .logout();
-    } // @formatter:on
+    }
 
     @Bean
     public SavedRequestAwareAuthenticationSuccessHandler mySuccessHandler() {

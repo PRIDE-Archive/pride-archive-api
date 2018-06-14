@@ -1,17 +1,21 @@
 package uk.ac.ebi.pride.ws.pride.configs;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import uk.ac.ebi.pride.mongodb.configs.AbstractPrideMongoConfiguration;
 
 /**
  * @author ypriverol
  */
-@ComponentScan(basePackages = "uk.ac.ebi.pride.mongodb.archive.service.projects")
-@EnableMongoRepositories(basePackages = "uk.ac.ebi.pride.mongodb.archive.repo.projects")
 @Configuration
+@EnableTransactionManagement
+@ComponentScan(basePackages = {"uk.ac.ebi.pride.mongodb.archive.service"})
+@EnableMongoRepositories(basePackages = "uk.ac.ebi.pride.mongodb.archive.repo")
+@EnableAutoConfiguration
 public class MongoProjectConfig extends AbstractPrideMongoConfiguration {
 
     @Value("${mongodb.project.database}")
@@ -40,6 +44,9 @@ public class MongoProjectConfig extends AbstractPrideMongoConfiguration {
 
     @Value("${mongodb.projects.single.machine.host}")
     private String mongoHost;
+
+    @Value("${mongodb.projects.machine.uri}")
+    private String mongoURI;
 
     @Override
     protected String getDatabaseName() {
@@ -84,5 +91,10 @@ public class MongoProjectConfig extends AbstractPrideMongoConfiguration {
     @Override
     public String getMongoHost() {
         return mongoHost;
+    }
+
+    @Override
+    public String getMongoURI() {
+        return mongoURI;
     }
 }
