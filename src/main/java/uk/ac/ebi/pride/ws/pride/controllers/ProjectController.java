@@ -162,8 +162,6 @@ public class ProjectController {
 
     }
 
-
-
     @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
             "list is Paginated using the _size_ and _start_.", value = "projects", nickname = "getProjects", tags = {"projects"} )
     @ApiResponses({

@@ -57,8 +57,6 @@ public class Application {
     }
 
 
-
-
     @Component
     @Primary
     private class CustomObjectMapper extends ObjectMapper {

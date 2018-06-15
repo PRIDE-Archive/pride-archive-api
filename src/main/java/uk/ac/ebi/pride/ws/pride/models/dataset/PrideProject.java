@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import org.springframework.hateoas.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.reference.ReferenceProvider;
@@ -37,7 +38,7 @@ public class PrideProject {
     @XmlElement
     private String accession;
     private String title;
-    private Collection<CvParamProvider> additionalAttributes = new ArrayList<>();
+    private Collection<? extends CvParamProvider> additionalAttributes = new ArrayList<>();
     private String projectDescription;
     private String sampleProcessingProtocol;
     private String dataProcessingProtocol;

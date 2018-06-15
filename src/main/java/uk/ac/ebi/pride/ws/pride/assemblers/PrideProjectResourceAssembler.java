@@ -13,8 +13,7 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,7 +55,10 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
      * @return Pride Project
      */
     public PrideProject transform(MongoPrideProject mongoPrideProject){
-        return PrideProject.builder().accession(mongoPrideProject.getAccession())
+        return PrideProject.builder()
+                .accession(mongoPrideProject.getAccession())
+                .title(mongoPrideProject.getTitle())
+                .references(new HashSet<>(mongoPrideProject.getCompleteReferences()))
                 .projectDescription(mongoPrideProject.getDescription())
                 .projectTags(mongoPrideProject.getProjectTags())
                 .additionalAttributes(mongoPrideProject.getAttributes())
@@ -64,11 +66,14 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .identifiedPTMStrings(mongoPrideProject.getPtmList().stream().collect(Collectors.toSet()))
                 .sampleProcessingProtocol(mongoPrideProject.getSampleProcessingProtocol())
                 .dataProcessingProtocol(mongoPrideProject.getDataProcessingProtocol())
-                .countries(mongoPrideProject.getCountries().stream().collect(Collectors.toSet()))
+                .countries(mongoPrideProject.getCountries() != null ? new HashSet<>(mongoPrideProject.getCountries()) : Collections.EMPTY_SET)
                 .keywords(mongoPrideProject.getKeywords())
-                .doi(mongoPrideProject.getDoi().get())
+                .doi(mongoPrideProject.getDoi().isPresent()?mongoPrideProject.getDoi().get():null)
                 .publicationDate(mongoPrideProject.getPublicationDate())
-                .submissionDate(mongoPrideProject.getSubmissionDate()).build();
+                .submissionDate(mongoPrideProject.getSubmissionDate())
+                .instruments(new ArrayList<>(mongoPrideProject.getInstrumentsCvParams()))
+                .quantificationMethods(new ArrayList<>(mongoPrideProject.getQuantificationParams()))
+                .build();
     }
 
 }
