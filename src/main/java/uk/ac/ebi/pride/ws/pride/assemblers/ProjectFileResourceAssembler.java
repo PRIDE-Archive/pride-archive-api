@@ -32,6 +32,8 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
         List<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null? mongoFile.getPublicFileLocations().stream()
                 .map( x -> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
 
+        System.out.println(mongoFile);
+
         CvParamProvider category = mongoFile.getFileCategory() != null? new DefaultCvParam(mongoFile.getFileCategory().getCvLabel(),
                 mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()): null;
 
