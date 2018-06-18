@@ -52,32 +52,32 @@ public class FileController {
     })
     @RequestMapping(value = "/search/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
     public HttpEntity<PagedResources<PrideFileResource>> files(@RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                                                @RequestParam(value="size", defaultValue = "100", required = false) int size,
-                                                                @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
+                                                                @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
+                                                                @RequestParam(value="page", defaultValue = "0" ,  required = false) int page){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
-        start = pageParams.getKey();
-        size = pageParams.getValue();
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
 
-        Page<MongoPrideFile> projectFiles = mongoFileService.searchFiles(filter, PageRequest.of(start, size));
+        Page<MongoPrideFile> projectFiles = mongoFileService.searchFiles(filter, PageRequest.of(page, pageSize));
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
 
         List<PrideFileResource> resources = assembler.toResources(projectFiles);
 
         long totalElements = projectFiles.getTotalElements();
-        long totalPages = totalElements / size;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(FileController.class).files(filter, size, start))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(FileController.class).files(filter, size, start + 1))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, page + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(FileController.class).files(filter, size, start - 1))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, page - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(FileController.class).files(filter, size, 0))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(FileController.class).files(filter, size, (int) totalPages))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
@@ -106,33 +106,33 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources> getFiles(@RequestParam(value="size", defaultValue = "100", required = false) int size,
-                                                  @RequestParam(value="start", defaultValue = "0" ,  required = false) int start) {
+    public HttpEntity<PagedResources> getFiles(@RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
+                                                  @RequestParam(value="page", defaultValue = "0" ,  required = false) int page) {
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
-        start = pageParams.getKey();
-        size = pageParams.getValue();
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
 
 
-        Page<MongoPrideFile> projectFiles = mongoFileService.findAll(PageRequest.of(start, size));
+        Page<MongoPrideFile> projectFiles = mongoFileService.findAll(PageRequest.of(page, pageSize));
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
 
         List<PrideFileResource> resources = assembler.toResources(projectFiles);
 
         long totalElements = projectFiles.getTotalElements();
-        long totalPages = totalElements / size;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(FileController.class).getFiles(size, start))
+                linkTo(methodOn(FileController.class).getFiles(pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(FileController.class).getFiles( size, start + 1))
+                linkTo(methodOn(FileController.class).getFiles( pageSize, page + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(FileController.class).getFiles(size, start - 1))
+                linkTo(methodOn(FileController.class).getFiles(pageSize, page - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(FileController.class).getFiles( size, 0))
+                linkTo(methodOn(FileController.class).getFiles( pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(FileController.class).getFiles(size, (int) totalPages))
+                linkTo(methodOn(FileController.class).getFiles(pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 

@@ -4,7 +4,6 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -69,35 +68,35 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources<CompactProjectResource>> projects(@RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
                                                                        @RequestParam(name="filter",  defaultValue = "''") String filter,
-                                                                       @RequestParam(name="size",  defaultValue = "100") int size,
-                                                                       @RequestParam(name="start" , defaultValue = "0" ) int start){
+                                                                       @RequestParam(name="pageSize",  defaultValue = "100") int pageSize,
+                                                                       @RequestParam(name="page" , defaultValue = "0" ) int page){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
-        start = pageParams.getKey();
-        size = pageParams.getValue();
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
 
-        Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(start, size));
+        Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(page, pageSize));
         CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(ProjectController.class, CompactProjectResource.class);
 
         List<CompactProjectResource> resources = assembler.toResources(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
-        long totalPages = totalElements / size;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, start))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, start + 1))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, start - 1))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, 0))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, size, (int) totalPages))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name()),
                 linkTo(methodOn(ProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.facets.name())
         ) ;
@@ -105,40 +104,40 @@ public class ProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
-    @ApiOperation(notes = "Return the facets for an specific search query. This method is fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _size_, _start_. ", value = "projects", nickname = "getProjectFacets", tags = {"projects"} )
+    @ApiOperation(notes = "Return the facets for an specific search query. This method is fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _pageSize_, _page_. ", value = "projects", nickname = "getProjectFacets", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources<FacetResource>> facets(@RequestParam(value="keyword", defaultValue = "*:*", required = false) List<String> keyword,
                                                             @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                                            @RequestParam(value="size", defaultValue = "100", required = false) int size,
-                                                            @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
+                                                            @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
+                                                            @RequestParam(value="page", defaultValue = "0" ,  required = false) int page){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
-        start = pageParams.getKey();
-        size = pageParams.getValue();
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
 
-        Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(start, size));
-        FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, start);
+        Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(page, pageSize));
+        FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, page);
 
         List<FacetResource> resources = assembler.toResources(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
-        int totalPages = (int) (totalElements / size);
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+        int totalPages = (int) (totalElements / pageSize);
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, size, start))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, size, start + 1))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, size, start - 1))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, size, 0))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, size, totalPages))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
@@ -152,7 +151,7 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
     })
 
-    @RequestMapping(value = "/projects/{accession}", method = RequestMethod.GET)
+    @RequestMapping(value = "/projects/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Object> getProject(@PathVariable(value = "accession", required = true, name = "accession") String accession){
 
         Optional<MongoPrideProject> project = mongoProjectService.findByAccession(accession);
@@ -163,35 +162,35 @@ public class ProjectController {
     }
 
     @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
-            "list is Paginated using the _size_ and _start_.", value = "projects", nickname = "getProjects", tags = {"projects"} )
+            "list is Paginated using the _pageSize_ and _page_.", value = "projects", nickname = "getProjects", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public HttpEntity<PagedResources> getProjects(@RequestParam(value="size", defaultValue = "100", required = false) int size,
-                                                          @RequestParam(value="start", defaultValue = "0" ,  required = false) int start) {
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
-        start = pageParams.getKey();
-        size = pageParams.getValue();
+    public HttpEntity<PagedResources> getProjects(@RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
+                                                          @RequestParam(value="page", defaultValue = "0" ,  required = false) int page) {
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
 
-        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(start, size));
+        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize));
         PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(ProjectController.class, ProjectResource.class);
 
         List<ProjectResource> resources = assembler.toResources(mongoProjects);
 
         long totalElements = mongoProjects.getTotalElements();
-        long totalPages = totalElements / size;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).getProjects( size, start)).withSelfRel(),
-                linkTo(methodOn(ProjectController.class).getProjects(size, start + 1))
+                linkTo(methodOn(ProjectController.class).getProjects( pageSize, page)).withSelfRel(),
+                linkTo(methodOn(ProjectController.class).getProjects(pageSize, page + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).getProjects( size, start - 1))
+                linkTo(methodOn(ProjectController.class).getProjects( pageSize, page - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).getProjects(size, 0))
+                linkTo(methodOn(ProjectController.class).getProjects(pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).getProjects(size, (int) totalPages))
+                linkTo(methodOn(ProjectController.class).getProjects(pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
@@ -204,35 +203,35 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="accession") String projectAccession,
                                                                            @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                                                           @RequestParam(value="size",  defaultValue = "100", required = false) Integer size,
-                                                                           @RequestParam(value="start", defaultValue = "0" ,  required = false) Integer start){
+                                                                           @RequestParam(value="pageSize",  defaultValue = "100", required = false) Integer pageSize,
+                                                                           @RequestParam(value="page", defaultValue = "0" ,  required = false) Integer page){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
-        start = pageParams.getKey();
-        size = pageParams.getValue();
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
 
 
-        Page<MongoPrideFile> projectFiles = mongoFileService.findFilesByProjectAccessionAndFiler(projectAccession, filter, PageRequest.of(start, size));
+        Page<MongoPrideFile> projectFiles = mongoFileService.findFilesByProjectAccessionAndFiler(projectAccession, filter, PageRequest.of(page, pageSize));
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
 
         List<PrideFileResource> resources = assembler.toResources(projectFiles);
 
         long totalElements = projectFiles.getTotalElements();
-        long totalPages = totalElements / size;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(size, start, totalElements, totalPages);
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, start)).withSelfRel(),
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, start + 1))
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, page)).withSelfRel(),
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, page + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession,filter, size, start - 1))
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession,filter, pageSize, page - 1))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, 0))
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, size, (int) totalPages))
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
