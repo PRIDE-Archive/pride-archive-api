@@ -1,18 +1,15 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
-import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
-import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
+import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +27,18 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
     public ProjectResource toResource(MongoPrideProject mongoPrideProject) {
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+
+        // This needs to be build in a different way
+
+        Method method = null;
+        try {
+            method = ProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class);
+            Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0).withRel(WsContastants.HateoasEnum.files.name());
+            links.add(link);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
         return new ProjectResource(transform(mongoPrideProject), links);
     }
 
@@ -43,6 +52,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
             PrideProject project = transform(mongoPrideProject);
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.files.name()));
             projects.add(new ProjectResource(project, links));
         }
 
@@ -73,6 +83,10 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .submissionDate(mongoPrideProject.getSubmissionDate())
                 .instruments(new ArrayList<>(mongoPrideProject.getInstrumentsCvParams()))
                 .quantificationMethods(new ArrayList<>(mongoPrideProject.getQuantificationParams()))
+                .softwares(new ArrayList<>(mongoPrideProject.getSoftwareParams()))
+                .submitters(new ArrayList<>(mongoPrideProject.getSubmittersContacts()))
+                .labPIs(new ArrayList<>(mongoPrideProject.getLabHeadContacts()))
+                .sampleAttributes(mongoPrideProject.getSampleAttributes() !=null?new ArrayList(mongoPrideProject.getSampleAttributes()): Collections.EMPTY_LIST)
                 .build();
     }
 

@@ -205,10 +205,10 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
-    public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="projectAccession") String projectAccession,
+    public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(@PathVariable(value ="accession") String projectAccession,
                                                                            @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                                                           @RequestParam(value="size", defaultValue = "100", required = false) int size,
-                                                                           @RequestParam(value="start", defaultValue = "0" ,  required = false) int start){
+                                                                           @RequestParam(value="size",  defaultValue = "100", required = false) Integer size,
+                                                                           @RequestParam(value="start", defaultValue = "0" ,  required = false) Integer start){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(start, size);
         start = pageParams.getKey();

@@ -3,13 +3,17 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
 import uk.ac.ebi.pride.ws.pride.controllers.FileController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFile;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ypriverol
@@ -22,18 +26,27 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
 
     @Override
     public PrideFileResource toResource(MongoPrideFile mongoFile) {
+
+        List<CvParamProvider> additionalAttributes = mongoFile.getAdditionalAttributes()!=null?mongoFile.getAdditionalAttributes().stream()
+                .map( x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
+        List<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null? mongoFile.getPublicFileLocations().stream()
+                .map( x -> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
+
+        CvParamProvider category = mongoFile.getFileCategory() != null? new DefaultCvParam(mongoFile.getFileCategory().getCvLabel(),
+                mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()): null;
+
         PrideFile file = PrideFile.builder()
                 .accession(mongoFile.getAccession())
-                .additionalAttributes(mongoFile.getAdditionalAttributes())
+                .additionalAttributes(additionalAttributes)
                 .analysisAccessions(mongoFile.getAnalysisAccessions())
                 .projectAccessions(mongoFile.getProjectAccessions())
                 .compress(mongoFile.isCompress())
-                .fileCategory(mongoFile.getFileCategory())
+                .fileCategory(category)
                 .fileName(mongoFile.getFileName())
                 .fileSizeBytes(mongoFile.getFileSizeBytes())
                 .md5Checksum(mongoFile.getMd5Checksum())
                 .publicationDate(mongoFile.getPublicationDate())
-                .publicFileLocations(mongoFile.getPublicFileLocations())
+                .publicFileLocations(publicFileLocations)
                 .updatedDate(mongoFile.getUpdatedDate())
                 .submissionDate(mongoFile.getSubmissionDate())
                 .build();

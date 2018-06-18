@@ -10,15 +10,16 @@
     </parent>
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
-    <artifactId>pride-archive-api</artifactId>
+    <artifactId>pride-archive-ws</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>PRIDE Archive API</name>
+    <name>PRIDE Archive WS</name>
 
     <properties>
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.architectural-pride-spring.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-spring.version>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>1.0.2-springboot-SNAPSHOT</uk.ac.ebi.pride.archive.pride-solr-indexes.version>
         <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.2-springboot-SNAPSHOT</uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
+        <uk.ac.ebi.pride.archive.data-provider.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.archive.data-provider.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
     </properties>
 
@@ -35,15 +36,26 @@
 
         <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>pride-solr-indexes</artifactId>
-            <version>${uk.ac.ebi.pride.archive.pride-solr-indexes.version}</version>
+            <artifactId>data-provider-api</artifactId>
+            <version>${uk.ac.ebi.pride.archive.data-provider.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-mongodb-repo</artifactId>
             <version>${uk.ac.ebi.pride.archive.pride-mongodb-repo.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.ac.ebi.pride.archive</groupId>
+            <artifactId>pride-solr-indexes</artifactId>
+            <version>${uk.ac.ebi.pride.archive.pride-solr-indexes.version}</version>
         </dependency>
 
         <dependency>

@@ -6,7 +6,7 @@ package uk.ac.ebi.pride.ws.pride.utils;
 public class WsContastants {
 
     public enum HateoasEnum{
-        next, previous, last, first, facets
+        next, previous, last, first, facets, files
     }
 
     public static final String QUERY_PARAM_NAME = "q";
