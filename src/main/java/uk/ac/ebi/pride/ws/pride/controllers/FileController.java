@@ -50,7 +50,7 @@ public class FileController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/search/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/search/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources<PrideFileResource>> files(@RequestParam(value="filter", required = false, defaultValue = "''") String filter,
                                                                 @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
                                                                 @RequestParam(value="page", defaultValue = "0" ,  required = false) int page){
@@ -71,9 +71,9 @@ public class FileController {
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(FileController.class).files(filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(FileController.class).files(filter, pageSize, page + 1))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(FileController.class).files(filter, pageSize, page - 1))
+                linkTo(methodOn(FileController.class).files(filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(FileController.class).files(filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
@@ -89,7 +89,7 @@ public class FileController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/files/{fileAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/files/{fileAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PrideFileResource> getFile(@PathVariable(value="fileAccession") String fileAccession) {
 
         Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(fileAccession);
@@ -105,7 +105,7 @@ public class FileController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_ATOM_XML_VALUE})
+    @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources> getFiles(@RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
                                                   @RequestParam(value="page", defaultValue = "0" ,  required = false) int page) {
 
@@ -126,9 +126,9 @@ public class FileController {
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(FileController.class).getFiles(pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(FileController.class).getFiles( pageSize, page + 1))
+                linkTo(methodOn(FileController.class).getFiles( pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(FileController.class).getFiles(pageSize, page - 1))
+                linkTo(methodOn(FileController.class).getFiles(pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(FileController.class).getFiles( pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),

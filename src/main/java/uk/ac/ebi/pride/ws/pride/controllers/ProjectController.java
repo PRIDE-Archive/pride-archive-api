@@ -33,7 +33,7 @@ import java.util.Optional;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
 /**
- * The dataset Controller enables to retrieve the information for each PRIDE Project/CompactProjectResource through a RestFull API.
+ * The Dataset/Project Controller enables to retrieve the information for each PRIDE Project/CompactProjectResource through a RestFull API.
  *
  * @author ypriverol
  */
@@ -90,9 +90,9 @@ public class ProjectController {
         PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page + 1))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page - 1))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
@@ -131,9 +131,9 @@ public class ProjectController {
         PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page + 1))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page - 1))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
@@ -166,7 +166,7 @@ public class ProjectController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
-    @RequestMapping(value = "/projects", method = RequestMethod.GET)
+    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources> getProjects(@RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
                                                           @RequestParam(value="page", defaultValue = "0" ,  required = false) int page) {
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -184,9 +184,9 @@ public class ProjectController {
 
         PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(ProjectController.class).getProjects( pageSize, page)).withSelfRel(),
-                linkTo(methodOn(ProjectController.class).getProjects(pageSize, page + 1))
+                linkTo(methodOn(ProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).getProjects( pageSize, page - 1))
+                linkTo(methodOn(ProjectController.class).getProjects( pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(ProjectController.class).getProjects(pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
@@ -225,9 +225,9 @@ public class ProjectController {
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
                 linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, page)).withSelfRel(),
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, page + 1))
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession,filter, pageSize, page - 1))
+                linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession,filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(ProjectController.class).getFilesByProject(projectAccession, filter, pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),

@@ -25,4 +25,11 @@ public class WsUtils {
         return new Tuple<>(start, size);
     }
 
+    public static long validatePage(int page, long totalPages) {
+        if(page < 0)
+            return 0;
+        if(page > totalPages)
+            return totalPages;
+        return page;
+    }
 }
