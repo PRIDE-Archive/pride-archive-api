@@ -9,6 +9,18 @@ public class WsContastants {
         next, previous, last, first, facets, files
     }
 
+    public enum GAP_DATE{
+        DAY("+1DAY"),
+        MONTH("+1MONTH"),
+        YEAR("+1YEAR");
+
+        String name;
+
+        GAP_DATE(String name) {
+            this.name = name;
+        }
+    }
+
     public static final String QUERY_PARAM_NAME = "q";
     public static final String FACET_PARAM_NAME = "facet";
 
