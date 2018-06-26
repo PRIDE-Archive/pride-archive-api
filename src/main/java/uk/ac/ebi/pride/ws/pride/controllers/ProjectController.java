@@ -117,14 +117,13 @@ public class ProjectController {
                                                             @RequestParam(value ="facetPage", defaultValue = "0", required = false) int facetPage){
 
         Tuple<Integer, Integer> facetPageParams = WsUtils.validatePageLimit(facetPage, facetPageSize);
+        facetPage = facetPageParams.getKey();
+        facetPageSize = facetPageParams.getValue();
 
         FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize));
         FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, 0);
-
         List<FacetResource> resources = assembler.toResources(solrProjects);
 
-        long totalElements = solrProjects.getAllFacets().size();
-        int totalPages = (int) (totalElements / facetPageSize);
 
         PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, null,
                 linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage))
