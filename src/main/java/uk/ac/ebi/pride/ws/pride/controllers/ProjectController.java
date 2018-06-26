@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -112,33 +113,28 @@ public class ProjectController {
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources<FacetResource>> facets(@RequestParam(value="keyword", defaultValue = "*:*", required = false) List<String> keyword,
                                                             @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                                            @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
-                                                            @RequestParam(value="page", defaultValue = "0" ,  required = false) int page){
+                                                            @RequestParam(value="facetPageSize", defaultValue = "100", required = false) int facetPageSize,
+                                                            @RequestParam(value ="facetPage", defaultValue = "0", required = false) int facetPage){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
-        page = pageParams.getKey();
-        pageSize = pageParams.getValue();
+        Tuple<Integer, Integer> facetPageParams = WsUtils.validatePageLimit(facetPage, facetPageSize);
 
-        Page<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(page, pageSize));
-        FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, page);
+        FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize));
+        FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, 0);
 
         List<FacetResource> resources = assembler.toResources(solrProjects);
 
-        long totalElements = solrProjects.getTotalElements();
-        int totalPages = (int) (totalElements / pageSize);
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        long totalElements = solrProjects.getAllFacets().size();
+        int totalPages = (int) (totalElements / facetPageSize);
 
-        PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, page))
+        PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, null,
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage + 1))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, (facetPage > 0)? facetPage -1 : 0))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, 0))
-                        .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, pageSize, totalPages))
-                        .withRel(WsContastants.HateoasEnum.last.name())
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, 0))
+                        .withRel(WsContastants.HateoasEnum.first.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);
