@@ -99,7 +99,7 @@ public class ProjectController {
                         .withRel(WsContastants.HateoasEnum.first.name()),
                 linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0, false)).withRel(WsContastants.HateoasEnum.facets.name())
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0, "")).withRel(WsContastants.HateoasEnum.facets.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);
@@ -115,26 +115,25 @@ public class ProjectController {
                                                             @RequestParam(value="filter", required = false, defaultValue = "''") String filter,
                                                             @RequestParam(value="facetPageSize", defaultValue = "100", required = false) int facetPageSize,
                                                             @RequestParam(value ="facetPage", defaultValue = "0", required = false) int facetPage,
-                                                            @RequestParam(value = "yearlyDates", defaultValue = "false") Boolean yearly){
+                                                            @RequestParam(value = "dateGap", defaultValue = "", required = false) String dateGap){
 
         Tuple<Integer, Integer> facetPageParams = WsUtils.validatePageLimit(facetPage, facetPageSize);
         facetPage = facetPageParams.getKey();
         facetPageSize = facetPageParams.getValue();
-        yearly = (yearly == null)? false:yearly;
 
-        FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize), yearly);
+        FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize), dateGap);
         FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, 0);
         List<FacetResource> resources = assembler.toResources(solrProjects);
 
 
         PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, null,
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage, yearly))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage, dateGap))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage + 1, yearly))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, facetPage + 1, dateGap))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, (facetPage > 0)? facetPage -1 : 0, yearly))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, (facetPage > 0)? facetPage -1 : 0, dateGap))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, 0, yearly))
+                linkTo(methodOn(ProjectController.class).facets(keyword, filter, facetPageSize, 0, dateGap))
                         .withRel(WsContastants.HateoasEnum.first.name())
         ) ;
 
