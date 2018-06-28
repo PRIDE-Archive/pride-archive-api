@@ -86,7 +86,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .softwares(new ArrayList<>(mongoPrideProject.getSoftwareParams()))
                 .submitters(new ArrayList<>(mongoPrideProject.getSubmittersContacts()))
                 .labPIs(new ArrayList<>(mongoPrideProject.getLabHeadContacts()))
-                .sampleAttributes(mongoPrideProject.getSampleAttributes() !=null?new ArrayList(mongoPrideProject.getSampleAttributes()): Collections.EMPTY_LIST)
+                .sampleAttributes(mongoPrideProject.getSampleAttributes() !=null? new ArrayList(mongoPrideProject.getSampleAttributes()): Collections.emptyList())
                 .build();
     }
 

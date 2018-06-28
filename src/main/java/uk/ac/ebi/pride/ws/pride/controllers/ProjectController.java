@@ -122,7 +122,7 @@ public class ProjectController {
         facetPageSize = facetPageParams.getValue();
 
         FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize), dateGap);
-        FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, 0);
+        FacetResourceAssembler assembler = new FacetResourceAssembler(ProjectController.class, FacetResource.class, dateGap);
         List<FacetResource> resources = assembler.toResources(solrProjects);
 
 
