@@ -34,7 +34,7 @@ public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrPr
     @Override
     public List<FacetResource> toResources(Iterable<? extends PrideSolrProject> entities) {
 
-         List<FacetResource> facets = new ArrayList<>();
+        List<FacetResource> facets = new ArrayList<>();
         FacetPage<PrideSolrProject> facetPages;
 
         if(entities instanceof FacetAndHighlightPage){

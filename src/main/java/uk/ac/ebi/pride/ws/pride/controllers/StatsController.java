@@ -15,18 +15,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
-import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPrideStats;
-import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideFileMongoService;
+import uk.ac.ebi.pride.archive.dataprovider.utils.Tuple;
 import uk.ac.ebi.pride.mongodb.archive.service.stats.PrideStatsMongoService;
-import uk.ac.ebi.pride.utilities.util.Tuple;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
-import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
-import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,15 +53,15 @@ public class StatsController {
     }
 
 
-    @ApiOperation(notes = "Retrieve all the statistics from PRIDE Archive ", value = "statistics", nickname = "statistics", tags = {"statistics"} )
+    @ApiOperation(notes = "Retrieve statistics by Name", value = "statistics", nickname = "getStatsByName", tags = {"stats"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/stats/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> statistics(){
+    @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Object> statistics(@PathVariable(value = "name", required = true, name = "name") String name){
 
-        MongoPrideStats stats = mongoStatsService.findLastGeneratedStats();
+        List<Tuple<String, Integer>> stats = mongoStatsService.findLastGeneratedStats().getSubmissionsCount().get(name);
 
         return new ResponseEntity<>(stats, HttpStatus.ACCEPTED);
     }
