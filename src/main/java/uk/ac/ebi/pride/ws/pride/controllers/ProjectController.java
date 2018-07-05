@@ -21,7 +21,7 @@ import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.CompactProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
@@ -73,13 +73,14 @@ public class ProjectController {
     public HttpEntity<PagedResources<CompactProjectResource>> projects(@RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
                                                                        @RequestParam(name="filter",  defaultValue = "''") String filter,
                                                                        @RequestParam(name="pageSize",  defaultValue = "100") int pageSize,
-                                                                       @RequestParam(name="page" , defaultValue = "0" ) int page){
+                                                                       @RequestParam(name="page" , defaultValue = "0" ) int page,
+                                                                       @RequestParam(name="dateGap", defaultValue = "") String dateGap ){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
-        Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(page, pageSize));
+        Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(page, pageSize), dateGap);
         CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(ProjectController.class, CompactProjectResource.class);
 
         List<CompactProjectResource> resources = assembler.toResources(solrProjects);
@@ -89,15 +90,15 @@ public class ProjectController {
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, page, dateGap))
                         .withSelfRel(),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), dateGap))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages), dateGap))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, 0))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, 0, dateGap))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) totalPages))
+                linkTo(methodOn(ProjectController.class).projects(keyword, filter, pageSize, (int) totalPages, dateGap))
                         .withRel(WsContastants.HateoasEnum.last.name()),
                 linkTo(methodOn(ProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0, "")).withRel(WsContastants.HateoasEnum.facets.name())
         ) ;
@@ -234,5 +235,44 @@ public class ProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
+
+    @ApiOperation(notes = "Get Similar projects taking into account the metadata", value = "projects", nickname = "getSimilarProjects", tags = {"projects"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<PagedResources<CompactProjectResource>> getSimilarProjects(@PathVariable(value ="accession") String projectAccession,
+                                                 @RequestParam(value ="page", defaultValue = "0") Integer page,
+                                                 @RequestParam(value ="pageSize", defaultValue = "100") Integer pageSize){
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
+
+        List<PrideSolrProject> solrProjects = solrProjectService.findSimilarProjects(projectAccession, pageSize, pageSize);
+        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(ProjectController.class, CompactProjectResource.class);
+
+        List<CompactProjectResource> resources = assembler.toResources(solrProjects);
+
+        long totalElements = solrProjects.size();
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+
+        PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+                linkTo(methodOn(ProjectController.class).getSimilarProjects(projectAccession,  pageSize, page))
+                        .withSelfRel(),
+                linkTo(methodOn(ProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
+                        .withRel(WsContastants.HateoasEnum.next.name()),
+                linkTo(methodOn(ProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
+                        .withRel(WsContastants.HateoasEnum.previous.name()),
+                linkTo(methodOn(ProjectController.class).getSimilarProjects(projectAccession, pageSize,  0))
+                        .withRel(WsContastants.HateoasEnum.first.name()),
+                linkTo(methodOn(ProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) totalPages))
+                        .withRel(WsContastants.HateoasEnum.last.name())
+        ) ;
+
+        return new HttpEntity<>(pagedResources);
+    }
 
 }

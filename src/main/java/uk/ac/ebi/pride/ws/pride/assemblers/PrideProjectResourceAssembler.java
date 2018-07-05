@@ -3,7 +3,14 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
+import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.utils.Tuple;
+import uk.ac.ebi.pride.mongodb.archive.model.param.MongoCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
+import uk.ac.ebi.pride.solr.indexes.pride.utils.StringUtils;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
@@ -86,8 +93,26 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .softwares(new ArrayList<>(mongoPrideProject.getSoftwareParams()))
                 .submitters(new ArrayList<>(mongoPrideProject.getSubmittersContacts()))
                 .labPIs(new ArrayList<>(mongoPrideProject.getLabHeadContacts()))
+                .organisms(getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM))
+                .diseases(getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_DISEASE))
+                .organismParts(getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM_PART))
                 .sampleAttributes(mongoPrideProject.getSampleAttributes() !=null? new ArrayList(mongoPrideProject.getSampleAttributes()): Collections.emptyList())
                 .build();
     }
+
+    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<MongoCvParam, List<MongoCvParam>>> samplesDescription, CvTermReference efoTerm) {
+        Set<CvParamProvider> resultTerms = new HashSet<>();
+        samplesDescription.stream()
+                .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
+                .forEach( y-> {
+                    y.getValue().forEach(z-> resultTerms.add( new DefaultCvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue())));
+                });
+        return resultTerms;
+    }
+
+
+
+
+
 
 }

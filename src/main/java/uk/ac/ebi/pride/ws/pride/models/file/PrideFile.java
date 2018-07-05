@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.ws.pride.models.dataset;
+package uk.ac.ebi.pride.ws.pride.models.file;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;

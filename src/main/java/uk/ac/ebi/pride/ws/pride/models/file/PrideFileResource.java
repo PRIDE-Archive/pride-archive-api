@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.ws.pride.models.dataset;
+package uk.ac.ebi.pride.ws.pride.models.file;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;

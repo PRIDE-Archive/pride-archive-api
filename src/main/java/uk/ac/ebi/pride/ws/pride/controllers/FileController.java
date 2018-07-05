@@ -15,7 +15,7 @@ import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideFileMongoService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;

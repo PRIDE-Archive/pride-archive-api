@@ -7,8 +7,8 @@ import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideFile;
 import uk.ac.ebi.pride.ws.pride.controllers.FileController;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFile;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideFileResource;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 
 import java.util.ArrayList;
 import java.util.Collections;
