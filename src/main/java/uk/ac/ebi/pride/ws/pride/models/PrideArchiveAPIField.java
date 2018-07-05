@@ -39,5 +39,6 @@ public interface PrideArchiveAPIField {
     String PRIDE_PROJECT_DISEASES = "diseases";
     String PRIDE_PROJECT_REFERENCES = "references";
     String PRIDE_PROJECT_PTMS = "identifiedPTMS";
+    String QUERY_SCORE = "queryScore";
 
 }

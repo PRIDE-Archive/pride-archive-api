@@ -79,6 +79,7 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
                 .softwares(prideSolrDataset.getSoftwares())
                 .submissionDate(prideSolrDataset.getSubmissionDate())
                 .updatedDate(prideSolrDataset.getUpdatedDate())
+                .queryScore((prideSolrDataset.getScore()!=null)?prideSolrDataset.getScore().doubleValue():null)
                 .build();
     }
 

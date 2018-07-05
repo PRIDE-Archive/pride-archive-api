@@ -108,6 +108,9 @@ public class CompactProject implements Serializable, PrideArchiveAPIField {
     @JsonProperty(PRIDE_PROJECT_PTMS)
     private Set<String> identifiedPTMS = new HashSet<>();
 
+    @JsonProperty(QUERY_SCORE)
+    private Double queryScore;
+
     private Map<String, List<String>> highlights = new HashMap<>();
 
     public void setAdditionalAttributes(Collection<String> additionalAttributes) {
@@ -178,6 +181,10 @@ public class CompactProject implements Serializable, PrideArchiveAPIField {
     public void setIdentifiedPTM(Set<String> identifiedPTMStrings) {
         if(identifiedPTMStrings != null)
             this.identifiedPTMS = identifiedPTMStrings;
+    }
+
+    public void setQueryScore(Double queryScore) {
+        this.queryScore = queryScore;
     }
 
     public void setHighlights(Map<String, List<String>> highlights) {

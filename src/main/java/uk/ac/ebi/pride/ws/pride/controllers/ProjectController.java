@@ -250,7 +250,7 @@ public class ProjectController {
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
-        List<PrideSolrProject> solrProjects = solrProjectService.findSimilarProjects(projectAccession, pageSize, pageSize);
+        List<PrideSolrProject> solrProjects = solrProjectService.findSimilarProjects(projectAccession, pageSize, page);
         CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(ProjectController.class, CompactProjectResource.class);
 
         List<CompactProjectResource> resources = assembler.toResources(solrProjects);
