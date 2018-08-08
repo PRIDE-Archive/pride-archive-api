@@ -35,7 +35,6 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  */
 
 @EnableSwagger2
-@EnableAutoConfiguration
 @SpringBootApplication(scanBasePackageClasses = {ProjectController.class, FileController.class,
         SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})
 public class Application {
