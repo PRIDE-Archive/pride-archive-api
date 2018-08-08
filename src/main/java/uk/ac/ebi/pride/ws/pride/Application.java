@@ -15,9 +15,9 @@ import org.springframework.hateoas.RelProvider;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.hateoas.core.EvoInflectorRelProvider;
 import org.springframework.stereotype.Component;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
-import uk.ac.ebi.pride.ws.pride.configs.SecurityJavaConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
 import uk.ac.ebi.pride.ws.pride.controllers.FileController;
@@ -33,11 +33,10 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  *
  */
 
-
-@SpringBootApplication(scanBasePackageClasses = {ProjectController.class,
-        FileController.class, SimpleCORSFilter.class,
-        SolrCloudConfig.class, SecurityJavaConfig.class,
-        MongoProjectConfig.class, SwaggerConfig.class})
+@EnableSwagger2
+@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, FileController.class,
+        SimpleCORSFilter.class,
+        SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})
 public class Application {
 
     public static void main(String[] args) {
