@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/../data-provider-api" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../pride-core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../pride-mongodb-repo" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../pride-solr-indexes" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../pride-spring" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../repo" charset="UTF-8" />
+  </component>
+</project>

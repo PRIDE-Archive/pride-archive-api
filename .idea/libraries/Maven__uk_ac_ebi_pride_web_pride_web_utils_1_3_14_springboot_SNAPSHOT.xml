@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: uk.ac.ebi.pride.web:pride-web-utils:1.3.14-springboot-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/pride/web/pride-web-utils/1.3.14-springboot-SNAPSHOT/pride-web-utils-1.3.14-springboot-20180418.164317-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/pride/web/pride-web-utils/1.3.14-springboot-SNAPSHOT/pride-web-utils-1.3.14-springboot-20180418.164317-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/pride/web/pride-web-utils/1.3.14-springboot-SNAPSHOT/pride-web-utils-1.3.14-springboot-20180418.164317-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

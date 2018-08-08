@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="archive-repo" />
+        <module name="data-provider-api" />
+        <module name="pride-archive-api" />
+        <module name="pride-mongodb-repo" />
+        <module name="pride-solr-indexes" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="archive-repo" target="1.8" />
+      <module name="data-provider-api" target="1.8" />
+      <module name="pride-archive-api" target="1.8" />
+      <module name="pride-core" target="1.5" />
+      <module name="pride-mongodb-repo" target="1.8" />
+      <module name="pride-solr-indexes" target="1.8" />
+      <module name="pride-spring" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
