@@ -32,4 +32,18 @@ public class WsUtils {
             return totalPages;
         return page;
     }
+
+    public static String fixToSizeBold(String x, int gap) {
+        int index = x.indexOf("<b>");
+        int lastIndex = x.indexOf("</b>");
+        index = (index - (gap+3))<0?0:index-(gap+3);
+        lastIndex = (lastIndex+(gap+3))>x.length()?x.length():lastIndex+gap+3;
+        while (index > 0 && x.charAt(index) != ' '){
+            index--;
+        }
+        while (lastIndex < x.length() && x.charAt(lastIndex) != ' '){
+            lastIndex++;
+        }
+        return x.substring(index, lastIndex);
+    }
 }

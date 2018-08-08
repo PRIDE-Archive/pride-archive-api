@@ -44,7 +44,6 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-
     @Component
     @Primary
     private class CustomObjectMapper extends ObjectMapper {

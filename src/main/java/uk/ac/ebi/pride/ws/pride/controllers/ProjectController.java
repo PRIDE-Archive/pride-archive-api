@@ -29,7 +29,9 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
@@ -273,6 +275,26 @@ public class ProjectController {
         ) ;
 
         return new HttpEntity<>(pagedResources);
+    }
+
+    @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
+            " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<Object> projects(@RequestParam(name = "keyword", required = true) String keyword){
+
+        Map<String, List<String>> autocompleValues = solrProjectService.findAutoComplete(keyword);
+        List<String> terms = autocompleValues.entrySet().stream()
+                .flatMap(x->x.getValue().stream())
+                .collect(Collectors.toList());
+
+        terms = terms.stream().map(x-> WsUtils.fixToSizeBold(x, 10)).collect(Collectors.toList());
+
+        return new HttpEntity<>(terms);
     }
 
 }
