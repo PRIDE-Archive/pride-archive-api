@@ -31,6 +31,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
@@ -288,12 +289,7 @@ public class ProjectController {
     @RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> projects(@RequestParam(name = "keyword", required = true) String keyword){
 
-        Map<String, List<String>> autocompleValues = solrProjectService.findAutoComplete(keyword);
-        List<String> terms = autocompleValues.entrySet().stream()
-                .flatMap(x->x.getValue().stream())
-                .collect(Collectors.toList());
-
-        terms = terms.stream().map(x-> WsUtils.fixToSizeBold(x, 10)).collect(Collectors.toList());
+        Set<String> terms = solrProjectService.findAutoComplete(keyword);
 
         return new HttpEntity<>(terms);
     }
