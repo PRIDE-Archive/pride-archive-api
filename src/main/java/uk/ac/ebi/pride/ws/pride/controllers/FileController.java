@@ -44,7 +44,7 @@ public class FileController {
     }
 
 
-    @ApiOperation(notes = "Search all public files in PRIDE Archive. The _filter_ parameter provides allows the method " +
+   /* @ApiOperation(notes = "Search all public files in PRIDE Archive. The _filter_ parameter provides allows the method " +
             " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "files", nickname = "searchFiles", tags = {"files"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
@@ -82,7 +82,7 @@ public class FileController {
         ) ;
 
         return new HttpEntity<>(pagedResources);
-    }
+    }*/
 
     @ApiOperation(notes = "Get a File from PRIDE database", value = "files", nickname = "getFile", tags = {"files"} )
     @ApiResponses({
@@ -106,15 +106,21 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources> getFiles(@RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
+    public HttpEntity<PagedResources> getFiles(@RequestParam(value="filter", required = false, defaultValue = "''") String filter,
+                                                @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
                                                   @RequestParam(value="page", defaultValue = "0" ,  required = false) int page) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
+        Page<MongoPrideFile> projectFiles;
+        if(filter!=null && filter.trim().length()>0){
+            projectFiles = mongoFileService.searchFiles(filter, PageRequest.of(page, pageSize));
+        }else{
+            projectFiles = mongoFileService.findAll(PageRequest.of(page, pageSize));
+        }
 
-        Page<MongoPrideFile> projectFiles = mongoFileService.findAll(PageRequest.of(page, pageSize));
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
 
         List<PrideFileResource> resources = assembler.toResources(projectFiles);
@@ -124,15 +130,15 @@ public class FileController {
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(FileController.class).getFiles(pageSize, page))
+                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, page))
                         .withSelfRel(),
-                linkTo(methodOn(FileController.class).getFiles( pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
+                linkTo(methodOn(FileController.class).getFiles(filter,  pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(FileController.class).getFiles(pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
+                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(FileController.class).getFiles( pageSize, 0))
+                linkTo(methodOn(FileController.class).getFiles(filter,  pageSize, 0))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(FileController.class).getFiles(pageSize, (int) totalPages))
+                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, (int) totalPages))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
