@@ -1,0 +1,182 @@
+= PRIDE Archive API Guide
+PRIDE;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:stylesheet: mystyles.css
+
+= Introduction
+
+This is the PRIDE Archive REST API service documentation. This provides information required to query about projects, files and stats in PRIDE.
+
+If you want to explore by yourself our api, please visit this link
+link:/pride/ws/archive/[PRIDE Archive API]
+
+= Resources
+
+== Projects
+
+=== Retrieve All Projects
+`*GET*` request to obtain list of PRIDE Archive Projects. The following method do not allows to perform search,
+ for search functionality you will need to use the search/projects. The result list is Paginated using the pageSize and page.
+
+==== Example request
+operation::get-all-projects[snippets='curl-request']
+include::{snippets}/get-all-projects/request-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-all-projects/response-body.adoc[]
+
+=== Project With Accession ID
+`*GET*` request to obtain a project associated with an accession in PRIDE database.
+
+==== Example request
+operation::get-project[snippets='curl-request']
+include::{snippets}/get-project/path-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-project/response-body.adoc[]
+
+=== Project Specific Files
+`*GET*` request to obtain all files tagged to a particular project.
+
+==== Example request
+operation::get-project-files[snippets='curl-request']
+include::{snippets}/get-project-files/path-parameters.adoc[]
+include::{snippets}/get-project-files/request-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-project-files/response-body.adoc[]
+
+=== Similar Projects
+`*GET*` request to obtain projects similar to the provided project.
+
+==== Example request
+operation::get-similar-project[snippets='curl-request']
+include::{snippets}/get-similar-project/path-parameters.adoc[]
+include::{snippets}/get-similar-project/request-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-similar-project/response-body.adoc[]
+
+=== Project Search Results
+`*GET*` request to obtain list of PRIDE Archive Projects matching the search criteria. The result list is Paginated using the pageSize and page.
+
+==== Example request
+operation::get-project-search[snippets='curl-request']
+include::{snippets}/get-project-search/request-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-project-search/response-body.adoc[]
+
+=== Project Facet Results
+`*GET*` Faceted results of information across projects in Pride Archive database.
+
+==== Example request
+operation::get-project-facet[snippets='curl-request']
+include::{snippets}/get-project-facet/request-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-project-facet/response-body.adoc[]
+
+== Files
+
+=== Retrieve File
+`*GET*` request to obtain a file associated with a file accession in PRIDE database.
+
+==== Example request
+operation::get-file[snippets='curl-request']
+include::{snippets}/get-file/path-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-file/response-body.adoc[]
+
+=== Retrieve All Files
+`*GET*` request to obtain all Files in PRIDE Archive.
+
+==== Example request
+operation::get-all-files[snippets='curl-request']
+include::{snippets}/get-all-files/request-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-all-files/response-body.adoc[]
+
+
+== Stats
+
+=== Retrieve Stats Names
+`*GET*` request to obtain all the names of available statistic measures.
+
+==== Example request
+operation::get-stats-names[snippets='curl-request']
+
+==== Example response
+include::{snippets}/get-stats-names/response-body.adoc[]
+
+=== Retrieve Particular Statistic
+`*GET*` request to obtain details of a particular statistic measure.
+
+==== Example request
+operation::get-stat[snippets='curl-request']
+include::{snippets}/get-stat/path-parameters.adoc[]
+
+==== Example response
+include::{snippets}/get-stat/response-body.adoc[]
+
+== Appendix
+
+[[appendix-http-verbs]]
+=== HTTP verbs
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PATCH`
+| Used to update an existing resource, including partial updates
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully. The resource's URI is available from the response's
+`Location` header
+
+| `204 No Content`
+| An update to an existing resource has been applied successfully
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+=== Hypermedia
+
+RESTful Notes uses hypermedia and resources include links to other resources in their
+responses. Responses are in http://stateless.co/hal_specification.html[Hypertext Application
+from resource to resource.
+Language (HAL)] format. Links can be found beneath the `_links` key. Users of the API should
+not create URIs themselves, instead they should use the above-described links to navigate
+

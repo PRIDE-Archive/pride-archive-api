@@ -69,7 +69,7 @@ public class StatsController {
         if (stats == null || ((List)stats).size() == 0)
             stats = mongoStatsService.findLastGeneratedStats().getComplexStats().get(name);
 
-        return new ResponseEntity<>(stats, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(stats, HttpStatus.OK);
     }
 
 
@@ -90,7 +90,7 @@ public class StatsController {
                 statNames.addAll(stats.getComplexStats().entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList()));
         }
 
-        return new ResponseEntity<>(statNames, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(statNames, HttpStatus.OK);
     }
 
 }
