@@ -22,62 +22,74 @@ link:/pride/ws/archive/[PRIDE Archive API]
 `*GET*` request to obtain list of PRIDE Archive Projects. The following method do not allows to perform search,
  for search functionality you will need to use the search/projects. The result list is Paginated using the pageSize and page.
 
+[discrete]
 ==== Example request
-operation::get-all-projects[snippets='curl-request']
+include::{snippets}/get-all-projects/curl-request.adoc[]
 include::{snippets}/get-all-projects/request-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-all-projects/response-body.adoc[]
 
 === Project With Accession ID
 `*GET*` request to obtain a project associated with an accession in PRIDE database.
 
+[discrete]
 ==== Example request
-operation::get-project[snippets='curl-request']
+include::{snippets}/get-project/curl-request.adoc[]
 include::{snippets}/get-project/path-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-project/response-body.adoc[]
 
 === Project Specific Files
 `*GET*` request to obtain all files tagged to a particular project.
 
+[discrete]
 ==== Example request
-operation::get-project-files[snippets='curl-request']
+include::{snippets}/get-project-files/curl-request.adoc[]
 include::{snippets}/get-project-files/path-parameters.adoc[]
 include::{snippets}/get-project-files/request-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-project-files/response-body.adoc[]
 
 === Similar Projects
 `*GET*` request to obtain projects similar to the provided project.
 
+[discrete]
 ==== Example request
-operation::get-similar-project[snippets='curl-request']
+include::{snippets}/get-similar-project/curl-request.adoc[]
 include::{snippets}/get-similar-project/path-parameters.adoc[]
 include::{snippets}/get-similar-project/request-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-similar-project/response-body.adoc[]
 
 === Project Search Results
 `*GET*` request to obtain list of PRIDE Archive Projects matching the search criteria. The result list is Paginated using the pageSize and page.
 
+[discrete]
 ==== Example request
-operation::get-project-search[snippets='curl-request']
+include::{snippets}/get-project-search/curl-request.adoc[]
 include::{snippets}/get-project-search/request-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-project-search/response-body.adoc[]
 
 === Project Facet Results
 `*GET*` Faceted results of information across projects in Pride Archive database.
 
+[discrete]
 ==== Example request
-operation::get-project-facet[snippets='curl-request']
+include::{snippets}/get-project-facet/curl-request.adoc[]
 include::{snippets}/get-project-facet/request-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-project-facet/response-body.adoc[]
 
@@ -86,20 +98,24 @@ include::{snippets}/get-project-facet/response-body.adoc[]
 === Retrieve File
 `*GET*` request to obtain a file associated with a file accession in PRIDE database.
 
+[discrete]
 ==== Example request
-operation::get-file[snippets='curl-request']
+include::{snippets}/get-file/curl-request.adoc[]
 include::{snippets}/get-file/path-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-file/response-body.adoc[]
 
 === Retrieve All Files
 `*GET*` request to obtain all Files in PRIDE Archive.
 
+[discrete]
 ==== Example request
-operation::get-all-files[snippets='curl-request']
+include::{snippets}/get-all-files/curl-request.adoc[]
 include::{snippets}/get-all-files/request-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-all-files/response-body.adoc[]
 
@@ -109,21 +125,105 @@ include::{snippets}/get-all-files/response-body.adoc[]
 === Retrieve Stats Names
 `*GET*` request to obtain all the names of available statistic measures.
 
+[discrete]
 ==== Example request
-operation::get-stats-names[snippets='curl-request']
+include::{snippets}/get-stats-names/curl-request.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-stats-names/response-body.adoc[]
 
 === Retrieve Particular Statistic
 `*GET*` request to obtain details of a particular statistic measure.
 
+[discrete]
 ==== Example request
-operation::get-stat[snippets='curl-request']
+include::{snippets}/get-stat/curl-request.adoc[]
 include::{snippets}/get-stat/path-parameters.adoc[]
 
+[discrete]
 ==== Example response
 include::{snippets}/get-stat/response-body.adoc[]
+
+== Filtering Help
+Some of the API endpoints support filtering to naroow the search results. There are two types of filters available - 'filter' and 'advanced filter'.
+The below examples help in understanding the different options supported by these filters and how they can be chained together to perform queries.
+
+=== Filter
+
+This type of filter supports conditions in the following format:
+ `field==value`
+It also allows to chain the conditions to form queries as shown below:
+`field1==value,field2==value`
+If field is of date type value should be in format `yyyy-MM-dd`
+
+[discrete]
+==== Example 1
+
+A simple query can be submited in this format.
+[source]
+countries==Germany
+
+Multiple values can be sent and an `OR` condition applies on these words
+[source]
+countries==Germany China
+
+[discrete]
+==== Example 2
+
+A date field can be queried by sending two parameters. A date in the format of `yyyy-MM-dd` and a value to the dateGap in following formats:
+`+1DAY`,`+1MONTH`,`+1YEAR`
+[source]
+submission_date==2013-10-20
+
+[discrete]
+==== Example 3
+
+Multiple conditions can be chained together, delimited by comma
+[source]
+submission_date==2013-10-20,countries==Germany China
+
+=== Advance Filter
+
+This type of filter supports different options like using a regular expression for matching, providing a date range and using in condition to supply multiple values.
+
+[discrete]
+==== Example 1
+A simple query is of the form `field==value`
+[source]
+accession==PXF00000491725
+
+[discrete]
+==== Example 2
+The filter can be supplied with fields nested inside the json structure as well. The files API response has a `fileCategory` object and a `value` field within it.
+This can be used as a query field to fetch values as shown below.
+[source]
+fileCategory.value==RESULT
+
+[discrete]
+==== Example 3
+A regex can be used for pattern matching and supplying complex queries. The below example filters for files which contain the word `mzid` in the name.
+[source]
+fileName=regex=mzid
+
+[discrete]
+==== Example 4
+A date range can be supplied while querying date fields in the below format.
+[source]
+publicationDate=range=[2006-01-01 TO 2015-12-31]
+
+[discrete]
+==== Example 5
+An `in` predicate can be used to supply multiple values to a field and it works like an `OR` condition.
+[source]
+accession=in=PXF00000491725|PXF00000000014
+
+[discrete]
+==== Example 6
+Multiple conditions can be supplied by seperating with comma.
+[source]
+fileCategory.value==RESULT,publicationDate=range=[2006-01-01 TO 2015-12-31]
+
 
 == Appendix
 

@@ -84,7 +84,7 @@ public class ArchiveAPITest {
                 .andExpect(status().isOk())
                 .andDo(document("get-all-files", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), requestParameters(
-                        parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PXF00000000015"),
+                        parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PXF00000000015. This filter allows advance querying and more information can be found at link:#_advance_filter[Advance Filter]"),
                         parameterWithName("pageSize").description("Number of results to fetch in a page"),
                         parameterWithName("page").description("Identifies which page of results to fetch"))));
     }
@@ -118,7 +118,7 @@ public class ArchiveAPITest {
                 .andExpect(status().isOk())
                 .andDo(document("get-project-files", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), pathParameters(parameterWithName("accession").description("The Accession id associated with this project")),requestParameters(
-                                parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz"),
+                                parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example `fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz`. This filter allows advance querying and more information can be found at link:#_advance_filter[Advance Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"))));
     }
@@ -137,12 +137,12 @@ public class ArchiveAPITest {
     @Test
     public void getProjectSearchResultsTest() throws Exception {
 
-        this.mockMvc.perform(get("/search/projects?keyword=*%3A*&filter=accession==PRD000001&pageSize=5&page=0&dateGap=1").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/search/projects?keyword=*:*&filter=submission_date==2013-10-20&pageSize=5&page=0&dateGap=+1YEAR").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-search", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), requestParameters(
                                 parameterWithName("keyword").description("The entered word will be searched among the fields to fetch matching projects."),
-                                parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PRD000001"),
+                                parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PRD000001. More information on this can be found at link:#_filter[Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"),
                                 parameterWithName("dateGap").description("A date range field with possible values of +1MONTH, +1YEAR"))));
@@ -151,12 +151,12 @@ public class ArchiveAPITest {
     @Test
     public void getProjectFacetsTest() throws Exception {
 
-        this.mockMvc.perform(get("/facet/projects?keyword=*%3A*&filter=accession==PRD000001&facetPageSize=5&facetPage=0&dateGap=1").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/facet/projects?keyword=*:*&filter=submission_date==2013-10-20&facetPageSize=5&facetPage=0&dateGap=+1YEAR").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-facet", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), requestParameters(
                                 parameterWithName("keyword").description("The entered word will be searched among the fields to fetch matching projects."),
-                                parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PRD000001"),
+                                parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PRD000001. More information on this can be found at link:#_filter[Filter]"),
                                 parameterWithName("facetPageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("facetPage").description("Identifies which page of results to fetch"),
                                 parameterWithName("dateGap").description("A date range field with possible values of +1MONTH, +1YEAR"))));
