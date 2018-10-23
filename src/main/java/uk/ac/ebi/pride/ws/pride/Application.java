@@ -22,6 +22,7 @@ import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
 import uk.ac.ebi.pride.ws.pride.controllers.FileController;
+import uk.ac.ebi.pride.ws.pride.controllers.MSRunController;
 import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
@@ -35,7 +36,8 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  */
 
 @EnableSwagger2
-@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, FileController.class,
+@SpringBootApplication(scanBasePackageClasses = {ProjectController.class,
+        FileController.class, MSRunController.class,
         SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})
 public class Application {
 

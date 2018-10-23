@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.pride.archive.dataprovider.msrun.MSRunMetadata;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
@@ -23,8 +22,6 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import javax.websocket.server.PathParam;
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,29 +44,6 @@ public class FileController {
         this.mongoFileService = mongoFileService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
     }
-
-    /* The following end-ponts are related with MSRuns */
-
-    @ApiOperation(notes = "Update MSRun metadata", value = "msruns", nickname = "updateMetadata", tags = {"files"} )
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
-    })
-    @RequestMapping(value = "/msruns/{accession}/updateMetadata", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<PrideFileResource> updateMetadata(@RequestBody MSRunMetadata msRunMetadata,
-                                               @PathParam(value = "accession") String accession
-    ) {
-        Optional<MongoPrideFile> file = mongoFileService.updateMSRunMetadata(msRunMetadata, accession);
-        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
-        PrideFileResource resource = null;
-        if(!file.isPresent())
-            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
-
-        resource = assembler.toResource(file.get());
-        return new ResponseEntity(resource, HttpStatus.OK);
-
-    }
-
 
     @ApiOperation(notes = "Get a File from PRIDE database by FileName", value = "files", nickname = "fileByName", tags = {"files"} )
     @ApiResponses({

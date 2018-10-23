@@ -1,9 +1,23 @@
 package uk.ac.ebi.pride.ws.pride.controllers;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
+import uk.ac.ebi.pride.ws.pride.models.file.MSRunMetadata;
+import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
+import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
+import uk.ac.ebi.pride.ws.pride.utils.APIError;
+
+import java.util.Optional;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -30,7 +44,26 @@ public class MSRunController {
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
     }
 
+    /* The following end-points are related with MSRuns */
 
+    @ApiOperation(notes = "Update MSRun metadata", value = "msruns", nickname = "updateMetadata", tags = {"msruns"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+    })
+    @RequestMapping(value = "/msruns/{accession}/updateMetadata", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<PrideFileResource> updateMetadata(@PathVariable(value = "accession") String accession,
+                                                            @RequestBody MSRunMetadata msRunMetadata
 
+    ) {
+        Optional<MongoPrideMSRun> file = mongoFileService.updateMSRunMetadata(msRunMetadata, accession);
+        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
+        PrideFileResource resource;
+        if(!file.isPresent())
+            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
 
+        resource = assembler.toResource(file.get());
+        return new ResponseEntity(resource, HttpStatus.OK);
+
+    }
 }

@@ -1,5 +1,9 @@
 package uk.ac.ebi.pride.ws.pride.models.param;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -11,5 +15,36 @@ package uk.ac.ebi.pride.ws.pride.models.param;
  *
  * @author ypriverol on 23/10/2018.
  */
-public class CvParam {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CvParam implements CvParamProvider {
+
+    String cvLabel;
+    String accession;
+    String name;
+    String value;
+
+    @Override
+    public String getCvLabel() {
+        return cvLabel;
+    }
+
+    @Override
+    public String getAccession() {
+        return accession;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public Comparable getId() {
+        return accession;
+    }
 }

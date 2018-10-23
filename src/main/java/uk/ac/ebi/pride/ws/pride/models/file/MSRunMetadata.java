@@ -1,7 +1,13 @@
-package uk.ac.ebi.pride.archive.dataprovider.msrun;
+package uk.ac.ebi.pride.ws.pride.models.file;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,63 +21,72 @@ import java.util.List;
  *
  * @author ypriverol on 22/10/2018.
  */
-
-public class MSRunMetadata {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class MSRunMetadata implements MsRunProvider {
 
     // File Properties in CvTerms
-    List<CvParamProvider> fileProperties;
+    @JsonProperty("fileProperties")
+    List<CvParam> fileProperties;
 
     // Instruments Properties
-    List<CvParamProvider> instrumentProperties;
+    @JsonProperty("instrumentProperties")
+    List<CvParam> instrumentProperties;
 
     // MS Data Properties
-    List<CvParamProvider> msData;
+    @JsonProperty("msData")
+    List<CvParam> msData;
 
     // Scan MS Properties
-    List<CvParamProvider> scanSettings;
+    @JsonProperty("scanSettings")
+    List<CvParam> scanSettings;
 
     public MSRunMetadata() {
     }
 
-    public MSRunMetadata(List<CvParamProvider> fileProperties,
-                         List<CvParamProvider> instrumentProperties,
-                         List<CvParamProvider> msData,
-                         List<CvParamProvider> scanSettings) {
+    public MSRunMetadata(List<CvParam> fileProperties,
+                         List<CvParam> instrumentProperties,
+                         List<CvParam> msData,
+                         List<CvParam> scanSettings) {
         this.fileProperties = fileProperties;
         this.instrumentProperties = instrumentProperties;
         this.msData = msData;
         this.scanSettings = scanSettings;
     }
 
-    public void setFileProperties(List<CvParamProvider> fileProperties) {
+    public void setFileProperties(List<CvParam> fileProperties) {
         this.fileProperties = fileProperties;
     }
 
-    public void setInstrumentProperties(List<CvParamProvider> instrumentProperties) {
+    public void setInstrumentProperties(List<CvParam> instrumentProperties) {
         this.instrumentProperties = instrumentProperties;
     }
 
-    public void setMsData(List<CvParamProvider> msData) {
+    public void setMsData(List<CvParam> msData) {
         this.msData = msData;
     }
 
-    public void setScanSettings(List<CvParamProvider> scanSettings) {
+    public void setScanSettings(List<CvParam> scanSettings) {
         this.scanSettings = scanSettings;
     }
 
-    public List<CvParamProvider> getFileProperties() {
+    public List<CvParam> getFileProperties() {
         return fileProperties;
     }
 
-    public List<CvParamProvider> getInstrumentProperties() {
+    public List<CvParam> getInstrumentProperties() {
         return instrumentProperties;
     }
 
-    public List<CvParamProvider> getMsData() {
+    public List<CvParam> getMsData() {
         return msData;
     }
 
-    public List<CvParamProvider> getScanSettings() {
+    public Collection<? extends CvParamProvider> getScanSettings() {
         return scanSettings;
+    }
+
+    @Override
+    public Collection<? extends String> getAdditionalAttributesStrings() {
+        return Collections.EMPTY_LIST;
     }
 }
