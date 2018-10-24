@@ -9,12 +9,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
+import uk.ac.ebi.pride.ws.pride.assemblers.ProjectMSRunResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.file.MSRunMetadata;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRunResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.util.Optional;
@@ -52,13 +54,13 @@ public class MSRunController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
     })
     @RequestMapping(value = "/msruns/{accession}/updateMetadata", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<PrideFileResource> updateMetadata(@PathVariable(value = "accession") String accession,
+    public ResponseEntity<PrideMSRunResource> updateMetadata(@PathVariable(value = "accession") String accession,
                                                             @RequestBody MSRunMetadata msRunMetadata
 
     ) {
         Optional<MongoPrideMSRun> file = mongoFileService.updateMSRunMetadata(msRunMetadata, accession);
-        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
-        PrideFileResource resource;
+        ProjectMSRunResourceAssembler assembler = new ProjectMSRunResourceAssembler(MSRunController.class, PrideMSRunResource.class);
+        PrideMSRunResource resource;
         if(!file.isPresent())
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
 
