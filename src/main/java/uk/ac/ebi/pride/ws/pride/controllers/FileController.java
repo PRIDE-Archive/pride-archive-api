@@ -77,15 +77,36 @@ public class FileController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/files/{fileAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PrideFileResource> getFile(@PathVariable(value="fileAccession") String fileAccession) {
+    @RequestMapping(value = "/files/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<PrideFileResource> getFile(@PathVariable(value="accession") String accession) {
 
-        Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(fileAccession);
+        Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(accession);
 
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
         PrideFileResource resource = assembler.toResource(file.get());
 
         return new HttpEntity<>(resource);
+    }
+
+    @ApiOperation(notes = "Get a Files for Pride Project", value = "files", nickname = "byProject", tags = {"files"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/files/byProject", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<PrideFileResource>> getByProject(@RequestParam(value="accession") String accession) {
+
+        List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
+
+        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
+        List<PrideFileResource> resources = null;
+
+        if(files != null && !files.isEmpty()){
+            resources = assembler.toResources(files);
+            return new ResponseEntity<>(resources, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(resources, HttpStatus.NO_CONTENT);
     }
 
     @ApiOperation(notes = "Get all Files in PRIDE Archive", value = "files", nickname = "getFiles", tags = {"files"} )
