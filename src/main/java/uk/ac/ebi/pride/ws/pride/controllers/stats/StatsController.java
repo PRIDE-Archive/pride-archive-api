@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.ws.pride.controllers;
+package uk.ac.ebi.pride.ws.pride.controllers.stats;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

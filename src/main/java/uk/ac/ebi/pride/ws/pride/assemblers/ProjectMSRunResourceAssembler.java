@@ -5,7 +5,7 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
-import uk.ac.ebi.pride.ws.pride.controllers.FileController;
+import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRunResource;
 

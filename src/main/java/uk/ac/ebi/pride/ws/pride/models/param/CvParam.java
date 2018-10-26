@@ -23,6 +23,13 @@ public class CvParam implements CvParamProvider {
     String name;
     String value;
 
+    public CvParam(String cvLabel, String accession, String name, String value) {
+        this.cvLabel = cvLabel;
+        this.accession = accession;
+        this.name = name;
+        this.value = value;
+    }
+
     @Override
     public String getCvLabel() {
         return cvLabel;

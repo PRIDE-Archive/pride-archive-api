@@ -1,22 +1,18 @@
-package uk.ac.ebi.pride.ws.pride.controllers;
+package uk.ac.ebi.pride.ws.pride.controllers.file;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectMSRunResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.file.MSRunMetadata;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRunResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 

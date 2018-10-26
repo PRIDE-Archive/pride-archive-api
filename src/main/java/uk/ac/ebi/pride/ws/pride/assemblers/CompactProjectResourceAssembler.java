@@ -6,7 +6,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
-import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
+import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 
