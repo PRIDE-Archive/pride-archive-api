@@ -9,12 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
-import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
-import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoPrideSample;
-import uk.ac.ebi.pride.mongodb.archive.repo.samples.PrideMongoSampleRepository;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.samples.PrideSampleMongoService;
 import uk.ac.ebi.pride.utilities.annotator.SampleAttributes;
@@ -27,10 +24,10 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRun;
+import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.util.ArrayList;
@@ -177,37 +174,8 @@ public class AnnotatorController {
         if(mongoSamples != null){
 
             List<SampleMSRun> samples = mongoSamples.stream()
-                    .map( x ->{
-                        SampleMSRunTuple sampleMSRun = (SampleMSRunTuple) x;
-                        CvParamProvider fractionMongo = sampleMSRun.getFractionIdentifier();
-                        CvParamProvider labelMongo = sampleMSRun.getSampleLabel();
-                        CvParamProvider technicalRep = sampleMSRun.getTechnicalReplicateIdentifier();
-
-                        // Capture the Fraction information
-                        CvParam fraction = null;
-                        if(fractionMongo != null)
-                            fraction = new CvParam(fractionMongo.getCvLabel(), fractionMongo.getAccession(),fractionMongo.getName(), fractionMongo.getValue());
-
-                        //Capture the Labeling
-                        CvParam label = null;
-                        if(labelMongo != null)
-                            label = new CvParam(labelMongo.getCvLabel(), labelMongo.getAccession(),labelMongo.getName(), labelMongo.getValue());
-
-                        //Capture the Labeling
-                        CvParam rep = null;
-                        if(technicalRep != null)
-                            rep = new CvParam(technicalRep.getCvLabel(), technicalRep.getAccession(),technicalRep.getName(), technicalRep.getValue());
-
-                        return SampleMSRun.builder()
-                                .sampleAccession((String) sampleMSRun.getKey())
-                                .msRunAccession((String) sampleMSRun.getValue())
-                                .fractionIdentifier(fraction)
-                                .sampleLabel(label)
-                                .technicalReplicateIdentifier(rep)
-                                .msRunAccession((String) x.getValue())
-                                .additionalProperies((List<Tuple<CvParam, CvParam>>) ((SampleMSRunTuple) x).getAdditionalProperties())
-                                .build();
-                    } ).collect(Collectors.toList());
+                    .map(Transformer::transformSampleMSrun)
+                    .collect(Collectors.toList());
 
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
@@ -216,6 +184,61 @@ public class AnnotatorController {
         return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
 
     }
+
+
+    @ApiOperation(notes = "Update Sample information ", value = "annotator", nickname = "updateSamples", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/{accession}/updateSamples", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<Sample>> updateSamples(@PathVariable( value = "accession") String accession,
+                                                      @RequestBody List<Sample> samples
+    ) {
+
+        List<MongoPrideSample> mongoSamples = sampleMongoService.updateSamplesByProjectAccession(accession, samples);
+        if(mongoSamples != null){
+
+            samples = mongoSamples.stream().map( x-> Sample.builder().accession((String) x.getAccession())
+                    .sampleProperties(x.getSampleProperties())
+                    .build()).collect(Collectors.toList());
+
+            return new ResponseEntity<>(samples, HttpStatus.OK);
+        }
+
+
+        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
+
+    }
+
+    @ApiOperation(notes = "Update Sample - MSRun Table", value = "annotator", nickname = "updateSampleMSRuns", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/{accession}/updateSampleMsRuns", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<SampleMSRun>> updateSampleMSRuns(@PathVariable( value = "accession") String accession,
+                                                                @RequestBody List<SampleMSRun> samples) {
+
+        Collection<? extends SampleMSRunTuple> mongoSamples = sampleMongoService.updateSamplesMRunProjectAccession(accession, samples);
+        if(mongoSamples != null){
+
+           samples = mongoSamples.stream()
+                    .map(Transformer::transformSampleMSrun).collect(Collectors.toList());
+
+            return new ResponseEntity<>(samples, HttpStatus.OK);
+        }
+
+
+        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
+
+    }
+
+
+
+
 
 
 

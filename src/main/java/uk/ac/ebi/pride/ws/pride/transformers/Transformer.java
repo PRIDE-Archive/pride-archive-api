@@ -1,9 +1,15 @@
 package uk.ac.ebi.pride.ws.pride.transformers;
 
+import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
+import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
+import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
+import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRun;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -45,5 +51,40 @@ public class Transformer {
                     .collect(Collectors.toSet()));
 
         return msRun;
+    }
+
+
+    public static SampleMSRun transformSampleMSrun(SampleMSRunTuple mongoSampleMSrun){
+
+            SampleMSRunTuple sampleMSRun = (SampleMSRunTuple) mongoSampleMSrun;
+            CvParamProvider fractionMongo = sampleMSRun.getFractionIdentifier();
+            CvParamProvider labelMongo = sampleMSRun.getSampleLabel();
+            CvParamProvider technicalRep = sampleMSRun.getTechnicalReplicateIdentifier();
+
+            // Capture the Fraction information
+            CvParam fraction = null;
+            if(fractionMongo != null)
+                fraction = new CvParam(fractionMongo.getCvLabel(), fractionMongo.getAccession(),fractionMongo.getName(), fractionMongo.getValue());
+
+            //Capture the Labeling
+            CvParam label = null;
+            if(labelMongo != null)
+                label = new CvParam(labelMongo.getCvLabel(), labelMongo.getAccession(),labelMongo.getName(), labelMongo.getValue());
+
+            //Capture the Labeling
+            CvParam rep = null;
+            if(technicalRep != null)
+                rep = new CvParam(technicalRep.getCvLabel(), technicalRep.getAccession(),technicalRep.getName(), technicalRep.getValue());
+
+            return SampleMSRun.builder()
+                    .sampleAccession((String) sampleMSRun.getKey())
+                    .msRunAccession((String) sampleMSRun.getValue())
+                    .fractionIdentifier(fraction)
+                    .sampleLabel(label)
+                    .technicalReplicateIdentifier(rep)
+                    .msRunAccession((String) mongoSampleMSrun.getValue())
+                    .additionalProperies((List<Tuple<CvParam, CvParam>>) mongoSampleMSrun.getAdditionalProperties())
+                    .build();
+
     }
 }
