@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.utilities.annotator.SampleAttributes;
 import uk.ac.ebi.pride.utilities.annotator.SampleClass;
-import uk.ac.ebi.pride.utilities.annotator.SupportedOntologies;
 import uk.ac.ebi.pride.utilities.annotator.TypeAttribute;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
@@ -82,7 +82,6 @@ public class AnnotatorController {
 
     }
 
-
     @ApiOperation(notes = "Get Values by Sample Attribute ", value = "annotator", nickname = "getValuesByAttribute", tags = {"annotator"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
@@ -94,7 +93,7 @@ public class AnnotatorController {
                                                              @RequestParam(value = "ontologyAccession" , required = true) String ontologyAccession,
                                                              @RequestParam(value = "keyword", required = true) String keyword) {
 
-        List<CvParam> valueAttributes = new ArrayList<>();
+        List<CvParam> valueAttributes;
         Term term =  olsClient.getTermById(new Identifier(attributeAccession, Identifier.IdentifierType.OBO), ontologyAccession);
         List<Term> terms = olsClient.getTermsByNameFromParent(keyword, term.getOntologyPrefix().toLowerCase(),false, term.getIri().getIdentifier());
 
@@ -106,5 +105,30 @@ public class AnnotatorController {
         return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
 
     }
+
+    @ApiOperation(notes = "Get Labeling values", value = "annotator", nickname = "getLabelingValues", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/getLabelingValues", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<CvParam>> getLabelingValues() {
+
+        List<CvParam> valueAttributes = new ArrayList<>();
+        valueAttributes.add( new CvParam(CvTermReference.MS_LABEL_FREE_SAMPLE.getCvLabel(), CvTermReference.MS_LABEL_FREE_SAMPLE.getAccession(), CvTermReference.MS_LABEL_FREE_SAMPLE.getName(), null));
+
+        List<Term> terms =  olsClient.getTermChildren(new Identifier("MS:1002602", Identifier.IdentifierType.OBO), "ms", 3);
+        valueAttributes.addAll(terms.stream()
+                .map( x-> new CvParam(x.getOntologyName(), x.getOboId().getIdentifier(), x.getName(), null))
+                .collect(Collectors.toList()));
+
+
+        return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
+
+    }
+
+
+
 
 }
