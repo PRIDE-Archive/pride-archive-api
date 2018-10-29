@@ -7,11 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
+import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
+import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoPrideSample;
+import uk.ac.ebi.pride.mongodb.archive.repo.samples.PrideMongoSampleRepository;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
+import uk.ac.ebi.pride.mongodb.archive.service.samples.PrideSampleMongoService;
 import uk.ac.ebi.pride.utilities.annotator.SampleAttributes;
 import uk.ac.ebi.pride.utilities.annotator.SampleClass;
 import uk.ac.ebi.pride.utilities.annotator.TypeAttribute;
@@ -22,10 +27,15 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
+import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
+import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRun;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,12 +56,14 @@ public class AnnotatorController {
 
 
     private final PrideFileMongoService mongoFileService;
+    private final PrideSampleMongoService sampleMongoService;
     private final CustomPagedResourcesAssembler customPagedResourcesAssembler;
     private static OLSClient olsClient = new OLSClient(new OLSWsConfigProd());
 
     @Autowired
-    public AnnotatorController(PrideFileMongoService mongoFileService, CustomPagedResourcesAssembler customPagedResourcesAssembler) {
+    public AnnotatorController(PrideFileMongoService mongoFileService, PrideSampleMongoService sampleMongoService, CustomPagedResourcesAssembler customPagedResourcesAssembler) {
         this.mongoFileService = mongoFileService;
+        this.sampleMongoService = sampleMongoService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
     }
 
@@ -125,6 +137,83 @@ public class AnnotatorController {
 
 
         return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
+
+    }
+
+    @ApiOperation(notes = "Get Samples for Project Accession", value = "annotator", nickname = "getSamples", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/{accession}/samples", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<Sample>> getSamples(@PathVariable( value = "accession") String accession) {
+
+        List<MongoPrideSample> mongoSamples = sampleMongoService.getSamplesByProjectAccession(accession);
+        if(mongoSamples != null){
+
+            List<Sample> samples = mongoSamples.stream().map( x-> Sample.builder().accession((String) x.getAccession())
+                    .sampleProperties(x.getSampleProperties())
+                    .build()).collect(Collectors.toList());
+
+            return new ResponseEntity<>(samples, HttpStatus.OK);
+        }
+
+
+        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
+
+    }
+
+    @ApiOperation(notes = "Get Samples - MSRun Table", value = "annotator", nickname = "getSampleMSRuns", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/{accession}/sampleMsRuns", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<SampleMSRun>> getSampleMSRuns(@PathVariable( value = "accession") String accession) {
+
+        Collection<? extends SampleMSRunTuple> mongoSamples = sampleMongoService.getSamplesMRunProjectAccession(accession);
+        if(mongoSamples != null){
+
+            List<SampleMSRun> samples = mongoSamples.stream()
+                    .map( x ->{
+                        SampleMSRunTuple sampleMSRun = (SampleMSRunTuple) x;
+                        CvParamProvider fractionMongo = sampleMSRun.getFractionIdentifier();
+                        CvParamProvider labelMongo = sampleMSRun.getSampleLabel();
+                        CvParamProvider technicalRep = sampleMSRun.getTechnicalReplicateIdentifier();
+
+                        // Capture the Fraction information
+                        CvParam fraction = null;
+                        if(fractionMongo != null)
+                            fraction = new CvParam(fractionMongo.getCvLabel(), fractionMongo.getAccession(),fractionMongo.getName(), fractionMongo.getValue());
+
+                        //Capture the Labeling
+                        CvParam label = null;
+                        if(labelMongo != null)
+                            label = new CvParam(labelMongo.getCvLabel(), labelMongo.getAccession(),labelMongo.getName(), labelMongo.getValue());
+
+                        //Capture the Labeling
+                        CvParam rep = null;
+                        if(technicalRep != null)
+                            rep = new CvParam(technicalRep.getCvLabel(), technicalRep.getAccession(),technicalRep.getName(), technicalRep.getValue());
+
+                        return SampleMSRun.builder()
+                                .sampleAccession((String) sampleMSRun.getKey())
+                                .msRunAccession((String) sampleMSRun.getValue())
+                                .fractionIdentifier(fraction)
+                                .sampleLabel(label)
+                                .technicalReplicateIdentifier(rep)
+                                .msRunAccession((String) x.getValue())
+                                .additionalProperies((List<Tuple<CvParam, CvParam>>) ((SampleMSRunTuple) x).getAdditionalProperties())
+                                .build();
+                    } ).collect(Collectors.toList());
+
+            return new ResponseEntity<>(samples, HttpStatus.OK);
+        }
+
+
+        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
 
     }
 

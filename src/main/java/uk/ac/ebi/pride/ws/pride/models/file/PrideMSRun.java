@@ -1,13 +1,9 @@
 package uk.ac.ebi.pride.ws.pride.models.file;
 
-import lombok.Builder;
-import lombok.Data;
+import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -21,7 +17,7 @@ import java.util.Set;
  * @author ypriverol on 24/10/2018.
  */
 
-public class PrideMSRun extends PrideFile{
+public class PrideMSRun extends PrideFile implements MsRunProvider {
 
     Set<CvParamProvider> fileProperties = new HashSet<>();
     Set<CvParamProvider> instrumentProperties = new HashSet<>();
@@ -62,5 +58,10 @@ public class PrideMSRun extends PrideFile{
 
     public Set<CvParamProvider> getScanSettings() {
         return scanSettings;
+    }
+
+    @Override
+    public Collection<? extends String> getAdditionalAttributesStrings() {
+        return Collections.EMPTY_LIST;
     }
 }

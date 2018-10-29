@@ -8,6 +8,7 @@ import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRunResource;
+import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,25 +34,7 @@ public class ProjectMSRunResourceAssembler extends ResourceAssemblerSupport<Mong
     @Override
     public PrideMSRunResource toResource(MongoPrideMSRun mongoFile) {
 
-        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), mongoFile.getFileCategory(), mongoFile.getMd5Checksum(), mongoFile.getPublicFileLocations(), mongoFile.getFileSizeBytes(), mongoFile.getFileExtension(), mongoFile.getFileName(), mongoFile.isCompress(), mongoFile.getSubmissionDate(), mongoFile.getPublicationDate(), mongoFile.getUpdatedDate(), mongoFile.getAdditionalAttributes());
-
-        if(mongoFile.getFileProperties() != null)
-            msRun.setFileProperties(mongoFile.getFileProperties()
-                .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                .collect(Collectors.toSet()));
-        if(mongoFile.getInstrumentProperties() != null)
-            msRun.setInstrumentProperties(mongoFile.getInstrumentProperties()
-                .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                .collect(Collectors.toSet()));
-        if(mongoFile.getMsData() != null)
-            msRun.setMsData(mongoFile.getMsData()
-                    .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toSet()));
-        if(mongoFile.getScanSettings() != null)
-            msRun.setScanSettings(mongoFile.getScanSettings()
-                    .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toSet()));
-
+        PrideMSRun msRun = Transformer.transformMSRun(mongoFile);
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
         return new PrideMSRunResource(msRun, links);
