@@ -234,7 +234,7 @@ public class AnnotatorController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
-    @RequestMapping(value = "/annotator/{accession}/getDefaultValuesByProperty", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/annotator/getDefaultValuesByProperty", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<Tuple<CvParam, CvParam>>> getDefaultValuesByProperty() {
 
         List<Tuple<CvParam, CvParam>> defaultValues = new ArrayList<>();
