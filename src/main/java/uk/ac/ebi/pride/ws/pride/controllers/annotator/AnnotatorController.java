@@ -256,16 +256,16 @@ public class AnnotatorController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/annotator/getSampleMSRunAttributes", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Map<CvParam, CvParam>> getSampleMSRunAttributes() {
+    public ResponseEntity<List<Tuple<CvParam, CvParam>>> getSampleMSRunAttributes() {
 
-        Map<CvParam, CvParam> listAttributes = new HashMap<>();
+        List<Tuple<CvParam, CvParam>> listAttributes = new ArrayList<>();
         for(MSRunAttributes attribute: MSRunAttributes.values()){
             CvParam key = new CvParam(attribute.getCvTerm().getCvLabel(), attribute.getCvTerm().getAccession(), attribute.getCvTerm().getName(), null);
             CvParam defaultValue = null;
             if(attribute.getDefaultTerm() != null){
                 defaultValue = new CvParam(attribute.getDefaultTerm().getCvLabel(), attribute.getDefaultTerm().getAccession(), attribute.getDefaultTerm().getName(), null);
             }
-            listAttributes.put(key, defaultValue);
+            listAttributes.add(new Tuple<>(key, defaultValue));
         }
         return new ResponseEntity<>(listAttributes, HttpStatus.OK);
 
