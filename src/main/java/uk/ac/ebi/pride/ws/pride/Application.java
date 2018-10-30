@@ -7,8 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.hateoas.RelProvider;
@@ -37,9 +40,10 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  */
 
 @EnableSwagger2
-@SpringBootApplication(scanBasePackageClasses = {ProjectController.class,
-        FileController.class, MSRunController.class, StatsController.class,
-        SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, AnnotatorController.class, SwaggerConfig.class})
+
+@SpringBootApplication/*(scanBasePackageClasses = {ProjectController.class, FileController.class,
+        SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})*/
+@ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security"})
 public class Application {
 
     public static void main(String[] args) {
