@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -21,8 +20,11 @@ import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
-import uk.ac.ebi.pride.ws.pride.controllers.FileController;
-import uk.ac.ebi.pride.ws.pride.controllers.ProjectController;
+import uk.ac.ebi.pride.ws.pride.controllers.annotator.AnnotatorController;
+import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
+import uk.ac.ebi.pride.ws.pride.controllers.file.MSRunController;
+import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
+import uk.ac.ebi.pride.ws.pride.controllers.stats.StatsController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
@@ -35,8 +37,9 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  */
 
 @EnableSwagger2
-@SpringBootApplication(scanBasePackageClasses = {ProjectController.class, FileController.class,
-        SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})
+@SpringBootApplication(scanBasePackageClasses = {ProjectController.class,
+        FileController.class, MSRunController.class, StatsController.class,
+        SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, AnnotatorController.class, SwaggerConfig.class})
 public class Application {
 
     public static void main(String[] args) {

@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.ws.pride.models.file;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.hateoas.core.Relation;
@@ -23,13 +24,14 @@ import java.util.Set;
 @JsonRootName("file")
 @JsonTypeName("file")
 @Relation(collectionRelation = "files")
+@AllArgsConstructor
 public class PrideFile implements Serializable {
     Set<String> projectAccessions;
     Set<String> analysisAccessions;
     String accession;
     CvParamProvider fileCategory;
     String md5Checksum;
-    List<CvParamProvider> publicFileLocations;
+    List<? extends CvParamProvider> publicFileLocations;
     long fileSizeBytes;
     String fileExtension;
     private String fileName;
@@ -37,6 +39,6 @@ public class PrideFile implements Serializable {
     private Date submissionDate;
     private Date publicationDate;
     private Date updatedDate;
-    List<CvParamProvider> additionalAttributes;
+    List<? extends CvParamProvider> additionalAttributes;
 
 }
