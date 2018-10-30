@@ -30,7 +30,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {Application.class,MongoProjectConfig.class,SolrCloudConfig.class,SwaggerConfig.class})
+@SpringBootTest(classes = {Application.class, MongoProjectConfig.class,SolrCloudConfig.class,SwaggerConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 @AutoConfigureRestDocs
 public class ArchiveAPITest {
