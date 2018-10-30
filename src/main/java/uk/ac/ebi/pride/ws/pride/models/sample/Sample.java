@@ -6,12 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.hateoas.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.common.ITuple;
+import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
+import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -33,7 +36,7 @@ import java.util.Collection;
 public class Sample implements SampleProvider {
 
     public String accession;
-    public Collection<ITuple<CvParamProvider, CvParamProvider>> sampleProperties = new ArrayList<>();
+    public Collection<Tuple<CvParam, CvParam>> sampleProperties = new ArrayList<>();
 
     @Override
     public Comparable getAccession() {
@@ -42,6 +45,8 @@ public class Sample implements SampleProvider {
 
     @Override
     public Collection<ITuple<CvParamProvider, CvParamProvider>> getSampleProperties() {
-        return sampleProperties;
+        if(sampleProperties != null)
+            sampleProperties.stream().map( x-> new Tuple<CvParamProvider, CvParamProvider>(x.getKey(), x.getValue())).collect(Collectors.toList());
+        return null;
     }
 }

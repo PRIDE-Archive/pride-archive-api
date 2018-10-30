@@ -5,10 +5,13 @@ import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
+import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoPrideSample;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
+import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRun;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +59,7 @@ public class Transformer {
 
     public static SampleMSRun transformSampleMSrun(SampleMSRunTuple mongoSampleMSrun){
 
-            SampleMSRunTuple sampleMSRun = (SampleMSRunTuple) mongoSampleMSrun;
+            SampleMSRunTuple sampleMSRun = mongoSampleMSrun;
             CvParamProvider fractionMongo = sampleMSRun.getFractionIdentifier();
             CvParamProvider labelMongo = sampleMSRun.getSampleLabel();
             CvParamProvider technicalRep = sampleMSRun.getTechnicalReplicateIdentifier();
@@ -86,5 +89,18 @@ public class Transformer {
                     .additionalProperies((List<Tuple<CvParam, CvParam>>) mongoSampleMSrun.getAdditionalProperties())
                     .build();
 
+    }
+
+    public static Sample transformSample(MongoPrideSample sample) {
+        if(sample != null){
+            List<Tuple<CvParam, CvParam>> properties = new ArrayList<>();
+            if(sample.getProperties() != null)
+                properties = sample.getProperties().stream().map(x -> new Tuple<>(new CvParam(x.getKey().getCvLabel(), x.getKey().getAccession(), x.getKey().getName(), x.getKey().getValue()),
+                        new CvParam(x.getValue().getCvLabel(), x.getValue().getAccession(), x.getValue().getName(), x.getValue().getValue()))).collect(Collectors.toList());
+            return Sample.builder().accession((String) sample.getAccession())
+                    .sampleProperties(properties)
+                    .build();
+        }
+        return null;
     }
 }

@@ -69,6 +69,6 @@ public class SampleMSRun implements SampleMSRunTuple {
 
     @Override
     public Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> getAdditionalProperties() {
-        return (Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>>) additionalProperies;
+        return additionalProperies;
     }
 }

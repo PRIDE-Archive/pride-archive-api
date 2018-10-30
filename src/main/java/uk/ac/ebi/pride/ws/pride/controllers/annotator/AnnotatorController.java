@@ -9,11 +9,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
-import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
 import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoPrideSample;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.samples.PrideSampleMongoService;
+import uk.ac.ebi.pride.utilities.annotator.MSRunAttributes;
 import uk.ac.ebi.pride.utilities.annotator.SampleAttributes;
 import uk.ac.ebi.pride.utilities.annotator.SampleClass;
 import uk.ac.ebi.pride.utilities.annotator.TypeAttribute;
@@ -30,10 +30,7 @@ import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRun;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +68,7 @@ public class AnnotatorController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/annotator/getSampleAttributes", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<Triple<SampleClass, TypeAttribute, CvParam>>> getSampleAttributes(@RequestParam(value = "accession", required = false) String accession) {
+    public ResponseEntity<List<Triple<SampleClass, TypeAttribute, CvParam>>> getSampleAttributes() {
 
         List<Triple<SampleClass, TypeAttribute, CvParam>> listAttributes = new ArrayList<>();
 
@@ -98,7 +95,7 @@ public class AnnotatorController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/annotator/getValuesByAttribute", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<CvParam>> getSampleAttributes(@RequestParam(value = "attributeAccession", required = false) String attributeAccession,
+    public ResponseEntity<List<CvParam>> getSampleAttributes(@RequestParam(value = "attributeAccession", required = true) String attributeAccession,
                                                              @RequestParam(value = "ontologyAccession" , required = true) String ontologyAccession,
                                                              @RequestParam(value = "keyword", required = true) String keyword) {
 
@@ -127,7 +124,7 @@ public class AnnotatorController {
         List<CvParam> valueAttributes = new ArrayList<>();
         valueAttributes.add( new CvParam(CvTermReference.MS_LABEL_FREE_SAMPLE.getCvLabel(), CvTermReference.MS_LABEL_FREE_SAMPLE.getAccession(), CvTermReference.MS_LABEL_FREE_SAMPLE.getName(), null));
 
-        List<Term> terms =  olsClient.getTermChildren(new Identifier("MS:1002602", Identifier.IdentifierType.OBO), "ms", 3);
+        List<Term> terms =  olsClient.getTermChildren(new Identifier(CvTermReference.MS_LABELING_MSRUN.getAccession(), Identifier.IdentifierType.OBO), CvTermReference.MS_LABELING_MSRUN.getCvLabel().toLowerCase(), 3);
         valueAttributes.addAll(terms.stream()
                 .map( x-> new CvParam(x.getOntologyName(), x.getOboId().getIdentifier(), x.getName(), null))
                 .collect(Collectors.toList()));
@@ -149,9 +146,7 @@ public class AnnotatorController {
         List<MongoPrideSample> mongoSamples = sampleMongoService.getSamplesByProjectAccession(accession);
         if(mongoSamples != null){
 
-            List<Sample> samples = mongoSamples.stream().map( x-> Sample.builder().accession((String) x.getAccession())
-                    .sampleProperties(x.getSampleProperties())
-                    .build()).collect(Collectors.toList());
+            List<Sample> samples = mongoSamples.stream().map(Transformer::transformSample).collect(Collectors.toList());
 
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
@@ -179,8 +174,6 @@ public class AnnotatorController {
 
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
-
-
         return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
 
     }
@@ -200,9 +193,7 @@ public class AnnotatorController {
         List<MongoPrideSample> mongoSamples = sampleMongoService.updateSamplesByProjectAccession(accession, samples);
         if(mongoSamples != null){
 
-            samples = mongoSamples.stream().map( x-> Sample.builder().accession((String) x.getAccession())
-                    .sampleProperties(x.getSampleProperties())
-                    .build()).collect(Collectors.toList());
+            samples = mongoSamples.stream().map(Transformer::transformSample).collect(Collectors.toList());
 
             return new ResponseEntity<>(samples, HttpStatus.OK);
         }
@@ -237,10 +228,47 @@ public class AnnotatorController {
     }
 
 
+    @ApiOperation(notes = "Get the default values for each property", value = "annotator", nickname = "getDefaultValuesByProperty", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/{accession}/getDefaultValuesByProperty", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<Tuple<CvParam, CvParam>>> getDefaultValuesByProperty() {
 
+        List<Tuple<CvParam, CvParam>> defaultValues = new ArrayList<>();
+        for(SampleAttributes sampleAttribute: SampleAttributes.values()){
+            if(sampleAttribute.getDefaultValue() != null){
+                defaultValues.add(new Tuple<>(new CvParam(sampleAttribute.getEfoTerm().getCvLabel(), sampleAttribute.getEfoTerm().getAccession(), sampleAttribute.getEfoTerm().getName(), null), new CvParam(sampleAttribute.getDefaultValue().getCvLabel(), sampleAttribute.getDefaultValue().getAccession(),
+                        sampleAttribute.getDefaultValue().getName(), null)));
+            }
+        }
 
+        return new ResponseEntity<>(defaultValues, HttpStatus.OK);
 
+    }
 
+    @ApiOperation(notes = "Get Default Characteristics for Sample - MSRun  ", value = "annotator", nickname = "getSampleMSRunAttributes", tags = {"annotator"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/annotator/getSampleMSRunAttributes", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Map<CvParam, CvParam>> getSampleMSRunAttributes() {
 
+        Map<CvParam, CvParam> listAttributes = new HashMap<>();
+        for(MSRunAttributes attribute: MSRunAttributes.values()){
+            CvParam key = new CvParam(attribute.getCvTerm().getCvLabel(), attribute.getCvTerm().getAccession(), attribute.getCvTerm().getName(), null);
+            CvParam defaultValue = null;
+            if(attribute.getDefaultTerm() != null){
+                defaultValue = new CvParam(attribute.getDefaultTerm().getCvLabel(), attribute.getDefaultTerm().getAccession(), attribute.getDefaultTerm().getName(), null);
+            }
+            listAttributes.put(key, defaultValue);
+        }
+        return new ResponseEntity<>(listAttributes, HttpStatus.OK);
+
+    }
 
 }
