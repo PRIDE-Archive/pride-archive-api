@@ -7,11 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.hateoas.RelProvider;
@@ -20,17 +18,8 @@ import org.springframework.hateoas.core.EvoInflectorRelProvider;
 import org.springframework.stereotype.Component;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
-import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
-import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
-import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
-import uk.ac.ebi.pride.ws.pride.controllers.annotator.AnnotatorController;
-import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
-import uk.ac.ebi.pride.ws.pride.controllers.file.MSRunController;
-import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
-import uk.ac.ebi.pride.ws.pride.controllers.stats.StatsController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 
 /**
  * Retrieve the projects {@link uk.ac.ebi.pride.archive.dataprovider.project.ProjectProvider} from PRIDE Archive and the corresponding information.
@@ -41,8 +30,7 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
 
 @EnableSwagger2
 
-@SpringBootApplication/*(scanBasePackageClasses = {ProjectController.class, FileController.class,
-        SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})*/
+@SpringBootApplication
 @ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security"})
 public class Application {
 
