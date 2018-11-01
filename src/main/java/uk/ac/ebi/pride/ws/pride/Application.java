@@ -40,6 +40,7 @@ import uk.ac.ebi.pride.ws.pride.utils.SimpleCORSFilter;
  */
 
 @EnableSwagger2
+
 @SpringBootApplication/*(scanBasePackageClasses = {ProjectController.class, FileController.class,
         SimpleCORSFilter.class, SolrCloudConfig.class, MongoProjectConfig.class, SwaggerConfig.class})*/
 @ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security"})
