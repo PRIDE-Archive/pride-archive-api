@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
@@ -12,7 +11,6 @@ import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the

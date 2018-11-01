@@ -59,10 +59,9 @@ public class Transformer {
 
     public static SampleMSRun transformSampleMSrun(SampleMSRunTuple mongoSampleMSrun){
 
-            SampleMSRunTuple sampleMSRun = mongoSampleMSrun;
-            CvParamProvider fractionMongo = sampleMSRun.getFractionIdentifier();
-            CvParamProvider labelMongo = sampleMSRun.getSampleLabel();
-            CvParamProvider technicalRep = sampleMSRun.getTechnicalReplicateIdentifier();
+        CvParamProvider fractionMongo = mongoSampleMSrun.getFractionIdentifier();
+            CvParamProvider labelMongo = mongoSampleMSrun.getSampleLabel();
+            CvParamProvider technicalRep = mongoSampleMSrun.getTechnicalReplicateIdentifier();
 
             // Capture the Fraction information
             CvParam fraction = null;
@@ -80,8 +79,8 @@ public class Transformer {
                 rep = new CvParam(technicalRep.getCvLabel(), technicalRep.getAccession(),technicalRep.getName(), technicalRep.getValue());
 
             return SampleMSRun.builder()
-                    .sampleAccession((String) sampleMSRun.getKey())
-                    .msRunAccession((String) sampleMSRun.getValue())
+                    .sampleAccession((String) mongoSampleMSrun.getKey())
+                    .msRunAccession((String) mongoSampleMSrun.getValue())
                     .fractionIdentifier(fraction)
                     .sampleLabel(label)
                     .technicalReplicateIdentifier(rep)

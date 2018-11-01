@@ -28,7 +28,7 @@ public class LoginController {
                     (auth_url, HttpMethod.GET, entity, String.class);
         }
         catch (HttpClientErrorException e){
-            throw new Exception(String.format("username/password wrong. Please check username or password to get token"),e);
+            throw new Exception("username/password wrong. Please check username or password to get token",e);
         }
         catch (Exception e){
             throw new RuntimeException("Error while getting AAP token",e);

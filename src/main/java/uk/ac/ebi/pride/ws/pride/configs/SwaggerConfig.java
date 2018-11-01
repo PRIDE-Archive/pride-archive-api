@@ -12,9 +12,8 @@ import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -40,7 +39,7 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.any())
                 .paths(paths())
                 .build().apiInfo(apiInfo())
-                .securitySchemes(Arrays.asList(apiKey()));
+                .securitySchemes(Collections.singletonList(apiKey()));
     }
 
     /**

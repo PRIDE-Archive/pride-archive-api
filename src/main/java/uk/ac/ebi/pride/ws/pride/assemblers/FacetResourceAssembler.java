@@ -9,9 +9,7 @@ import uk.ac.ebi.pride.solr.indexes.pride.utils.PrideSolrConstants;
 import uk.ac.ebi.pride.ws.pride.hateoas.Facet;
 import uk.ac.ebi.pride.ws.pride.hateoas.Facets;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
-import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -48,9 +46,8 @@ public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrPr
 
             PrideSolrConstants.AllowedDateGapConstants facetEnum = PrideSolrConstants.AllowedDateGapConstants.findByString(facetGap);
 
-            Arrays.asList(PrideProjectFieldEnum
+            Arrays.stream(PrideProjectFieldEnum
                     .values())
-                    .stream()
                     .filter(PrideProjectFieldEnum::getFacet)
                     .filter(x -> x.getType() == PrideSolrConstants.ConstantsSolrTypes.DATE)
                     .forEach( fieldGroup -> {

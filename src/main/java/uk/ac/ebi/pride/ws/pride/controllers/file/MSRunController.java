@@ -83,7 +83,7 @@ public class MSRunController {
             resource = assembler.toResource(file.get());
             return new ResponseEntity<>(resource, HttpStatus.OK);
         }
-        return new ResponseEntity<PrideMSRunResource>(resource, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(resource, HttpStatus.NO_CONTENT);
     }
 
     @ApiOperation(notes = "Get a MSRun for an specific PRIDE Project", value = "msruns", nickname = "getMSRunByProject", tags = {"msruns"} )
