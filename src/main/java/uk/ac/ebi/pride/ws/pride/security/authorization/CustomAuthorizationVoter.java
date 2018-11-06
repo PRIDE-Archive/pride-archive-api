@@ -5,9 +5,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import uk.ac.ebi.tsc.aap.client.model.Domain;
 import uk.ac.ebi.tsc.aap.client.model.User;
-import uk.ac.ebi.tsc.aap.client.security.UserAuthentication;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.Set;
 

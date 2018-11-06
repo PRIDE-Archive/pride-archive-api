@@ -18,7 +18,6 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -80,7 +79,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .projectTags(mongoPrideProject.getProjectTags())
                 .additionalAttributes(mongoPrideProject.getAttributes())
                 .affiliations(mongoPrideProject.getAllAffiliations())
-                .identifiedPTMStrings(mongoPrideProject.getPtmList().stream().collect(Collectors.toSet()))
+                .identifiedPTMStrings(new HashSet<>(mongoPrideProject.getPtmList()))
                 .sampleProcessingProtocol(mongoPrideProject.getSampleProcessingProtocol())
                 .dataProcessingProtocol(mongoPrideProject.getDataProcessingProtocol())
                 .countries(mongoPrideProject.getCountries() != null ? new HashSet<>(mongoPrideProject.getCountries()) : Collections.EMPTY_SET)
@@ -104,9 +103,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
         Set<CvParamProvider> resultTerms = new HashSet<>();
         samplesDescription.stream()
                 .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
-                .forEach( y-> {
-                    y.getValue().forEach(z-> resultTerms.add( new DefaultCvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue())));
-                });
+                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new DefaultCvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
         return resultTerms;
     }
 

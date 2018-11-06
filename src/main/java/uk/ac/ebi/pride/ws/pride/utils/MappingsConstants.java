@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.ws.pride.utils;
 
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.ws.pride.models.PrideArchiveAPIField;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the

@@ -49,12 +49,6 @@
             <artifactId>security</artifactId>
             <version>${aapClientVersion}</version>
         </dependency>
-        <!--AAP Service relies on older springboot version and cannot be used unless they upgrade-->
-        <!--<dependency>
-            <groupId>uk.ac.ebi.tsc.aap.client</groupId>
-            <artifactId>service</artifactId>
-            <version>${aapClientVersion}</version>
-        </dependency>-->
 
         <!-- TDD -->
         <dependency>
@@ -100,14 +94,6 @@
             <artifactId>querydsl-lucene4</artifactId>
             <version>${querydsl.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>archive-repo</artifactId>
-            <version>${archive.repo.version}</version>
-        </dependency>
-
-
         <!-- Swagger Dependencies -->
         <dependency>
             <groupId>io.springfox</groupId>
