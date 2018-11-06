@@ -16,6 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
+import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.ws.pride.Application;
 import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
@@ -75,25 +77,29 @@ public class ArchiveAPITest {
 
     @Test
     public void getAllFilesTest() throws Exception {
-        this.mockMvc.perform(get("/files?filter=accession==PXF00000000015&pageSize=5&page=0").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/files?filter=accession==PXF00000000015&pageSize=5&page=0&sortDirection=DESC&sortConditions=submissionDate").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-all-files", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), requestParameters(
                         parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PXF00000000015. This filter allows advance querying and more information can be found at link:#_advance_filter[Advance Filter]"),
                         parameterWithName("pageSize").description("Number of results to fetch in a page"),
-                        parameterWithName("page").description("Identifies which page of results to fetch"))));
+                        parameterWithName("page").description("Identifies which page of results to fetch"),
+                        parameterWithName("sortDirection").description("Sorting direction: ASC or DESC"),
+                        parameterWithName("sortConditions").description("Field(s) for sorting the results on. Default for this request is "+ PrideArchiveField.SUBMISSION_DATE+". More fields can be separated by comma and passed. Example: "+PrideArchiveField.SUBMISSION_DATE+","+PrideArchiveField.FILE_NAME))));
     }
 
     /*Projects API Tests*/
 
     @Test
     public void getAllProjectsTest() throws Exception{
-        this.mockMvc.perform(get("/projects?pageSize=5&page=0").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/projects?pageSize=5&page=0&sortDirection=DESC&sortConditions=submissionDate").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-all-projects", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), requestParameters(
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
-                                parameterWithName("page").description("Identifies which page of results to fetch"))));
+                                parameterWithName("page").description("Identifies which page of results to fetch"),
+                                parameterWithName("sortDirection").description("Sorting direction: ASC or DESC"),
+                                parameterWithName("sortConditions").description("Field(s) for sorting the results on. Default for this request is "+ PrideArchiveField.SUBMISSION_DATE+". More fields can be separated by comma and passed. Example: "+PrideArchiveField.SUBMISSION_DATE+","+PrideArchiveField.FILE_NAME))));
     }
 
     @Test
@@ -109,13 +115,15 @@ public class ArchiveAPITest {
     @Test
     public void getProjectFilesTest() throws Exception {
 
-        this.mockMvc.perform(get("/projects/{accession}/files?filter=fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz&pageSize=5&page=0","PRD000001").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/projects/{accession}/files?filter=fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz&pageSize=5&page=0&sortDirection=DESC&sortConditions=submissionDate","PRD000001").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-files", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), pathParameters(parameterWithName("accession").description("The Accession id associated with this project")),requestParameters(
                                 parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example `fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz`. This filter allows advance querying and more information can be found at link:#_advance_filter[Advance Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
-                                parameterWithName("page").description("Identifies which page of results to fetch"))));
+                                parameterWithName("page").description("Identifies which page of results to fetch"),
+                                parameterWithName("sortDirection").description("Sorting direction: ASC or DESC"),
+                                parameterWithName("sortConditions").description("Field(s) for sorting the results on. Default for this request is "+ PrideArchiveField.SUBMISSION_DATE+". More fields can be separated by comma and passed. Example: "+PrideArchiveField.SUBMISSION_DATE+","+PrideArchiveField.FILE_NAME))));
     }
 
     @Test
@@ -132,7 +140,7 @@ public class ArchiveAPITest {
     @Test
     public void getProjectSearchResultsTest() throws Exception {
 
-        this.mockMvc.perform(get("/search/projects?keyword=*:*&filter=submission_date==2013-10-20&pageSize=5&page=0&dateGap=+1YEAR").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/search/projects?keyword=*:*&filter=submission_date==2013-10-20&pageSize=5&page=0&dateGap=+1YEAR&sortDirection=DESC&sortConditions=submissionDate").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-search", preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()), requestParameters(
@@ -140,7 +148,9 @@ public class ArchiveAPITest {
                                 parameterWithName("filter").description("Parameters to filter the search results. The strcuture of the filter is: field1==value1, field2==value2. Example accession==PRD000001. More information on this can be found at link:#_filter[Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"),
-                                parameterWithName("dateGap").description("A date range field with possible values of +1MONTH, +1YEAR"))));
+                                parameterWithName("dateGap").description("A date range field with possible values of +1MONTH, +1YEAR"),
+                                parameterWithName("sortDirection").description("Sorting direction: ASC or DESC"),
+                                parameterWithName("sortConditions").description("Field(s) for sorting the results on. Default for this request is "+ PrideProjectField.PROJECT_SUBMISSION_DATE +". More fields can be separated by comma and passed. Example: "+PrideProjectField.PROJECT_SUBMISSION_DATE+","+PrideProjectField.PROJECT_TILE))));
     }
 
     @Test

@@ -36,9 +36,9 @@ public class LoginController {
         return response.getBody();
     }
 
-    @RequestMapping(method = RequestMethod.POST,path="/secure")
+    @RequestMapping(method = RequestMethod.POST,path="/tokentest")
     public String getSecureMsg(){
-        return "Secure Msg";
+        return "Token Valid";
     }
 
     private static HttpHeaders createHttpHeaders(String username, String password) {

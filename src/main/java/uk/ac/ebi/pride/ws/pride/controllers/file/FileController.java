@@ -6,12 +6,14 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
@@ -116,18 +118,24 @@ public class FileController {
     })
     @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedResources> getFiles(@RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                                @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
-                                                  @RequestParam(value="page", defaultValue = "0" ,  required = false) int page) {
+                                               @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
+                                               @RequestParam(value="page", defaultValue = "0" ,  required = false) int page,
+                                               @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
+                                               @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE,  required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
+        Sort.Direction direction = Sort.Direction.DESC;
+        if(sortDirection.equalsIgnoreCase("ASC")){
+            direction = Sort.Direction.ASC;
+        }
 
         Page<MongoPrideFile> projectFiles;
         if(filter!=null && filter.trim().length()>0){
-            projectFiles = mongoFileService.searchFiles(filter, PageRequest.of(page, pageSize));
+            projectFiles = mongoFileService.searchFiles(filter, PageRequest.of(page, pageSize,direction,sortFields.split(",")));
         }else{
-            projectFiles = mongoFileService.findAll(PageRequest.of(page, pageSize));
+            projectFiles = mongoFileService.findAll(PageRequest.of(page, pageSize,direction,sortFields.split(",")));
         }
 
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
@@ -139,18 +147,17 @@ public class FileController {
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, page))
+                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, page,sortDirection,sortFields))
                         .withSelfRel(),
-                linkTo(methodOn(FileController.class).getFiles(filter,  pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
+                linkTo(methodOn(FileController.class).getFiles(filter,  pageSize, (int) WsUtils.validatePage(page + 1, totalPages),sortDirection,sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
+                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages),sortDirection,sortFields))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(FileController.class).getFiles(filter,  pageSize, 0))
+                linkTo(methodOn(FileController.class).getFiles(filter,  pageSize, 0,sortDirection,sortFields))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, (int) totalPages))
+                linkTo(methodOn(FileController.class).getFiles(filter, pageSize, (int) totalPages,sortDirection,sortFields))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
-
         return new HttpEntity<>(pagedResources);
     }
 }

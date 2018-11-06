@@ -6,6 +6,7 @@ import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.param.MongoCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.solr.indexes.pride.utils.StringUtils;
@@ -38,8 +39,8 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
 
         Method method = null;
         try {
-            method = ProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class);
-            Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0).withRel(WsContastants.HateoasEnum.files.name());
+            method = ProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class, String.class, String.class);
+            Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
             links.add(link);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -58,7 +59,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
             PrideProject project = transform(mongoPrideProject);
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0)).withRel(WsContastants.HateoasEnum.files.name()));
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0,"DESC",PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
             projects.add(new ProjectResource(project, links));
         }
 
