@@ -52,6 +52,10 @@ public class Transformer {
             msRun.setScanSettings(mongoFile.getScanSettings()
                     .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
                     .collect(Collectors.toSet()));
+        if(mongoFile.getIdSettings() != null)
+            msRun.setIdSettings(mongoFile.getIdSettings()
+                    .stream()
+                    .collect(Collectors.toList()));
 
         return msRun;
     }

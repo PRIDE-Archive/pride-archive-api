@@ -46,6 +46,29 @@ public class MSRunController {
 
     /* The following end-points are related with MSRuns */
 
+    @ApiOperation(notes = "Update MSRun metadata partly", value = "msruns", nickname = "updateMetadataParts", tags = {"msruns"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+    })
+    @RequestMapping(value = "/msruns/{accession}/updateMetadataParts", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<PrideMSRunResource> updateMetadataParts(@PathVariable(value = "accession") String accession,
+                                                                  @RequestParam(name = "fieldName") String fieldName,
+                                                                  @RequestBody MSRunMetadata msRunMetadata
+
+    ) {
+        Optional<MongoPrideMSRun> file = mongoFileService.updateMSRunMetadataParts(fieldName,msRunMetadata, accession);
+        ProjectMSRunResourceAssembler assembler = new ProjectMSRunResourceAssembler(MSRunController.class, PrideMSRunResource.class);
+        PrideMSRunResource resource;
+        if(!file.isPresent())
+            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+
+        resource = assembler.toResource(file.get());
+        return new ResponseEntity(resource, HttpStatus.OK);
+
+    }
+
+
     @ApiOperation(notes = "Update MSRun metadata", value = "msruns", nickname = "updateMetadata", tags = {"msruns"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),

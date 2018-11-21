@@ -119,6 +119,51 @@ include::{snippets}/get-all-files/request-parameters.adoc[]
 ==== Example response
 include::{snippets}/get-all-files/response-body.adoc[]
 
+== MSRun Metadata
+
+=== Retrieve MSRun info by Project
+`*GET*` request to obtain all the file information including MSRun data for the given project accession.
+
+[discrete]
+==== Example request
+include::{snippets}/get-msrun-by-project/curl-request.adoc[]
+
+[discrete]
+==== Example response
+include::{snippets}/get-msrun-by-project/response-body.adoc[]
+
+=== Retrieve MSRun info by File
+`*GET*` request to obtain all the file information including MSRun data for the given file accession.
+
+[discrete]
+==== Example request
+include::{snippets}/get-msrun-by-file/curl-request.adoc[]
+
+[discrete]
+==== Example response
+include::{snippets}/get-msrun-by-file/response-body.adoc[]
+
+=== Update MSRun info of a File
+`*PUT*` request to update the MSRun information of a given file.
+
+[discrete]
+==== Example request
+include::{snippets}/put-msrun-into-file/curl-request.adoc[]
+
+[discrete]
+==== Example response
+include::{snippets}/put-msrun-into-file/response-body.adoc[]
+
+=== Update Parts of MSRun info in a File
+`*PUT*` request to update the parts of MSRun information of a given file.
+
+[discrete]
+==== Example request
+include::{snippets}/put-msrun-parts-into-file/curl-request.adoc[]
+
+[discrete]
+==== Example response
+include::{snippets}/put-msrun-parts-into-file/response-body.adoc[]
 
 == Stats
 

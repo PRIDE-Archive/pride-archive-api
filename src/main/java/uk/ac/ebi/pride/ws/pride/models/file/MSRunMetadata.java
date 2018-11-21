@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
+import uk.ac.ebi.pride.mongodb.archive.model.files.idsettings.IdSetting;
+import uk.ac.ebi.pride.mongodb.archive.model.param.MongoCvParam;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -25,64 +28,78 @@ import java.util.List;
 public class MSRunMetadata implements MsRunProvider {
 
     // File Properties in CvTerms
-    @JsonProperty("fileProperties")
-    List<CvParam> fileProperties;
+    @JsonProperty(PrideArchiveField.MS_RUN_FILE_PROPERTIES)
+    Set<MongoCvParam> fileProperties;
 
     // Instruments Properties
-    @JsonProperty("instrumentProperties")
-    List<CvParam> instrumentProperties;
+    @JsonProperty(PrideArchiveField.MS_RUN_INSTRUMENT_PROPERTIES)
+    Set<MongoCvParam> instrumentProperties;
 
     // MS Data Properties
-    @JsonProperty("msData")
-    List<CvParam> msData;
+    @JsonProperty(PrideArchiveField.MS_RUN_MS_DATA)
+    Set<MongoCvParam> msData;
 
     // Scan MS Properties
-    @JsonProperty("scanSettings")
-    List<CvParam> scanSettings;
+    @JsonProperty(PrideArchiveField.MS_RUN_SCAN_SETTINGS)
+    Set<MongoCvParam> scanSettings;
+
+    // Scan ID Settings
+    @JsonProperty(PrideArchiveField.MS_RUN_ID_SETTINGS)
+    Set<IdSetting> idSettings;
 
     public MSRunMetadata() {
     }
 
-    public MSRunMetadata(List<CvParam> fileProperties,
-                         List<CvParam> instrumentProperties,
-                         List<CvParam> msData,
-                         List<CvParam> scanSettings) {
+    public MSRunMetadata(Set<MongoCvParam> fileProperties,
+                         Set<MongoCvParam> instrumentProperties,
+                         Set<MongoCvParam> msData,
+                         Set<MongoCvParam> scanSettings,
+                         Set<IdSetting> idSettings) {
         this.fileProperties = fileProperties;
         this.instrumentProperties = instrumentProperties;
         this.msData = msData;
         this.scanSettings = scanSettings;
+        this.idSettings = idSettings;
     }
 
-    public void setFileProperties(List<CvParam> fileProperties) {
+    public void setFileProperties(Set<MongoCvParam> fileProperties) {
         this.fileProperties = fileProperties;
     }
 
-    public void setInstrumentProperties(List<CvParam> instrumentProperties) {
+    public void setInstrumentProperties(Set<MongoCvParam> instrumentProperties) {
         this.instrumentProperties = instrumentProperties;
     }
 
-    public void setMsData(List<CvParam> msData) {
+    public void setMsData(Set<MongoCvParam> msData) {
         this.msData = msData;
     }
 
-    public void setScanSettings(List<CvParam> scanSettings) {
+    public void setScanSettings(Set<MongoCvParam> scanSettings) {
         this.scanSettings = scanSettings;
     }
 
-    public List<CvParam> getFileProperties() {
+    public Set<MongoCvParam> getFileProperties() {
         return fileProperties;
     }
 
-    public List<CvParam> getInstrumentProperties() {
+    public Set<MongoCvParam> getInstrumentProperties() {
         return instrumentProperties;
     }
 
-    public List<CvParam> getMsData() {
+    public Set<MongoCvParam> getMsData() {
         return msData;
     }
 
     public Collection<? extends CvParamProvider> getScanSettings() {
         return scanSettings;
+    }
+
+    public Set<IdSetting> getIdSettings() {
+        return idSettings;
+    }
+
+    public void setIdSettings(Set<IdSetting> idSettings) {
+        this.idSettings = idSettings;
     }
 
     @Override
