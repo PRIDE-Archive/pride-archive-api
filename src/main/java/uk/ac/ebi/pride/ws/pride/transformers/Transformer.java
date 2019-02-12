@@ -4,8 +4,8 @@ import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
-import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
 import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoPrideSample;
+import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
@@ -34,7 +34,7 @@ public class Transformer {
      * @return msrun
      */
     public static PrideMSRun transformMSRun(MongoPrideMSRun mongoFile){
-        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), mongoFile.getFileCategory(), mongoFile.getMd5Checksum(), mongoFile.getPublicFileLocations(), mongoFile.getFileSizeBytes(), mongoFile.getFileExtension(), mongoFile.getFileName(), mongoFile.isCompress(), mongoFile.getSubmissionDate(), mongoFile.getPublicationDate(), mongoFile.getUpdatedDate(), mongoFile.getAdditionalAttributes());
+        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), null, null, null, -1, null, mongoFile.getFileName(), false,null,null,null, mongoFile.getAdditionalAttributes());
 
         if(mongoFile.getFileProperties() != null)
             msRun.setFileProperties(mongoFile.getFileProperties()

@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
+import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRunResource;

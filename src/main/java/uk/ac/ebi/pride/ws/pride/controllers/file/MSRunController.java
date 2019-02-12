@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideMSRun;
+import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
+import uk.ac.ebi.pride.mongodb.archive.service.msruns.PrideMsRunMongoService;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectMSRunResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.file.MSRunMetadata;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
@@ -36,11 +37,14 @@ public class MSRunController {
 
     final PrideFileMongoService mongoFileService;
 
+    final PrideMsRunMongoService mongoMSRunService;
+
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
     @Autowired
-    public MSRunController(PrideFileMongoService mongoFileService, CustomPagedResourcesAssembler customPagedResourcesAssembler) {
+    public MSRunController(PrideFileMongoService mongoFileService, CustomPagedResourcesAssembler customPagedResourcesAssembler,PrideMsRunMongoService mongoMSRunService) {
         this.mongoFileService = mongoFileService;
+        this.mongoMSRunService = mongoMSRunService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
     }
 
@@ -57,7 +61,7 @@ public class MSRunController {
                                                                   @RequestBody MSRunMetadata msRunMetadata
 
     ) {
-        Optional<MongoPrideMSRun> file = mongoFileService.updateMSRunMetadataParts(fieldName,msRunMetadata, accession);
+        Optional<MongoPrideMSRun> file = mongoMSRunService.updateMSRunMetadataParts(fieldName,msRunMetadata, accession);
         ProjectMSRunResourceAssembler assembler = new ProjectMSRunResourceAssembler(MSRunController.class, PrideMSRunResource.class);
         PrideMSRunResource resource;
         if(!file.isPresent())
@@ -79,7 +83,7 @@ public class MSRunController {
                                                             @RequestBody MSRunMetadata msRunMetadata
 
     ) {
-        Optional<MongoPrideMSRun> file = mongoFileService.updateMSRunMetadata(msRunMetadata, accession);
+        Optional<MongoPrideMSRun> file = mongoMSRunService.updateMSRunMetadata(msRunMetadata, accession);
         ProjectMSRunResourceAssembler assembler = new ProjectMSRunResourceAssembler(MSRunController.class, PrideMSRunResource.class);
         PrideMSRunResource resource;
         if(!file.isPresent())
@@ -98,7 +102,7 @@ public class MSRunController {
     @RequestMapping(value = "/msruns/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<PrideMSRunResource> getMSRun(@PathVariable(value="accession") String accession) {
 
-        Optional<MongoPrideMSRun> file = mongoFileService.findMSRunByAccession(accession);
+        Optional<MongoPrideMSRun> file = mongoMSRunService.findMSRunByAccession(accession);
 
         ProjectMSRunResourceAssembler assembler = new ProjectMSRunResourceAssembler(MSRunController.class, PrideMSRunResource.class);
         PrideMSRunResource resource = null;
@@ -117,7 +121,7 @@ public class MSRunController {
     @RequestMapping(value = "/msruns/byProject", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<PrideMSRunResource>> getMSRunByProject(@RequestParam(value="accession") String accession) {
 
-        List<MongoPrideMSRun> files = mongoFileService.getMSRunsByProject(accession);
+        List<MongoPrideMSRun> files = mongoMSRunService.getMSRunsByProject(accession);
 
         ProjectMSRunResourceAssembler assembler = new ProjectMSRunResourceAssembler(MSRunController.class, PrideMSRunResource.class);
         List<PrideMSRunResource> resource = null;
