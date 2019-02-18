@@ -9,8 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
-import uk.ac.ebi.pride.archive.dataprovider.sample.SampleMSRunTuple;
-import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoPrideSample;
+import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
+import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.samples.PrideSampleMongoService;
 import uk.ac.ebi.pride.utilities.annotator.MSRunAttributes;
@@ -26,7 +26,7 @@ import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
-import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRun;
+import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
@@ -143,7 +143,7 @@ public class AnnotatorController {
     @RequestMapping(value = "/annotator/{accession}/samples", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<Sample>> getSamples(@PathVariable( value = "accession") String accession) {
 
-        List<MongoPrideSample> mongoSamples = sampleMongoService.getSamplesByProjectAccession(accession);
+        Collection<? extends SampleProvider> mongoSamples = sampleMongoService.getSamplesByProjectAccession(accession);
         if(mongoSamples != null){
 
             List<Sample> samples = mongoSamples.stream().map(Transformer::transformSample).collect(Collectors.toList());
@@ -163,12 +163,12 @@ public class AnnotatorController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/annotator/{accession}/sampleMsRuns", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SampleMSRun>> getSampleMSRuns(@PathVariable( value = "accession") String accession) {
+    public ResponseEntity<List<SampleMSRunRow>> getSampleMSRuns(@PathVariable( value = "accession") String accession) {
 
-        Collection<? extends SampleMSRunTuple> mongoSamples = sampleMongoService.getSamplesMRunProjectAccession(accession);
+        Collection<? extends ISampleMSRunRow> mongoSamples = sampleMongoService.getSamplesMRunProjectAccession(accession);
         if(mongoSamples != null){
 
-            List<SampleMSRun> samples = mongoSamples.stream()
+            List<SampleMSRunRow> samples = mongoSamples.stream()
                     .map(Transformer::transformSampleMSrun)
                     .collect(Collectors.toList());
 
@@ -179,29 +179,29 @@ public class AnnotatorController {
     }
 
 
-    @ApiOperation(notes = "Update Sample information ", value = "annotator", nickname = "updateSamples", tags = {"annotator"} )
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
-            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
-    })
-    @RequestMapping(value = "/annotator/{accession}/updateSamples", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<Sample>> updateSamples(@PathVariable( value = "accession") String accession,
-                                                      @RequestBody List<Sample> samples
-    ) {
-
-        List<MongoPrideSample> mongoSamples = sampleMongoService.updateSamplesByProjectAccession(accession, samples);
-        if(mongoSamples != null){
-
-            samples = mongoSamples.stream().map(Transformer::transformSample).collect(Collectors.toList());
-
-            return new ResponseEntity<>(samples, HttpStatus.OK);
-        }
-
-
-        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
-
-    }
+//    @ApiOperation(notes = "Update Sample information ", value = "annotator", nickname = "updateSamples", tags = {"annotator"} )
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+//            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+//    })
+//    @RequestMapping(value = "/annotator/{accession}/updateSamples", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public ResponseEntity<List<Sample>> updateSamples(@PathVariable( value = "accession") String accession,
+//                                                      @RequestBody List<Sample> samples
+//    ) {
+//
+//        List<SampleMSRunRow> mongoSamples = sampleMongoService.updateSamplesByProjectAccession(accession, samples);
+//        if(mongoSamples != null){
+//
+//            samples = mongoSamples.stream().map(Transformer::transformSample).collect(Collectors.toList());
+//
+//            return new ResponseEntity<>(samples, HttpStatus.OK);
+//        }
+//
+//
+//        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
+//
+//    }
 
     @ApiOperation(notes = "Update Sample - MSRun Table", value = "annotator", nickname = "updateSampleMSRuns", tags = {"annotator"} )
     @ApiResponses({
@@ -210,10 +210,10 @@ public class AnnotatorController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/annotator/{accession}/updateSampleMsRuns", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<SampleMSRun>> updateSampleMSRuns(@PathVariable( value = "accession") String accession,
-                                                                @RequestBody List<SampleMSRun> samples) {
+    public ResponseEntity<List<SampleMSRunRow>> updateSampleMSRuns(@PathVariable( value = "accession") String accession,
+                                                                   @RequestBody List<uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow> samples) {
 
-        Collection<? extends SampleMSRunTuple> mongoSamples = sampleMongoService.updateSamplesMRunProjectAccession(accession, samples);
+        Collection<? extends ISampleMSRunRow> mongoSamples = sampleMongoService.updateSamplesMRunProjectAccession(accession, samples);
         if(mongoSamples != null){
 
            samples = mongoSamples.stream()

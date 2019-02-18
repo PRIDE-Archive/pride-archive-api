@@ -24,7 +24,7 @@ public class PrideMSRun extends PrideFile implements MsRunProvider {
     Set<CvParamProvider> instrumentProperties = new HashSet<>();
     Set<CvParamProvider> msData = new HashSet<>();
     Set<CvParamProvider> scanSettings = new HashSet<>();
-    List<IdSetting> idSettings = new ArrayList<IdSetting>();
+    List<IdSetting> idSettings = new ArrayList<>();
 
     public PrideMSRun(Set<String> projectAccessions, Set<String> analysisAccessions, String accession, CvParamProvider fileCategory, String md5Checksum, List<? extends CvParamProvider> publicFileLocations, long fileSizeBytes, String fileExtension, String fileName, boolean compress, Date submissionDate, Date publicationDate, Date updatedDate, List<? extends CvParamProvider> additionalAttributes) {
         super(projectAccessions, analysisAccessions, accession, fileCategory, md5Checksum, publicFileLocations, fileSizeBytes, fileExtension, fileName, compress, submissionDate, publicationDate, updatedDate, additionalAttributes);
@@ -67,7 +67,7 @@ public class PrideMSRun extends PrideFile implements MsRunProvider {
     }
 
     @Override
-    public Collection<? extends Object> getIdSettings() {
+    public Collection<?> getIdSettings() {
         return idSettings;
     }
 

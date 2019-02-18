@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.models.param;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 
 /**
@@ -50,9 +50,4 @@ public class CvParam implements CvParamProvider {
         return value;
     }
 
-    @Override
-    @JsonIgnore
-    public Comparable getId() {
-        return accession;
-    }
 }
