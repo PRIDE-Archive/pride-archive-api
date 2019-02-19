@@ -48,10 +48,10 @@ public class SampleMSRunRow implements ISampleMSRunRow {
     List<Tuple<CvParam, CvParam>> sampleProperties;
     List<Tuple<CvParam, CvParam>> msRunProperties;
 
-    public SampleMSRunRow(Comparable projectAccession, Comparable sampleAccession, Comparable msRunAccession, String fractionAccession, CvParamProvider sampleReagent, CvParamProvider sampleLabel, Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> sampleProperties, Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> msRunProperties) {
-        this.projectAccession = projectAccession.toString();
-        this.sampleAccession = sampleAccession.toString();
-        this.msRunAccession = msRunAccession.toString();
+    public SampleMSRunRow(String projectAccession, String sampleAccession, String msRunAccession, String fractionAccession, CvParamProvider sampleReagent, CvParamProvider sampleLabel, Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> sampleProperties, Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> msRunProperties) {
+        this.projectAccession = projectAccession;
+        this.sampleAccession = sampleAccession;
+        this.msRunAccession = msRunAccession;
         this.fractionAccession = fractionAccession;
         this.sampleLabel = (sampleLabel != null)? new CvParam(sampleLabel.getCvLabel(), sampleLabel.getAccession(), sampleLabel.getName(), sampleLabel.getValue()): null;
         this.sampleReagent = (sampleReagent != null)? new CvParam(sampleReagent.getCvLabel(), sampleReagent.getAccession(), sampleReagent.getName(), sampleReagent.getValue()): null;
@@ -70,17 +70,17 @@ public class SampleMSRunRow implements ISampleMSRunRow {
     }
 
     @Override
-    public Comparable getProjectAccession() {
+    public String getProjectAccession() {
         return projectAccession;
     }
 
     @Override
-    public Comparable getSampleAccession() {
+    public String getSampleAccession() {
         return sampleAccession;
     }
 
     @Override
-    public Comparable getMSRunAccession() {
+    public String getMSRunAccession() {
         return msRunAccession;
     }
 
@@ -100,6 +100,7 @@ public class SampleMSRunRow implements ISampleMSRunRow {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public CvParamProvider getFractionIdentifierCvParam() {
         return new DefaultCvParam(CvTermReference.MS_FRACTION_IDENTIFIER.getCvLabel(),CvTermReference.MS_FRACTION_IDENTIFIER.getAccession(), CvTermReference.MS_FRACTION_IDENTIFIER.getName(), fractionAccession);
     }

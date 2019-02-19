@@ -134,16 +134,14 @@ public class AnnotatorController {
         List<CvParam> valueAttributes = new ArrayList<>();
         valueAttributes.add( new CvParam(CvTermReference.MS_LABEL_FREE_SAMPLE.getCvLabel(), CvTermReference.MS_LABEL_FREE_SAMPLE.getAccession(), CvTermReference.MS_LABEL_FREE_SAMPLE.getName(), null));
 
-        List<Term> terms =  olsClient.getTermChildren(new Identifier(CvTermReference.MS_LABELING_MSRUN.getAccession(), Identifier.IdentifierType.OBO), CvTermReference.MS_LABELING_MSRUN.getCvLabel().toLowerCase(), 3);
+        List<Term> terms =  olsClient.getTermChildren(new Identifier(CvTermReference.MS_LABELING_MSRUN.getAccession(), Identifier.IdentifierType.OBO),
+                CvTermReference.MS_LABELING_MSRUN.getCvLabel().toLowerCase(), 3);
 
-        if(keyword != null || keyword.isEmpty())
+        if(keyword !=null && !keyword.isEmpty())
             terms = terms.stream().filter(x -> x.getName().toLowerCase().contains(keyword.trim().toLowerCase())).collect(Collectors.toList());
 
         valueAttributes.addAll(terms.stream().map( x-> new CvParam(x.getOntologyName(), x.getOboId().getIdentifier(), x.getName(), null))
                 .collect(Collectors.toList()));
-
-
-
 
         return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
 

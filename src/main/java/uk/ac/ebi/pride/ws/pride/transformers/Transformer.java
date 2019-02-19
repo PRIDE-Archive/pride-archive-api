@@ -77,8 +77,9 @@ public class Transformer {
         //Capture the Labeling
         CvParam rep = null;
 
-        return new SampleMSRunRow(mongoSampleMSrun.getProjectAccession(), mongoSampleMSrun.getSampleAccession(), mongoSampleMSrun.getMSRunAccession(), mongoSampleMSrun.getFractionAccession(), mongoSampleMSrun.getLabelReagent(),
-                    mongoSampleMSrun.getSampleLabel(), mongoSampleMSrun.getSampleProperties(), mongoSampleMSrun.getMSRunProperties());
+        return new SampleMSRunRow(mongoSampleMSrun.getProjectAccession().toString(), mongoSampleMSrun.getSampleAccession().toString(),
+                mongoSampleMSrun.getMSRunAccession().toString(), mongoSampleMSrun.getFractionAccession(), mongoSampleMSrun.getLabelReagent(),
+                mongoSampleMSrun.getSampleLabel(), mongoSampleMSrun.getSampleProperties(), mongoSampleMSrun.getMSRunProperties());
 
     }
 
