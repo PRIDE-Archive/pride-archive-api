@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.ws.pride.configs;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -11,6 +12,7 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.paths.RelativePathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import java.util.Collections;
@@ -32,14 +34,28 @@ import java.util.Collections;
 @Configuration
 public class SwaggerConfig {
 
+    @Value("${deployment.env}")
+    private String  deploymentEnv;
+
     @Bean
     public Docket swaggerSpringMvcPlugin() {
-        return new Docket(DocumentationType.SWAGGER_2)
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(paths())
                 .build().apiInfo(apiInfo())
                 .securitySchemes(Collections.singletonList(apiKey()));
+
+        if(deploymentEnv != null && deploymentEnv.equalsIgnoreCase("prd")){
+            docket = docket.pathProvider(new RelativePathProvider(null) {
+                @Override
+                public String getApplicationBasePath() {
+                    return "/pride/ws/archive/v2";
+                }
+            });
+        }
+
+        return docket;
     }
 
     /**

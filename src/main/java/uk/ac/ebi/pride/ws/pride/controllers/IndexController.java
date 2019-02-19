@@ -11,7 +11,7 @@ public class IndexController {
 
     @RequestMapping(method = RequestMethod.GET, path = "/")
     public String getSwaggerUI(){
-        return "redirect:/swagger-ui.html";
+        return "redirect:swagger-ui.html";
     }
 
 }
