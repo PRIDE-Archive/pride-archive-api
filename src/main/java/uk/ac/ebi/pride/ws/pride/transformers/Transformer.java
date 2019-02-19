@@ -34,7 +34,7 @@ public class Transformer {
      * @return msrun
      */
     public static PrideMSRun transformMSRun(MongoPrideMSRun mongoFile){
-        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), null, null, null, -1, null, mongoFile.getFileName(), false,null,null,null, mongoFile.getAdditionalAttributes());
+        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), null, null, null, mongoFile.getFileSizeBytes(), null, mongoFile.getFileName(), false,null,null,null, mongoFile.getAdditionalAttributes());
 
         if(mongoFile.getFileProperties() != null)
             msRun.setFileProperties(mongoFile.getFileProperties()
