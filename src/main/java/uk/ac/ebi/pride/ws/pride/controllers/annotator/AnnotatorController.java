@@ -33,6 +33,7 @@ import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
+import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunTable;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
@@ -254,19 +255,21 @@ public class AnnotatorController {
     })
     @RequestMapping(value = "/annotator/{accession}/updateSampleMsRuns", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SampleMSRunRow>> updateSampleMSRuns(@PathVariable( value = "accession") String accession,
-                                                                   @RequestBody List<uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow> samples) {
+                                                                   @RequestBody SampleMSRunTable sampleMSRunsTable) {
 
-        Collection<? extends ISampleMSRunRow> mongoSamples = sampleMongoService.updateSamplesMRunProjectAccession(accession, samples);
+        List<SampleMSRunRow> sampleMSRuns = sampleMSRunsTable.getSampleMSRunRows();
+
+        Collection<? extends ISampleMSRunRow> mongoSamples = sampleMongoService.updateSamplesMRunProjectAccession(accession, sampleMSRuns);
         if(mongoSamples != null){
 
-            samples = mongoSamples.stream()
+            sampleMSRuns = mongoSamples.stream()
                     .map(Transformer::transformSampleMSrun).collect(Collectors.toList());
 
-            return new ResponseEntity<>(samples, HttpStatus.OK);
+            return new ResponseEntity<>(sampleMSRuns, HttpStatus.OK);
         }
 
 
-        return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(sampleMSRuns, HttpStatus.ACCEPTED);
 
     }
 

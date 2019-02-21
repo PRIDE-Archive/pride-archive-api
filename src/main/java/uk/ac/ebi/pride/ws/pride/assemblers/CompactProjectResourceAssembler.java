@@ -75,7 +75,7 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
                 .identifiedPTMS(prideSolrDataset.getIdentifiedPTMStrings())
                 .publicationDate(prideSolrDataset.getPublicationDate())
                 .quantificationMethods(prideSolrDataset.getQuantificationMethods())
-                .references(prideSolrDataset.getReferences())
+                .references(new HashSet<>(prideSolrDataset.getReferences()))
                 .softwares(prideSolrDataset.getSoftwares())
                 .submissionDate(prideSolrDataset.getSubmissionDate())
                 .updatedDate(prideSolrDataset.getUpdatedDate())

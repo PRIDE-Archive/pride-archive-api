@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.transformers;
 
+import uk.ac.ebi.pride.archive.dataprovider.common.ITuple;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
@@ -12,6 +13,7 @@ import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,11 +77,34 @@ public class Transformer {
             label = new CvParam(labelMongo.getCvLabel(), labelMongo.getAccession(),labelMongo.getName(), labelMongo.getValue());
 
         //Capture the Labeling
-        CvParam rep = null;
+        CvParam reagent = null;
+        if (mongoSampleMSrun.getLabelReagent() != null)
+            reagent = new CvParam(mongoSampleMSrun.getLabelReagent().getCvLabel(), mongoSampleMSrun.getLabelReagent().getAccession(), mongoSampleMSrun.getLabelReagent().getName(), mongoSampleMSrun.getLabelReagent().getValue());
 
-        return new SampleMSRunRow(mongoSampleMSrun.getProjectAccession().toString(), mongoSampleMSrun.getSampleAccession().toString(),
-                mongoSampleMSrun.getMSRunAccession().toString(), mongoSampleMSrun.getFractionAccession(), mongoSampleMSrun.getLabelReagent(),
-                mongoSampleMSrun.getSampleLabel(), mongoSampleMSrun.getSampleProperties(), mongoSampleMSrun.getMSRunProperties());
+        List<Tuple<CvParam, CvParam>> sampleProperties = (mongoSampleMSrun.getSampleProperties() != null)? mongoSampleMSrun.getSampleProperties()
+                .stream().map( x-> {
+                    CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
+                    CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();
+                    return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()),
+                            new CvParam(value.getCvLabel(), value.getAccession(),value.getName(),value.getValue()));
+                })
+                .collect(Collectors.toList())
+                : Collections.emptyList();
+
+        List<Tuple<CvParam, CvParam>> msrunProperties = (mongoSampleMSrun.getMSRunProperties() != null)? mongoSampleMSrun.getMSRunProperties()
+                .stream().map( x-> {
+                    CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
+                    CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();
+                    return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()),
+                            new CvParam(value.getCvLabel(), value.getAccession(),value.getName(),value.getValue()));
+                })
+                .collect(Collectors.toList())
+                : Collections.emptyList();;
+
+
+        return new SampleMSRunRow(mongoSampleMSrun.getProjectAccession(), mongoSampleMSrun.getSampleAccession(),
+                mongoSampleMSrun.getMsRunAccession(), mongoSampleMSrun.getFractionAccession(),reagent,
+                label, sampleProperties, msrunProperties);
 
     }
 

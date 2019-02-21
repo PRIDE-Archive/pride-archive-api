@@ -39,6 +39,7 @@ public class SampleMSRunRow implements ISampleMSRunRow {
 
     String projectAccession;
     String sampleAccession;
+
     String msRunAccession;
     String fractionAccession;
 
@@ -48,7 +49,16 @@ public class SampleMSRunRow implements ISampleMSRunRow {
     List<Tuple<CvParam, CvParam>> sampleProperties;
     List<Tuple<CvParam, CvParam>> msRunProperties;
 
-    public SampleMSRunRow(String projectAccession, String sampleAccession, String msRunAccession, String fractionAccession, CvParamProvider sampleReagent, CvParamProvider sampleLabel, Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> sampleProperties, Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> msRunProperties) {
+
+    public void setMsRunProperties(List<Tuple<CvParam, CvParam>> msRunProperties) {
+        this.msRunProperties = msRunProperties;
+    }
+
+    public SampleMSRunRow() {
+    }
+
+    public SampleMSRunRow(String projectAccession, String sampleAccession, String msRunAccession, String fractionAccession, CvParam sampleReagent, CvParam sampleLabel,
+                          List<Tuple<CvParam, CvParam>> sampleProperties, List<Tuple<CvParam, CvParam>> msRunProperties) {
         this.projectAccession = projectAccession;
         this.sampleAccession = sampleAccession;
         this.msRunAccession = msRunAccession;
@@ -80,17 +90,17 @@ public class SampleMSRunRow implements ISampleMSRunRow {
     }
 
     @Override
-    public String getMSRunAccession() {
+    public String getMsRunAccession() {
         return msRunAccession;
     }
 
     @Override
-    public CvParamProvider getSampleLabel() {
+    public CvParam getSampleLabel() {
         return sampleLabel;
     }
 
     @Override
-    public CvParamProvider getLabelReagent() {
+    public CvParam getLabelReagent() {
         return sampleReagent;
     }
 
@@ -101,18 +111,20 @@ public class SampleMSRunRow implements ISampleMSRunRow {
 
     @Override
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    public CvParamProvider getFractionIdentifierCvParam() {
-        return new DefaultCvParam(CvTermReference.MS_FRACTION_IDENTIFIER.getCvLabel(),CvTermReference.MS_FRACTION_IDENTIFIER.getAccession(), CvTermReference.MS_FRACTION_IDENTIFIER.getName(), fractionAccession);
+    public CvParam getFractionIdentifierCvParam() {
+        return new CvParam(CvTermReference.MS_FRACTION_IDENTIFIER.getCvLabel(),CvTermReference.MS_FRACTION_IDENTIFIER.getAccession(), CvTermReference.MS_FRACTION_IDENTIFIER.getName(), fractionAccession);
     }
 
 
     @Override
-    public Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> getSampleProperties() {
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public List<Tuple<CvParam, CvParam>> getSampleProperties() {
         return sampleProperties;
     }
 
     @Override
-    public Collection<? extends ITuple<? extends CvParamProvider, ? extends CvParamProvider>> getMSRunProperties() {
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public List<Tuple<CvParam, CvParam>> getMSRunProperties() {
         return msRunProperties;
     }
 
