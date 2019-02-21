@@ -1,6 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.controllers.annotator;
 
-import com.sun.security.auth.module.UnixLoginModule;
+//import com.sun.security.auth.module.UnixLoginModule;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
