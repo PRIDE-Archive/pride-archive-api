@@ -37,16 +37,28 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SampleMSRunRow implements ISampleMSRunRow {
 
+    @JsonProperty("projectAccession")
     String projectAccession;
+
+    @JsonProperty("sampleAccession")
     String sampleAccession;
 
+    @JsonProperty("msRunAccession")
     String msRunAccession;
+
+    @JsonProperty("fractionAccession")
     String fractionAccession;
 
+    @JsonProperty("sampleLabel")
     CvParam sampleLabel;
+
+    @JsonProperty("sampleReagent")
     CvParam sampleReagent;
 
+    @JsonProperty("sampleProperties")
     List<Tuple<CvParam, CvParam>> sampleProperties;
+
+    @JsonProperty("msRunProperties")
     List<Tuple<CvParam, CvParam>> msRunProperties;
 
 

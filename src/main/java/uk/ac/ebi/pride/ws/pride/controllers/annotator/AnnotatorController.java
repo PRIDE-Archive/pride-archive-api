@@ -256,9 +256,9 @@ public class AnnotatorController {
     })
     @RequestMapping(value = "/annotator/{accession}/updateSampleMsRuns", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SampleMSRunRow>> updateSampleMSRuns(@PathVariable( value = "accession") String accession,
-                                                                   @RequestBody SampleMSRunTable sampleMSRunsTable) {
+                                                                   @RequestBody SampleMSRunTable sampleMSRunTable) {
 
-        List<SampleMSRunRow> sampleMSRuns = sampleMSRunsTable.getSampleMSRunRows();
+        List<SampleMSRunRow> sampleMSRuns = sampleMSRunTable.getSampleMSRunRows();
 
         Collection<? extends ISampleMSRunRow> mongoSamples = sampleMongoService.updateSamplesMRunProjectAccession(accession, sampleMSRuns);
         if(mongoSamples != null){
