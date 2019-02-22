@@ -91,7 +91,7 @@ public class Transformer {
                 .collect(Collectors.toList())
                 : Collections.emptyList();
 
-        List<Tuple<CvParam, CvParam>> msrunProperties = (mongoSampleMSrun.getMSRunProperties() != null)? mongoSampleMSrun.getMSRunProperties()
+        List<Tuple<CvParam, CvParam>> msrunProperties = (mongoSampleMSrun.getMsRunProperties() != null)? mongoSampleMSrun.getMsRunProperties()
                 .stream().map( x-> {
                     CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
                     CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();

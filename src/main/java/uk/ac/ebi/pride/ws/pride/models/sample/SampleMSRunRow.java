@@ -50,10 +50,6 @@ public class SampleMSRunRow implements ISampleMSRunRow {
     List<Tuple<CvParam, CvParam>> msRunProperties;
 
 
-    public void setMsRunProperties(List<Tuple<CvParam, CvParam>> msRunProperties) {
-        this.msRunProperties = msRunProperties;
-    }
-
     public SampleMSRunRow() {
     }
 
@@ -117,15 +113,17 @@ public class SampleMSRunRow implements ISampleMSRunRow {
 
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public List<Tuple<CvParam, CvParam>> getSampleProperties() {
         return sampleProperties;
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    public List<Tuple<CvParam, CvParam>> getMSRunProperties() {
+    public List<Tuple<CvParam, CvParam>> getMsRunProperties() {
         return msRunProperties;
+    }
+
+    public void setMsRunProperties(List<Tuple<CvParam, CvParam>> msRunProperties) {
+        this.msRunProperties = msRunProperties;
     }
 
     @Override

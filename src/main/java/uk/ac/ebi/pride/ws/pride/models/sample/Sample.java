@@ -14,6 +14,7 @@ import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 public class Sample implements SampleProvider {
 
     public String accession;
-    public Collection<Tuple<CvParam, CvParam>> sampleProperties = new ArrayList<>();
+    public List<Tuple<CvParam, CvParam>> sampleProperties = new ArrayList<>();
 
     @Override
     public Comparable getAccession() {
@@ -44,9 +45,7 @@ public class Sample implements SampleProvider {
     }
 
     @Override
-    public Collection<ITuple<CvParamProvider, CvParamProvider>> getSampleProperties() {
-        if(sampleProperties != null)
-            sampleProperties.stream().map( x-> new Tuple<CvParamProvider, CvParamProvider>(x.getKey(), x.getValue())).collect(Collectors.toList());
-        return null;
+    public Collection<Tuple<CvParam, CvParam>> getSampleProperties() {
+          return sampleProperties;
     }
 }

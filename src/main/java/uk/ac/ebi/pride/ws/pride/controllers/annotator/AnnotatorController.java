@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
+import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoISampleMSRunRow;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.samples.PrideSampleMongoService;
 import uk.ac.ebi.pride.utilities.annotator.MSRunAttributes;
@@ -234,7 +235,7 @@ public class AnnotatorController {
     @RequestMapping(value = "/annotator/{accession}/sampleMsRuns", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SampleMSRunRow>> getSampleMSRuns(@PathVariable( value = "accession") String accession) {
 
-        Collection<? extends ISampleMSRunRow> mongoSamples = sampleMongoService.getSamplesMRunProjectAccession(accession);
+        List<MongoISampleMSRunRow> mongoSamples = sampleMongoService.getSamplesMRunProjectAccession(accession);
         if(mongoSamples != null){
 
             List<SampleMSRunRow> samples = mongoSamples.stream()
