@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.msrun.idsettings.IdSetting;
 import uk.ac.ebi.pride.mongodb.archive.model.param.MongoCvParam;
@@ -101,8 +102,13 @@ public class MSRunMetadata implements MsRunProvider {
         this.idSettings = idSettings;
     }
 
-    @Override
+    //@Override
     public Collection<? extends String> getAdditionalAttributesStrings() {
         return Collections.EMPTY_LIST;
+    }
+
+    //@Override
+    public Collection<? extends ParamProvider> getParams() {
+        return null;
     }
 }

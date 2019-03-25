@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.ws.pride.models.file;
 
 import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.msrun.idsettings.IdSetting;
 
 import java.util.*;
@@ -71,8 +72,13 @@ public class PrideMSRun extends PrideFile implements MsRunProvider {
         return idSettings;
     }
 
-    @Override
+    //@Override
     public Collection<? extends String> getAdditionalAttributesStrings() {
         return Collections.EMPTY_LIST;
+    }
+
+    //@Override
+    public Collection<? extends ParamProvider> getParams() {
+        return null;
     }
 }
