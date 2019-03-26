@@ -1,5 +1,8 @@
 package uk.ac.ebi.pride.ws.pride.controllers;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -9,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.nio.charset.Charset;
 
@@ -18,6 +22,11 @@ public class LoginController {
     @Value("${aap.auth.url}")
     private String auth_url;
 
+    @ApiOperation(notes = "Get a valid access token", value = "access token", nickname = "getAAPToken", tags = {"authorization"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
     @RequestMapping(path = "getAAPToken",method = RequestMethod.POST)
     public String getAAPToken(String username, String password) throws Exception {
         ResponseEntity<String> response = null;
@@ -36,8 +45,13 @@ public class LoginController {
         return response.getBody();
     }
 
-    @RequestMapping(method = RequestMethod.POST,path="/tokentest")
-    public String getSecureMsg(){
+    @ApiOperation(notes = "Get a valid access token", value = "access token", nickname = "test-token-validity", tags = {"authorization"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(method = RequestMethod.POST,path="/taken-validation")
+    public String getTokenValidity(){
         return "Token Valid";
     }
 

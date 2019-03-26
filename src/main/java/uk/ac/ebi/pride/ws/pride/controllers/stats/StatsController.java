@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import uk.ac.ebi.pride.archive.repo.repos.project.ProjectRepository;
 import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPrideStats;
 import uk.ac.ebi.pride.mongodb.archive.service.stats.PrideStatsMongoService;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
@@ -41,10 +42,13 @@ public class StatsController {
 
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
+    final ProjectRepository projectRepo;
+
     @Autowired
-    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler) {
+    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler,ProjectRepository projectRepo) {
         this.mongoStatsService = mongoStatsService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
+        this.projectRepo = projectRepo;
     }
 
 
@@ -83,5 +87,20 @@ public class StatsController {
 
         return new ResponseEntity<>(statNames, HttpStatus.OK);
     }
+
+    @ApiOperation(notes = "Retrieve month wise submissions count", value = "submissions-monthly", nickname = "submissions-monthly", tags = {"stats"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/stats/submissions-monthly", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Object> submissionsMonthly(){
+
+        List<List<String>> results = projectRepo.findMonthlySubmissions();
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
+    }
+
+
 
 }
