@@ -50,7 +50,7 @@ public class LoginController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(method = RequestMethod.POST,path="/taken-validation")
+    @RequestMapping(method = RequestMethod.POST,path="/token-validation")
     public String getTokenValidity(){
         return "Token Valid";
     }

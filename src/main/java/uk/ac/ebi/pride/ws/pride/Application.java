@@ -31,7 +31,7 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 @EnableSwagger2
 
 @SpringBootApplication
-@ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security"})
+@ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security","uk.ac.ebi.pride.utilities.ols.web.service.cache"})
 public class Application {
 
     public static void main(String[] args) {
