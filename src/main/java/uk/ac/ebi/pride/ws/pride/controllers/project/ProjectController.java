@@ -8,7 +8,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.archive.repo.repos.project.Project;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
@@ -28,9 +31,11 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
+import uk.ac.ebi.pride.ws.pride.service.project.ProjectService;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
+import uk.ac.ebi.tsc.aap.client.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,15 +59,17 @@ public class ProjectController {
 
     final PrideProjectMongoService mongoProjectService;
 
+    final private ProjectService projectService;
 
     @Autowired
     public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler,
                              PrideFileMongoService mongoFileService,
-                             PrideProjectMongoService mongoProjectService) {
+                             PrideProjectMongoService mongoProjectService, ProjectService projectService) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
+        this.projectService = projectService;
     }
 
 
@@ -212,6 +219,34 @@ public class ProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
+    @ApiOperation(notes = "List of Private PRIDE Archive Projects submitted by the user. User needs to be authenticated to view his private submissions", value = "my submissions", nickname = "getMySubmissions", tags = {"projects"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/my-private-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<Project>> getPrivateProjects(@RequestParam(value="isPublic", defaultValue = "true") boolean isPublic,
+                                                         Authentication authentication) {
+
+        User currentUser = (User) (authentication).getDetails();
+
+        List<Project> projectsList = projectService.findUserProjects(currentUser.getUserReference(),isPublic);
+
+        return ResponseEntity.ok().body(projectsList);
+    }
+
+    @ApiOperation(notes = "List of PRIDE Archive Projects accessible to reviewer. User needs to be authenticated to view these submissions", value = "reviewer projects", nickname = "getReviewerSubmissions", tags = {"projects"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/reviewer-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<List<Project>> getReviewerProjects(Authentication authentication) {
+        User currentUser = (User) (authentication).getDetails();
+        //TODO remove the hard coded value after web is tested
+        List<Project> projectsList = projectService.findReviewerProjects(/*currentUser.getUserReference()*/"usr-0e1bdbd3-16ab-429e-a1b5-42342f0174f0");
+        return ResponseEntity.ok().body(projectsList);
+    }
 
     @ApiOperation(notes = "Get all the Files for an specific project in PRIDE.", value = "projects", nickname = "getFilesByProject", tags = {"projects"} )
     @ApiResponses({
@@ -312,5 +347,7 @@ public class ProjectController {
 
         return new HttpEntity<>(terms);
     }
+
+
 
 }

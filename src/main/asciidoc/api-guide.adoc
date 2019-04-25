@@ -191,7 +191,7 @@ include::{snippets}/get-stat/path-parameters.adoc[]
 include::{snippets}/get-stat/response-body.adoc[]
 
 == Filtering Help
-Some of the API endpoints support filtering to naroow the search results. There are two types of filters available - 'filter' and 'advanced filter'.
+Some of the API endpoints support filtering to narrow the search results. There are two types of filters available - 'filter' and 'advanced filter'.
 The below examples help in understanding the different options supported by these filters and how they can be chained together to perform queries.
 
 === Filter

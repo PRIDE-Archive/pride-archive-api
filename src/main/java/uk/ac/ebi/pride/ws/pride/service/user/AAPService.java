@@ -9,6 +9,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.pride.archive.repo.util.AAPConstants;
+import uk.ac.ebi.pride.ws.pride.models.uer.ChangePassword;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -70,6 +71,18 @@ public class AAPService {
         return headers;
     }
 
+    private HttpHeaders createChangePwdHeaders(String username, String password){
+        HttpHeaders headers = new HttpHeaders();
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.encodeBase64(
+                auth.getBytes(Charset.forName("UTF-8")) );
+        String authHeader = "Basic " + new String( encodedAuth );
+        headers.add( "Authorization", authHeader );
+        headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON_UTF8);
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
+        return headers;
+    }
+
     private void getAAPToken(){
         ResponseEntity<String> responseEntity = restTemplate.exchange(aapAuthURL+"?ttl=180", HttpMethod.GET,new HttpEntity(createBasicAuthHeaders(aapUname,aapPwd)),String.class);
         log.info("getAAPToken() Status:"+responseEntity.getStatusCode());
@@ -107,6 +120,17 @@ public class AAPService {
             return false;
         }else{
             return true;
+        }
+    }
+
+    protected boolean changeAAPPassword(String userReference, ChangePassword changePassword){
+        String changePwdJson = "{\"password\" : \""+changePassword.getNewPassword()+"\"}";
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(aapAuthURL + "?_method=patch", HttpMethod.POST, new HttpEntity(changePwdJson, createChangePwdHeaders(changePassword.getEmail(), changePassword.getOldPassword())), String.class);
+            return responseEntity.getStatusCode().is2xxSuccessful();
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
         }
     }
 

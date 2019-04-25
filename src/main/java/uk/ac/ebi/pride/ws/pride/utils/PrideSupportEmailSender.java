@@ -237,4 +237,10 @@ public class PrideSupportEmailSender {
         Resource emailTemplateResource =  resourceLoader.getResource("classpath:email-template/registration.template");
         return getEmailTemplate(emailTemplateResource);
     }
+
+    @Bean("passwordChangeEmailTemplate")
+    public String getChangePwdEmailTemplate() throws IOException{
+        Resource emailTemplateResource =  resourceLoader.getResource("classpath:email-template/password-change.template");
+        return getEmailTemplate(emailTemplateResource);
+    }
 }
