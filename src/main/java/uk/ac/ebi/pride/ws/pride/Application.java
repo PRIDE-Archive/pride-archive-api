@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -34,8 +35,12 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 @ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security","uk.ac.ebi.pride.utilities.ols.web.service.cache"})
 public class Application {
 
+    @Value("${deployment.env}")
+    private static String  deploymentEnv;
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+        System.out.println("################ deploymentEnv:"+deploymentEnv);
     }
 
     @Component

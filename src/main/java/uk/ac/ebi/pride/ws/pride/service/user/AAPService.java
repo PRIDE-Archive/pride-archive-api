@@ -83,13 +83,15 @@ public class AAPService {
         return headers;
     }
 
-    private void getAAPToken(){
+    public String getAAPToken(){
         ResponseEntity<String> responseEntity = restTemplate.exchange(aapAuthURL+"?ttl=180", HttpMethod.GET,new HttpEntity(createBasicAuthHeaders(aapUname,aapPwd)),String.class);
         log.info("getAAPToken() Status:"+responseEntity.getStatusCode());
         if(responseEntity.getStatusCode().is2xxSuccessful()){
             aapToken=responseEntity.getBody();
+            return aapToken;
         }else{
             log.error("Unable to get AAP token. Status:"+responseEntity.getStatusCode()+" Body:"+responseEntity.getBody());
+            return null;
         }
     }
 

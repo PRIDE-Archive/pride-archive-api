@@ -127,6 +127,7 @@ include::{snippets}/get-all-files/response-body.adoc[]
 [discrete]
 ==== Example request
 include::{snippets}/get-msrun-by-project/curl-request.adoc[]
+include::{snippets}/get-msrun-by-project/request-parameters.adoc[]
 
 [discrete]
 ==== Example response
@@ -138,6 +139,7 @@ include::{snippets}/get-msrun-by-project/response-body.adoc[]
 [discrete]
 ==== Example request
 include::{snippets}/get-msrun-by-file/curl-request.adoc[]
+include::{snippets}/get-msrun-by-file/path-parameters.adoc[]
 
 [discrete]
 ==== Example response
@@ -149,6 +151,9 @@ include::{snippets}/get-msrun-by-file/response-body.adoc[]
 [discrete]
 ==== Example request
 include::{snippets}/put-msrun-into-file/curl-request.adoc[]
+include::{snippets}/put-msrun-into-file/path-parameters.adoc[]
+include::{snippets}/put-msrun-into-file/request-headers.adoc[]
+include::{snippets}/put-msrun-into-file/request-parameters.adoc[]
 
 [discrete]
 ==== Example response
@@ -160,6 +165,9 @@ include::{snippets}/put-msrun-into-file/response-body.adoc[]
 [discrete]
 ==== Example request
 include::{snippets}/put-msrun-parts-into-file/curl-request.adoc[]
+include::{snippets}/put-msrun-parts-into-file/path-parameters.adoc[]
+include::{snippets}/put-msrun-parts-into-file/request-headers.adoc[]
+include::{snippets}/put-msrun-parts-into-file/request-parameters.adoc[]
 
 [discrete]
 ==== Example response
