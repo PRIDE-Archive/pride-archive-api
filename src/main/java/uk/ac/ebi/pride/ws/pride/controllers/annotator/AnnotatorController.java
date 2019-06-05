@@ -111,13 +111,33 @@ public class AnnotatorController {
                                                              @RequestParam(value = "ontologyAccession" , required = true) String ontologyAccession,
                                                              @RequestParam(value = "keyword", required = true) String keyword) {
 
-        List<CvParam> valueAttributes;
-        Term term =  olsClient.getTermById(new Identifier(attributeAccession, Identifier.IdentifierType.OBO), ontologyAccession);
-        List<Term> terms = olsClient.getTermsByNameFromParent(keyword, term.getOntologyPrefix().toLowerCase(),false, term.getIri().getIdentifier());
+        List<CvParam> valueAttributes = new ArrayList<>();
+        if(attributeAccession.equalsIgnoreCase(CvTermReference.PRIDE_VARIABLE_MODIFICATION.getAccession()) || attributeAccession.equalsIgnoreCase(CvTermReference.PRIDE_FIXED_MODIFICATION.getAccession())){
 
-        valueAttributes = terms.stream()
-                .map( x-> new CvParam(x.getOntologyName(), x.getOboId().getIdentifier(), x.getName(), null))
-                .collect(Collectors.toList());
+            if(keyword == null || keyword.isEmpty())
+                keyword = "";
+
+            List<PTM> terms;
+
+            if(keyword.equalsIgnoreCase(""))
+                terms = modReader.getUnimodPTMs();
+            else{
+                terms = modReader.getPTMListByPatternName(keyword);
+                terms.addAll(modReader.getPTMListByPatternDescription(keyword));
+            }
+
+            valueAttributes = terms.stream().filter( x-> (x instanceof UniModPTM))
+                    .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), String.valueOf(x.getMonoDeltaMass())))
+                    .collect(Collectors.toList());
+
+        }else{
+            Term term =  olsClient.getTermById(new Identifier(attributeAccession, Identifier.IdentifierType.OBO), ontologyAccession);
+            List<Term> terms = olsClient.getTermsByNameFromParent(keyword, term.getOntologyPrefix().toLowerCase(),false, term.getIri().getIdentifier());
+
+            valueAttributes = terms.stream()
+                    .map( x-> new CvParam(x.getOntologyName(), x.getOboId().getIdentifier(), x.getName(), null))
+                    .collect(Collectors.toList());
+        }
 
 
         return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
