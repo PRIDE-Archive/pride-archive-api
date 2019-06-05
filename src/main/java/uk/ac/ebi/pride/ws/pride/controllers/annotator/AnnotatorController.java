@@ -117,20 +117,21 @@ public class AnnotatorController {
             if(keyword == null || keyword.isEmpty())
                 keyword = "";
 
-            List<PTM> terms;
+            List<PTM> ptms;
 
             if(keyword.equalsIgnoreCase(""))
-                terms = modReader.getUnimodPTMs();
+                ptms = modReader.getUnimodPTMs();
             else{
-                terms = modReader.getPTMListByPatternName(keyword);
-                terms.addAll(modReader.getPTMListByPatternDescription(keyword));
+                ptms = modReader.getPTMListByPatternName(keyword);
+                ptms.addAll(modReader.getPTMListByPatternDescription(keyword));
             }
 
-            valueAttributes = terms.stream().filter( x-> (x instanceof UniModPTM))
-                    .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), String.valueOf(x.getMonoDeltaMass())))
+            valueAttributes = ptms.stream().filter( x-> (x instanceof UniModPTM))
+                    .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + String.valueOf(x.getMonoDeltaMass()) + ")", String.valueOf(x.getMonoDeltaMass())))
                     .collect(Collectors.toList());
 
         }else{
+
             Term term =  olsClient.getTermById(new Identifier(attributeAccession, Identifier.IdentifierType.OBO), ontologyAccession);
             List<Term> terms = olsClient.getTermsByNameFromParent(keyword, term.getOntologyPrefix().toLowerCase(),false, term.getIri().getIdentifier());
 
@@ -196,7 +197,7 @@ public class AnnotatorController {
 
         List<CvParam> valueAttributes = terms.stream().filter( x-> (x instanceof UniModPTM))
                 .filter( x-> (((UniModPTM)x).getClassifications().contains("isotopic label") || ((UniModPTM)x).getClassifications().contains("multiple")))
-                .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), String.valueOf(x.getMonoDeltaMass())))
+                .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + String.valueOf(x.getMonoDeltaMass()) + ")", String.valueOf(x.getMonoDeltaMass())))
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
@@ -293,7 +294,6 @@ public class AnnotatorController {
         return new ResponseEntity<>(sampleMSRuns, HttpStatus.ACCEPTED);
 
     }
-
 
     @ApiOperation(notes = "Get Samples for Project Accession", value = "annotator", nickname = "getSamples", tags = {"annotator"} )
     @ApiResponses({
