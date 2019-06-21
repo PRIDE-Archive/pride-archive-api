@@ -17,9 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
+import uk.ac.ebi.pride.mongodb.configs.ArchiveMongoConfig;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.ws.pride.Application;
-import uk.ac.ebi.pride.ws.pride.configs.MongoProjectConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
 import uk.ac.ebi.pride.ws.pride.service.user.AAPService;
@@ -37,7 +37,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {Application.class, MongoProjectConfig.class,SolrCloudConfig.class,SwaggerConfig.class})
+@SpringBootTest(classes = {Application.class, ArchiveMongoConfig.class, SolrCloudConfig.class,SwaggerConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 @AutoConfigureRestDocs
 public class ArchiveAPITest {

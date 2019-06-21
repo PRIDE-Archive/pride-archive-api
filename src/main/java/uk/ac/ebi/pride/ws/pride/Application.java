@@ -32,7 +32,8 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 @EnableSwagger2
 
 @SpringBootApplication
-@ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security","uk.ac.ebi.pride.utilities.ols.web.service.cache"})
+@ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security",
+        "uk.ac.ebi.pride.utilities.ols.web.service.cache" , "uk.ac.ebi.pride.mongodb.configs"})
 public class Application {
 
     @Value("${deployment.env}")
