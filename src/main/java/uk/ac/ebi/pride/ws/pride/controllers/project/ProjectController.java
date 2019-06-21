@@ -17,6 +17,9 @@ import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
+import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
+import uk.ac.ebi.pride.mongodb.molecules.model.protein.PrideMongoProteinEvidence;
+import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.pride.services.SolrProjectService;
@@ -64,12 +67,13 @@ public class ProjectController {
     @Autowired
     public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler,
                              PrideFileMongoService mongoFileService,
-                             PrideProjectMongoService mongoProjectService, ProjectService projectService) {
+                             PrideProjectMongoService mongoProjectService, ProjectService projectService, PrideMoleculesMongoService moleculesMongoService) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
         this.projectService = projectService;
+
     }
 
 
@@ -333,6 +337,7 @@ public class ProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
+
     @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains both keywords. The _filter_ parameter provides allows the method " +
             " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"} )
@@ -347,7 +352,6 @@ public class ProjectController {
 
         return new HttpEntity<>(terms);
     }
-
 
 
 }
