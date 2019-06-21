@@ -29,7 +29,7 @@ public class ProteinEvidence {
     Set<String> proteinGroupMembers;
     String proteinDescription;
     List<CvParam> additionalAttributes;
-    List<DefaultIdentifiedModification> ptms;
+    List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;
 }

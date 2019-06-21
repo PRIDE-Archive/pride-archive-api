@@ -9,9 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
@@ -29,6 +27,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ProteinEvidenceController {
@@ -122,7 +121,28 @@ public class ProteinEvidenceController {
         return new HttpEntity<>(mongoProteins);
     }
 
-    public ResponseEntity<Object> getProteinEvidence(String reportedAccession, String projectAccession, String assayAccession) {
-        return null;
+    @ApiOperation(notes = "Get all the protein evidences", value = "proteinevidences", nickname = "getProteinEvidences", tags = {"proteinevidences"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/proteinevidence", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+
+    public ResponseEntity<Object> getProteinEvidence(@RequestParam(value = "reportedAccession") String reportedAccession,
+                                                     @RequestParam(value = "projectAccession") String projectAccession,
+                                                     @RequestParam(value = "assayAccession") String assayAccession) {
+
+        Optional<PrideMongoProteinEvidence> mongoProteinEvidence = moleculesMongoService.getProteinEvidence(reportedAccession,
+                projectAccession, assayAccession);
+
+        ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class,
+                ProteinEvidenceResource.class);
+
+        return mongoProteinEvidence.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + projectAccession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+
+
+
+
     }
 }
