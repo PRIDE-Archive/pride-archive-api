@@ -20,6 +20,11 @@ import java.util.Set;
 @Relation(collectionRelation = "proteinevidences")
 public class ProteinEvidence {
 
+    /**
+     * The ui is an artificial identifiers, combination of projectAccession:assayAccession:reportedAccession
+     * For example: PXD000001:234567:QTFG23
+     **/
+    String ui;
     String projectAccession;
     String assayAccession;
     String reportedAccession;

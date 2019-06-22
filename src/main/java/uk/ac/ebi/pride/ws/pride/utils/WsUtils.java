@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
+import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
 /**
@@ -45,5 +46,28 @@ public class WsUtils {
             lastIndex++;
         }
         return x.substring(index, lastIndex);
+    }
+
+    /**
+     * Get an identifier as the combination of multiple keys.
+     *
+     * @param keys List of keys
+     * @return final identifier
+     */
+    public static String getIdentifier(String ... keys){
+        return String.join(":", keys);
+    }
+
+    public static Triple<String, String, String> parseProteinEvidenceAccession(String accession) throws Exception {
+        String[] values = accession.split(":");
+        if(values.length < 3)
+            throw new Exception("No valid accession for ProteinEvidences");
+        String projectAccession, assayAccession;
+        StringBuilder reportedProtein = new StringBuilder(values[2]);
+        projectAccession = values[0];
+        assayAccession = values[1];
+        for(int i = 3; i < values.length; i++)
+            reportedProtein.append(":").append(values[i]);
+        return new Triple<>(projectAccession, assayAccession, reportedProtein.toString());
     }
 }
