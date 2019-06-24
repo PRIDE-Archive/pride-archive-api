@@ -11,10 +11,7 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.mongodb.molecules.model.protein.PrideMongoProteinEvidence;
@@ -30,6 +27,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.List;
 
+@RestController
 public class PeptideEvidenceController {
 
     final PrideMoleculesMongoService moleculesMongoService;
@@ -40,16 +38,16 @@ public class PeptideEvidenceController {
     }
 
     @ApiOperation(notes = "Get all the peptide evidences for an specific protein evidence",
-            value = "proteinevidences", nickname = "getPeptideEvidencesByProteinEvidence", tags = {"proteinevidences"} )
+            value = "molecules", nickname = "getPeptideEvidencesByProteinEvidence", tags = {"molecules"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/peptideevidences", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> getPeptideEvidencesByProteinEvidence(
-            @RequestParam(value = "proteinAccession") String proteinAccession,
-            @RequestParam(value = "projectAccession") String projectAccession,
-            @RequestParam(value = "assayAccession") String assayAccession,
+            @RequestParam(value = "proteinAccession", required = false) String proteinAccession,
+            @RequestParam(value = "projectAccession", required = false) String projectAccession,
+            @RequestParam(value = "assayAccession"  , required = false) String assayAccession,
             @RequestParam(value="pageSize", defaultValue = "100", required = false) Integer pageSize,
             @RequestParam(value="page", defaultValue = "0" ,  required = false) Integer page,
             @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
