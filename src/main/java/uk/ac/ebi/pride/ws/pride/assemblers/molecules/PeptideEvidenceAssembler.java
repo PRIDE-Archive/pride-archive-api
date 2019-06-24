@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.ws.pride.assemblers;
+package uk.ac.ebi.pride.ws.pride.assemblers.molecules;
 
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;

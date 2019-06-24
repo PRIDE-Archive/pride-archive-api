@@ -14,13 +14,12 @@ import uk.ac.ebi.pride.mongodb.molecules.model.protein.PrideMongoProteinEvidence
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.utilities.util.Tuple;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProteinEvidenceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.molecules.ProteinEvidenceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.molecules.ProteinEvidenceResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
