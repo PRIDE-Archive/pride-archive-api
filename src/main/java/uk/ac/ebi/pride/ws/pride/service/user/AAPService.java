@@ -13,6 +13,7 @@ import uk.ac.ebi.pride.ws.pride.models.uer.ChangePassword;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,7 +68,7 @@ public class AAPService {
         String authHeader = "Basic " + new String( encodedAuth );
         headers.add( "Authorization", authHeader );
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON_UTF8);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
         return headers;
     }
 
@@ -79,7 +80,7 @@ public class AAPService {
         String authHeader = "Basic " + new String( encodedAuth );
         headers.add( "Authorization", authHeader );
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON_UTF8);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
         return headers;
     }
 
@@ -102,7 +103,7 @@ public class AAPService {
             return null;
         }
         JSONArray domainsJsonArray = new JSONArray(responseEntity.getBody());
-        prideAAPDomainsMap = new HashMap<String,String>();
+        prideAAPDomainsMap = new HashMap<>();
         for(int i=0;i<domainsJsonArray.length();i++){
             JSONObject domainJsonObj = domainsJsonArray.getJSONObject(i);
             prideAAPDomainsMap.put(domainJsonObj.getString(AAPConstants.DOMAIN_NAME),domainJsonObj.getString(AAPConstants.DOMAIN_REF));

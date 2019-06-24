@@ -9,8 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
@@ -23,6 +22,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class PeptideEvidenceController {
@@ -58,8 +58,8 @@ public class PeptideEvidenceController {
             direction = Sort.Direction.ASC;
         }
 
-        Page<PrideMongoPeptideEvidence> mongoPeptides = moleculesMongoService.findPeptideEvidencesByProteinEvidence(proteinAccession,
-                projectAccession,assayAccession,
+        Page<PrideMongoPeptideEvidence> mongoPeptides = moleculesMongoService.findPeptideEvidences(projectAccession,
+                assayAccession, null, proteinAccession,
                 PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class,
@@ -69,10 +69,11 @@ public class PeptideEvidenceController {
 
         long totalElements = mongoPeptides.getTotalElements();
         long totalPages = totalElements / pageSize;
+
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize,
                 page, totalElements, totalPages);
 
-        PagedResources<PeptideEvidenceResource> pagedResources = new PagedResources<PeptideEvidenceResource>(resources,
+        PagedResources<PeptideEvidenceResource> pagedResources = new PagedResources<>(resources,
                 pageMetadata,
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
                         .getPeptideEvidencesByProteinEvidence(proteinAccession,
@@ -81,9 +82,9 @@ public class PeptideEvidenceController {
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder
                         .methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession,
                                 projectAccession, assayAccession, pageSize, (int)
-                                WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
+                                        WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence( proteinAccession, projectAccession, assayAccession, pageSize,
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, pageSize,
                         (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, pageSize, 0,
@@ -94,5 +95,33 @@ public class PeptideEvidenceController {
         ) ;
 
         return new HttpEntity<>(pagedResources);
+    }
+
+    @ApiOperation(notes = "Get peptide evidence using usi ",
+            value = "molecules", nickname = "getPeptideEvidence", tags = {"molecules"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/peptideevidences/{usi}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<Object> getPeptideEvidence(@PathVariable(value = "usi") String usi) {
+
+        Optional<PrideMongoPeptideEvidence> mongoPeptide = Optional.empty();
+        PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class, PeptideEvidenceResource.class);
+
+        if(usi != null && ! usi.isEmpty()){
+            try {
+                String[] values = WsUtils.parsePeptideEvidenceAccession(usi);
+                mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return mongoPeptide.<ResponseEntity<Object>>map(mongoPrideProject ->
+                new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(WsContastants.PROTEIN_NOT_FOUND
+                        + usi + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
     }
 }

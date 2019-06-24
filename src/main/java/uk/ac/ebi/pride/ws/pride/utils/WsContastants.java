@@ -1,14 +1,12 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
-import sun.jvm.hotspot.jdi.SACoreAttachingConnector;
-
 /**
  * @author ypriverol
  */
 public class WsContastants {
 
     public enum HateoasEnum{
-        next, previous, last, first, facets, files, peptideevidences;
+        next, previous, last, first, facets, files, peptideevidences
 
     }
 

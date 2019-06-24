@@ -80,7 +80,7 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
         }
 
         return ProteinEvidence.builder()
-                .ui(WsUtils.getIdentifier(prideMongoProteinEvidence.getProjectAccession(),
+                .usi(WsUtils.getIdentifier(prideMongoProteinEvidence.getProjectAccession(),
                         prideMongoProteinEvidence.getAssayAccession(),
                         prideMongoProteinEvidence.getReportedAccession()))
                 .reportedAccession(prideMongoProteinEvidence.getReportedAccession())

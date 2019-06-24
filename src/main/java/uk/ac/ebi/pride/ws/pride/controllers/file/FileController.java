@@ -54,7 +54,7 @@ public class FileController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/files/fileByName", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity getFileByName(@RequestParam(value="fileName", required = true) String fileName,
+    public ResponseEntity getFileByName(@RequestParam(value="fileName") String fileName,
                                         @RequestParam(value = "projectAccession", required = false) String projectAccession
     ) {
         Page<MongoPrideFile> file = null;

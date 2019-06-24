@@ -5,16 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.springframework.hateoas.core.Relation;
-import uk.ac.ebi.pride.archive.dataprovider.common.ITuple;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,13 +73,13 @@ public class SampleMSRunRow implements ISampleMSRunRow {
         this.sampleProperties = (sampleProperties != null)? sampleProperties.stream().map(x ->{
             CvParamProvider key = x.getKey();
             CvParamProvider value = x.getValue();
-            return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()), new CvParam(value.getCvLabel(),value.getAccession(), value.getName(), value.getValue()));
+            return new Tuple<>(new CvParam(key.getCvLabel(), key.getAccession(), key.getName(), key.getValue()), new CvParam(value.getCvLabel(), value.getAccession(), value.getName(), value.getValue()));
         }).collect(Collectors.toList()):null;
 
         this.msRunProperties = (msRunProperties != null)? msRunProperties.stream().map(x ->{
             CvParamProvider key = x.getKey();
             CvParamProvider value = x.getValue();
-            return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()), new CvParam(value.getCvLabel(),value.getAccession(), value.getName(), value.getValue()));
+            return new Tuple<>(new CvParam(key.getCvLabel(), key.getAccession(), key.getName(), key.getValue()), new CvParam(value.getCvLabel(), value.getAccession(), value.getName(), value.getValue()));
         }).collect(Collectors.toList()):null;
 
     }

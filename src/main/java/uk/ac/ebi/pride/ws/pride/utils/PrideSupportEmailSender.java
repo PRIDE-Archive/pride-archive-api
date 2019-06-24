@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.MailException;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -18,8 +17,6 @@ import uk.ac.ebi.pride.ws.pride.models.feedback.Feedback;
 import uk.ac.ebi.pride.ws.pride.models.uer.PublishProject;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
 
 @Component
 public class PrideSupportEmailSender {
@@ -82,17 +79,11 @@ public class PrideSupportEmailSender {
 
     public String getEmailTemplate(Resource emailTemplate) throws IOException {
         StringBuilder message = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(emailTemplate.getInputStream()));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(emailTemplate.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 message.append(line);
                 message.append(System.getProperty("line.separator"));
-            }
-        } finally {
-            if (reader != null) {
-                reader.close();
             }
         }
 

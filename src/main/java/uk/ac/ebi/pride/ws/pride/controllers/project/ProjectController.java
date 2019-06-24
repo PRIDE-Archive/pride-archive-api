@@ -17,8 +17,6 @@ import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
-import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
-import uk.ac.ebi.pride.mongodb.molecules.model.protein.PrideMongoProteinEvidence;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
@@ -172,7 +170,7 @@ public class ProjectController {
     })
 
     @RequestMapping(value = "/projects/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> getProject(@PathVariable(value = "accession", required = true, name = "accession") String accession){
+    public ResponseEntity<Object> getProject(@PathVariable(value = "accession", name = "accession") String accession){
 
         Optional<MongoPrideProject> project = mongoProjectService.findByAccession(accession);
         PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(ProjectController.class,
@@ -347,7 +345,7 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<Object> projects(@RequestParam(name = "keyword", required = true) String keyword){
+    public HttpEntity<Object> projects(@RequestParam(name = "keyword") String keyword){
 
         List<String> terms = solrProjectService.findAutoComplete(keyword);
 

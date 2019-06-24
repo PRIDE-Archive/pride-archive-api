@@ -9,7 +9,6 @@ import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
@@ -19,12 +18,12 @@ import java.util.Set;
 @Relation(collectionRelation = "peptideevidences")
 public class PeptideEvidence {
 
-    String ui;
+    String usi;
     String projectAccession;
     String assayAccession;
     String proteinAccession;
     String peptideSequence;
-    List<CvParam> additionalAttributes;
+    List<CvParam> properties;
     List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;

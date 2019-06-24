@@ -86,23 +86,23 @@ public class Transformer {
 
         List<Tuple<CvParam, CvParam>> sampleProperties = (mongoSampleMSrun.getSampleProperties() != null)? mongoSampleMSrun.getSampleProperties()
                 .stream().map( x-> {
-                    CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
-                    CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();
-                    return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()),
-                            new CvParam(value.getCvLabel(), value.getAccession(),value.getName(),value.getValue()));
+                    CvParamProvider key = (CvParamProvider) x.getKey();
+                    CvParamProvider value = (CvParamProvider) x.getValue();
+                    return new Tuple<>(new CvParam(key.getCvLabel(), key.getAccession(), key.getName(), key.getValue()),
+                            new CvParam(value.getCvLabel(), value.getAccession(), value.getName(), value.getValue()));
                 })
                 .collect(Collectors.toList())
                 : Collections.emptyList();
 
         List<Tuple<CvParam, CvParam>> msrunProperties = (mongoSampleMSrun.getMsRunProperties() != null)? mongoSampleMSrun.getMsRunProperties()
                 .stream().map( x-> {
-                    CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
-                    CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();
-                    return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()),
-                            new CvParam(value.getCvLabel(), value.getAccession(),value.getName(),value.getValue()));
+                    CvParamProvider key = (CvParamProvider) x.getKey();
+                    CvParamProvider value = (CvParamProvider) x.getValue();
+                    return new Tuple<>(new CvParam(key.getCvLabel(), key.getAccession(), key.getName(), key.getValue()),
+                            new CvParam(value.getCvLabel(), value.getAccession(), value.getName(), value.getValue()));
                 })
                 .collect(Collectors.toList())
-                : Collections.emptyList();;
+                : Collections.emptyList();
 
 
         return new SampleMSRunRow(mongoSampleMSrun.getProjectAccession(), mongoSampleMSrun.getSampleAccession(),

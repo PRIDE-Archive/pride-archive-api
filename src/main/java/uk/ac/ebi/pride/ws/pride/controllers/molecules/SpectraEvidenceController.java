@@ -9,18 +9,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PSMProvider;
-import uk.ac.ebi.pride.archive.spectra.model.ArchiveSpectrum;
 import uk.ac.ebi.pride.archive.spectra.services.S3SpectralArchive;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
+import uk.ac.ebi.pride.solr.indexes.pride.utils.StringUtils;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.molecules.SpectraResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
-import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidenceResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
@@ -80,7 +78,10 @@ public class SpectraEvidenceController {
     @RequestMapping(value = "/spectra", method = RequestMethod.GET,
             produces = {MediaType.APPLICATION_JSON_VALUE})
     //Todo: All the spectra retrieve methods should be done using java.util.concurrent.CompletableFuture from Spring.
-    public HttpEntity<Object> getSpectrumBy(@RequestParam(value = "projectAccession") String projectAccession,
+    public HttpEntity<Object> getSpectrumBy(@RequestParam(value = "projectAccession", required = false) String projectAccession,
+                                            @RequestParam(value = "assayAccession", required = false) String assayAccession,
+                                            @RequestParam(value = "peptideSequence", required = false) String peptideSequence,
+                                            @RequestParam(value = "reportedProtein", required = false) String reportedProtein,
                                             @RequestParam(value="page", defaultValue = "0" ,  required = false) int page,
                                             @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
                                             @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,  required = false) String sortFields){
@@ -92,35 +93,33 @@ public class SpectraEvidenceController {
             direction = Sort.Direction.ASC;
         }
 
-        Page<PrideMongoPeptideEvidence> peptides = moleculesMongoService.findPeptideEvidencesByProjectAccession(projectAccession,
+        Page<PrideMongoPeptideEvidence> peptides = moleculesMongoService.findPeptideEvidences(projectAccession, assayAccession, peptideSequence, reportedProtein,
                 PageRequest.of(page, 50, direction, sortFields.split(",")));
 
         ConcurrentLinkedQueue<PSMProvider> psms = new ConcurrentLinkedQueue<>();
-        peptides.getContent().parallelStream().forEach( peptideEvidence -> {
-            peptideEvidence.getPsmAccessions().parallelStream().forEach( psm -> {
-                try {
-                    psms.add(spectralArchive.readPSM(psm.getUsi()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
-        });
+        peptides.getContent().parallelStream().forEach( peptideEvidence -> peptideEvidence.getPsmAccessions().parallelStream().forEach(psm -> {
+            try {
+                psms.add(spectralArchive.readPSM(psm.getUsi()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }));
 
         SpectraResourceAssembler assembler = new SpectraResourceAssembler(SpectraEvidenceController.class, SpectrumEvidenceResource.class);
         long totalPages = peptides.getTotalPages();
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(50, page, psms.size(), totalPages);
 
         PagedResources<SpectrumEvidenceResource> pagedResources = new PagedResources<>(assembler.toResources(psms), pageMetadata,
-                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, page, sortDirection, sortFields)).withSelfRel(),
-                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, 0, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession,  (int) totalPages, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.last.name())
+                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, assayAccession, peptideSequence, reportedProtein, page,
+                        sortDirection, sortFields)).withSelfRel(),
+                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, assayAccession, peptideSequence, reportedProtein,
+                        (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
+                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, assayAccession, peptideSequence, reportedProtein,
+                        (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
+                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, assayAccession, peptideSequence, reportedProtein,0,
+                        sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.first.name()),
+                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(projectAccession, assayAccession, peptideSequence, reportedProtein,
+                        (int) totalPages, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);

@@ -6,7 +6,6 @@ import org.springframework.restdocs.operation.OperationRequestFactory;
 import org.springframework.restdocs.operation.OperationResponse;
 import org.springframework.restdocs.operation.Parameters;
 import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
-import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 
 
@@ -27,7 +26,7 @@ public class DocumentationUtils {
 
             HttpHeaders headers = new HttpHeaders();
             MultiValueMap<String, String> headersMap = new HttpHeaders();
-            request.getHeaders().forEach((key,list)->headersMap.put(key,list));
+            request.getHeaders().forEach(headersMap::put);
             headersMap.set("Authorization", "Bearer ***AUTH_TOKEN***");
             headers.addAll(headersMap);
             return new OperationRequestFactory().create(request.getUri(),
