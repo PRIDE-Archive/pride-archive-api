@@ -90,6 +90,13 @@ public class ProteinEvidenceController {
             direction = Sort.Direction.ASC;
         }
 
+        if(projectAccession == null)
+            projectAccession = "";
+        if(assayAccession == null)
+            assayAccession = "";
+        if(reportedAccession == null)
+            reportedAccession = "";
+
         Page<PrideMongoProteinEvidence> mongoProteins = moleculesMongoService.findAllProteinEvidences(projectAccession, assayAccession, reportedAccession, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class, ProteinEvidenceResource.class);
