@@ -73,7 +73,7 @@ public class ProteinEvidenceController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/proteinevidences", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<Object> projects(
+    public HttpEntity<Object> getProteinEvidences(
             @RequestParam(value = "projectAccession", required = false) String projectAccession,
             @RequestParam(value = "assayAccession" , required = false) String assayAccession,
             @RequestParam(value = "reportedAccession", required = false) String reportedAccession,
@@ -101,15 +101,15 @@ public class ProteinEvidenceController {
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<ProteinEvidenceResource> pagedResources = new PagedResources<>(resources, pageMetadata,
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, page, sortDirection, sortFields))
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).getProteinEvidences(projectAccession,assayAccession,reportedAccession, pageSize, page, sortDirection, sortFields))
                         .withSelfRel(),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).getProteinEvidences(projectAccession,assayAccession,reportedAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, (int) WsUtils.validatePage(page - 1, totalPages),  sortDirection, sortFields))
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).getProteinEvidences(projectAccession,assayAccession,reportedAccession, pageSize, (int) WsUtils.validatePage(page - 1, totalPages),  sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, 0,  sortDirection, sortFields))
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).getProteinEvidences(projectAccession,assayAccession,reportedAccession, pageSize, 0,  sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, (int) totalPages,  sortDirection, sortFields))
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).getProteinEvidences(projectAccession,assayAccession,reportedAccession, pageSize, (int) totalPages,  sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
