@@ -20,11 +20,13 @@ import java.util.List;
 public class SpectrumEvidence {
 
     String usi;
-    double[] mzs;
-    double[] intensities;
+    Double[] mzs;
+    Double[] intensities;
     int numPeaks;
     List<CvParam> attributes;
     String peptideSequence;
     List<IdentifiedModification> ptms;
     boolean isDecoy;
+    boolean isValid;
+    List<CvParam> qualityMethods;
 }

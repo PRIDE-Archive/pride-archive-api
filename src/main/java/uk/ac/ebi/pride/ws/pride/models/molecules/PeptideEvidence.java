@@ -27,4 +27,10 @@ public class PeptideEvidence {
     List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;
+    Integer startPostion;
+    Integer endPostion;
+    Integer missedCleavages;
+    Boolean isValid;
+    List<CvParam> qualityMethods;
+
 }

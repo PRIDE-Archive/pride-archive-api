@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.assemblers.molecules;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
 import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
@@ -34,6 +35,7 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                                 WsUtils.mongoPeptideUiToPeptideEvidence(peptideEvidence.getPeptideAccession()))))
                 .withSelfRel());
 
+
         return new PeptideEvidenceResource(transform(peptideEvidence), links);
     }
 
@@ -60,6 +62,15 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                 .proteinAccession(mongoPeptide.getProteinAccession())
                 .projectAccession(mongoPeptide.getProjectAccession())
                 .assayAccession(mongoPeptide.getAssayAccession())
+                .startPostion(mongoPeptide.getStartPosition())
+                .endPostion(mongoPeptide.getEndPosition())
+                .isValid(mongoPeptide.getIsValid())
+                .qualityMethods(mongoPeptide.getQualityEstimationMethods()
+                        .stream()
+                        .map( x-> new CvParam(((CvParamProvider) x).getCvLabel(), ((CvParamProvider) x).getAccession(),
+                                ((CvParamProvider) x).getName(), ((CvParamProvider) x).getValue()))
+                        .collect(Collectors.toList()))
+                .missedCleavages(mongoPeptide.getMissedCleavages())
                 .build();
     }
 }

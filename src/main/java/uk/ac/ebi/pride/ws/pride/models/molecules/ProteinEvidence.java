@@ -38,4 +38,6 @@ public class ProteinEvidence {
     List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;
+    boolean isValid;
+    List<CvParam> qualityMethods;
 }

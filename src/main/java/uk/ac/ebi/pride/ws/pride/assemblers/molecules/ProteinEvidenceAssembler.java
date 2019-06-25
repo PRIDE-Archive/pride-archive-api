@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.assemblers.molecules;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.protein.PrideMongoProteinEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
@@ -91,6 +92,12 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                 .proteinSequence(prideMongoProteinEvidence.getProteinSequence())
                 .additionalAttributes(additionalAttributes)
                 .bestSearchEngineScore(bestSearchEngine)
+                .isValid(prideMongoProteinEvidence.getIsValid())
+                .qualityMethods(prideMongoProteinEvidence.getQualityEstimationMethods()
+                        .stream()
+                        .map( x-> new CvParam(((CvParamProvider) x).getCvLabel(), ((CvParamProvider) x).getAccession(),
+                                ((CvParamProvider) x).getName(), ((CvParamProvider) x).getValue()))
+                        .collect(Collectors.toList()))
                 .ptms(ptms)
                 .build();
     }

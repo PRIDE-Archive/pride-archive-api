@@ -4,6 +4,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PSMProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;
 import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidence;
@@ -14,6 +15,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvider, SpectrumEvidenceResource> {
@@ -64,6 +66,12 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
                 .mzs(archiveSpectrum.getMasses())
                 .numPeaks(archiveSpectrum.getIntensities().length)
                 .isDecoy(archiveSpectrum.isDecoy())
+                .isValid(archiveSpectrum.isValid())
+                .qualityMethods(archiveSpectrum.getQualityEstimationMethods()
+                        .stream()
+                        .map( x-> new CvParam(((CvParamProvider) x).getCvLabel(), ((CvParamProvider) x).getAccession(),
+                                ((CvParamProvider) x).getName(), ((CvParamProvider) x).getValue()))
+                        .collect(Collectors.toList()))
                 .attributes(attributes)
                 .ptms(ptms)
                 .build();
