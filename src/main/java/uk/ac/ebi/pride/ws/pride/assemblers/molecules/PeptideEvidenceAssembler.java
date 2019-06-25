@@ -11,6 +11,7 @@ import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidenceResource;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
+import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.ArrayList;
@@ -34,6 +35,14 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                                 peptideEvidence.getProteinAccession(),
                                 WsUtils.mongoPeptideUiToPeptideEvidence(peptideEvidence.getPeptideAccession()))))
                 .withSelfRel());
+
+        links.add(ControllerLinkBuilder.linkTo(
+                ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
+                        .getPsmsByPeptideEvidence(WsUtils.getIdentifier(peptideEvidence.getProjectAccession(),
+                                peptideEvidence.getAssayAccession(),
+                                peptideEvidence.getProteinAccession(),
+                                WsUtils.mongoPeptideUiToPeptideEvidence(peptideEvidence.getPeptideAccession()))))
+                .withRel(WsContastants.HateoasEnum.psms.name()));
 
 
         return new PeptideEvidenceResource(transform(peptideEvidence), links);

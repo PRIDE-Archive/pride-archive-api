@@ -11,26 +11,35 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PSMProvider;
+import uk.ac.ebi.pride.archive.spectra.services.S3SpectralArchive;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.molecules.PeptideEvidenceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.molecules.SpectraResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidenceResource;
+import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidenceResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RestController
 public class PeptideEvidenceController {
 
     final PrideMoleculesMongoService moleculesMongoService;
+    final S3SpectralArchive spectralArchive;
 
     @Autowired
-    public PeptideEvidenceController(PrideMoleculesMongoService moleculesMongoService) {
+    public PeptideEvidenceController(PrideMoleculesMongoService moleculesMongoService, S3SpectralArchive spectralArchive) {
+        this.spectralArchive = spectralArchive;
         this.moleculesMongoService = moleculesMongoService;
     }
 
@@ -97,7 +106,47 @@ public class PeptideEvidenceController {
         return new HttpEntity<>(pagedResources);
     }
 
-    @ApiOperation(notes = "Get peptide evidence using usi ",
+    @ApiOperation(notes = "Get psms by peptide envidence usi ",
+            value = "molecules", nickname = "getPsmsByPeptideEvidence", tags = {"molecules"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/peptideevidences/{usi}/psms", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<Object> getPsmsByPeptideEvidence(@PathVariable(value = "usi") String usi) {
+
+        Optional<PrideMongoPeptideEvidence> mongoPeptide = Optional.empty();
+        SpectraResourceAssembler assembler = new SpectraResourceAssembler(SpectraEvidenceController.class, SpectrumEvidenceResource.class);
+        ConcurrentLinkedQueue<PSMProvider> psms = new ConcurrentLinkedQueue<>();
+
+        if(usi != null && ! usi.isEmpty()){
+            try {
+                String[] values = WsUtils.parsePeptideEvidenceAccession(usi);
+                mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
+                if(mongoPeptide.isPresent()){
+                    mongoPeptide.get().getPsmAccessions().parallelStream().forEach( x-> {
+                        try {
+                            psms.add(spectralArchive.readPSM(x.getUsi()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(!psms.isEmpty()){
+            return new ResponseEntity<>(assembler.toResources(psms), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(WsContastants.PEPTIDE_USI_NOT_FOUND
+                        + usi + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ApiOperation(notes = "Get Peptide Evidence by usi ",
             value = "molecules", nickname = "getPeptideEvidence", tags = {"molecules"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
@@ -124,4 +173,6 @@ public class PeptideEvidenceController {
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PROTEIN_NOT_FOUND
                         + usi + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
     }
+
+
 }

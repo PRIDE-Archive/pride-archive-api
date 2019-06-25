@@ -1,13 +1,14 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
+import sun.jvm.hotspot.jdi.SACoreAttachingConnector;
+
 /**
  * @author ypriverol
  */
 public class WsContastants {
 
     public enum HateoasEnum{
-        next, previous, last, first, facets, files, peptideevidences
-
+        next, previous, last, first, facets, files, peptideevidences, psms;
     }
 
     public enum GAP_DATE{
@@ -46,6 +47,7 @@ public class WsContastants {
 
     public static String PX_PROJECT_NOT_FOUND = "The project accession is not in the database -- ";
     public static String PROTEIN_NOT_FOUND = "The protein evidence accession is not in the database -- ";
+    public static final String PEPTIDE_USI_NOT_FOUND = "The peptide evidence accession is not in the database --";
     public static String CONTACT_PRIDE = " Contact pride support: pride-support@ebi.ac.uk";
 
 }
