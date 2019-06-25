@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
@@ -20,6 +22,7 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -87,9 +90,30 @@ public class ProteinEvidenceController {
             direction = Sort.Direction.ASC;
         }
 
-        Page<PrideMongoProteinEvidence> mongoProteins = moleculesMongoService.findAllProteinEvidences(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
+        Page<PrideMongoProteinEvidence> mongoProteins = moleculesMongoService.findAllProteinEvidences(projectAccession, assayAccession, reportedAccession, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
+
+        ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class, ProteinEvidenceResource.class);
+
+        List<ProteinEvidenceResource> resources = assembler.toResources(mongoProteins);
+
+        long totalElements = mongoProteins.getTotalElements();
+        long totalPages = totalElements / pageSize;
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+
+        PagedResources<ProteinEvidenceResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, page, sortDirection, sortFields))
+                        .withSelfRel(),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
+                        .withRel(WsContastants.HateoasEnum.next.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, (int) WsUtils.validatePage(page - 1, totalPages),  sortDirection, sortFields))
+                        .withRel(WsContastants.HateoasEnum.previous.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, 0,  sortDirection, sortFields))
+                        .withRel(WsContastants.HateoasEnum.first.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProteinEvidenceController.class).projects(projectAccession,assayAccession,reportedAccession, pageSize, (int) totalPages,  sortDirection, sortFields))
+                        .withRel(WsContastants.HateoasEnum.last.name())
+        ) ;
 
 
-        return new HttpEntity<>(mongoProteins);
+        return new HttpEntity<>(pagedResources);
     }
 }

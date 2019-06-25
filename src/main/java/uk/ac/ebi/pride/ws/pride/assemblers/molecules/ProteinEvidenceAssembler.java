@@ -38,21 +38,12 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                                 prideMongoProteinEvidence.getReportedAccession())))
                 .withSelfRel());
 
-        Method method = null;
-        try {
-            method = PeptideEvidenceController.class.getMethod("getPeptideEvidencesByProteinEvidence",
-                    String.class, String.class, String.class,
-                    Integer.class, Integer.class,
-                    String.class, String.class);
-            Link link = ControllerLinkBuilder.linkTo(method, prideMongoProteinEvidence.getReportedAccession(),
-                    prideMongoProteinEvidence.getProjectAccession(), prideMongoProteinEvidence.getAssayAccession(),
-                    WsContastants.MAX_PAGINATION_SIZE, 0,
-                    "DESC" , PrideArchiveField.EXTERNAL_PROJECT_ACCESSION)
-                    .withRel(WsContastants.HateoasEnum.peptideevidences.name());
-            links.add(link);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
+        Link link = ControllerLinkBuilder.linkTo(
+                ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
+                        .getPeptideEvidencesByProteinEvidence(prideMongoProteinEvidence.getReportedAccession(),
+                                prideMongoProteinEvidence.getProjectAccession(), prideMongoProteinEvidence.getAssayAccession(), WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.EXTERNAL_PROJECT_ACCESSION))
+                .withRel(WsContastants.HateoasEnum.peptideevidences.name());
+        links.add(link);
 
         return new ProteinEvidenceResource(transform(prideMongoProteinEvidence), links);
     }
