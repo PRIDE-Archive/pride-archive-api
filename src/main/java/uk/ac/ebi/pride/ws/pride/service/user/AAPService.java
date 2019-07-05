@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.pride.archive.repo.services.user.UserSummary;
 import uk.ac.ebi.pride.archive.repo.util.AAPConstants;
-import uk.ac.ebi.pride.ws.pride.models.uer.ChangePassword;
+import uk.ac.ebi.pride.ws.pride.models.user.ChangePassword;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -43,6 +44,17 @@ public class AAPService {
         restTemplate = new RestTemplate();
         /*getAAPToken();
         getAAPDomains();*/
+    }
+
+
+    /*To create authorization header with a valid user token
+    * Used while updating user specific data in aap*/
+    private HttpHeaders frameUserAuthToken(String token){
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer "+token);
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8));
+        return headers;
     }
 
     /*Used to send AAP token in the headers of requests*/
@@ -136,4 +148,15 @@ public class AAPService {
         }
     }
 
+    public boolean updateUserData(String token, String userReference, UserSummary userSummary) {
+        String org = userSummary.getAffiliation().substring(0, userSummary.getAffiliation().length()<=255?userSummary.getAffiliation().length():255);//AAP limits org size to 255bytes
+        String updateUserRegJSON = "{\"username\" : \""+userSummary.getEmail()+"\",     \"email\" : \""+userSummary.getEmail()+"\",     \"name\" : \""+userSummary.getFirstName()+" "+userSummary.getLastName()+"\",     \"organisation\" : \""+org+"\"}";
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(aapAuthURL + "/" + userReference , HttpMethod.PUT, new HttpEntity(updateUserRegJSON, frameUserAuthToken(token)), String.class);
+            return responseEntity.getStatusCode().is2xxSuccessful();
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

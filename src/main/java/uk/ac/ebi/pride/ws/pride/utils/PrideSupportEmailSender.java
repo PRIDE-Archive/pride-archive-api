@@ -8,18 +8,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.MailException;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.pride.archive.repo.repos.user.User;
 import uk.ac.ebi.pride.archive.repo.services.user.UserSummary;
 import uk.ac.ebi.pride.ws.pride.models.feedback.Feedback;
-import uk.ac.ebi.pride.ws.pride.models.uer.PublishProject;
+import uk.ac.ebi.pride.ws.pride.models.user.PublishProject;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
 
 @Component
 public class PrideSupportEmailSender {

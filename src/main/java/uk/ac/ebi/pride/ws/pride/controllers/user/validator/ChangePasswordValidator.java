@@ -8,7 +8,7 @@ import uk.ac.ebi.pride.archive.repo.repos.user.PasswordUtilities;
 import uk.ac.ebi.pride.archive.repo.services.user.UserService;
 import uk.ac.ebi.pride.archive.repo.services.user.UserSummary;
 import uk.ac.ebi.pride.archive.repo.services.user.validation.UserSummaryValidator;
-import uk.ac.ebi.pride.ws.pride.models.uer.ChangePassword;
+import uk.ac.ebi.pride.ws.pride.models.user.ChangePassword;
 
 /**
  * @author Rui Wang

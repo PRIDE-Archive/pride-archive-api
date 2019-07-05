@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.ws.pride.models.uer;
+package uk.ac.ebi.pride.ws.pride.models.user;
 
 public class PublishProject {
     private String pubmedId;

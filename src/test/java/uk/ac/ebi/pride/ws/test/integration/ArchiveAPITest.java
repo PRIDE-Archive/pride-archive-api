@@ -25,7 +25,9 @@ import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
 import uk.ac.ebi.pride.ws.pride.service.user.AAPService;
 import uk.ac.ebi.pride.ws.test.integration.util.DocumentationUtils;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -65,6 +67,7 @@ public class ArchiveAPITest {
         }
 
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
+                .apply(springSecurity()) // this is the key
                 .apply(documentationConfiguration(this.restDocumentation).uris()
                         .withScheme("http")
                         .withHost(host)
@@ -256,5 +259,26 @@ public class ArchiveAPITest {
                                         "Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
                         requestParameters(parameterWithName("fieldName").description("The field inside MSRunMetadata to be updated. This can be any one of these: "+PrideArchiveField.MS_RUN_ID_SETTINGS+","+PrideArchiveField.MS_RUN_SCAN_SETTINGS+","+PrideArchiveField.MS_RUN_FILE_PROPERTIES+","+PrideArchiveField.MS_RUN_INSTRUMENT_PROPERTIES+","+PrideArchiveField.MS_RUN_MS_DATA+"."))));
     }
+
+
+    /*User Pages Tests*/
+
+    //Edit User Profile /update-profile
+    /*@Test
+    public void updateUserProfile() throws Exception{
+        String aapToken = aapService.getAAPToken();
+        String payload = "{\"UserProfile\":{\"email\":\"inuganti@ebi.ac.uk\",\"title\":\"Mr\",\"firstName\":\"AVINASH\",\"lastName\":\"INUGANTI\",\"affiliation\":\"EBI\",\"country\":\"UK\",\"orcid\":\"4321-1234-3333-4444\",\"acceptedTermsOfUse\":true}}";
+        this.mockMvc.perform(post("/user/update-profile").header("Authorization", "Bearer "+aapToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andDo(document("post-update-user-profile", preprocessRequest(DocumentationUtils.maskTokenPreProcessor(),prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            requestHeaders(
+                                    headerWithName("Authorization").description("Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
+                        requestFields(
+                                fieldWithPath("UserProfile").description("The JSON payload containing the user profile editable information similar to the payload in example request.")
+                                )));
+    }*/
+
 
 }
