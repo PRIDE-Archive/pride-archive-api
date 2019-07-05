@@ -79,17 +79,11 @@ public class PrideSupportEmailSender {
 
     public String getEmailTemplate(Resource emailTemplate) throws IOException {
         StringBuilder message = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(emailTemplate.getInputStream()));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(emailTemplate.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 message.append(line);
                 message.append(System.getProperty("line.separator"));
-            }
-        } finally {
-            if (reader != null) {
-                reader.close();
             }
         }
 

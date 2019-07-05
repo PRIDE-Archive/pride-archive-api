@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.hateoas.core.Relation;
-import uk.ac.ebi.pride.archive.dataprovider.data.ptm.DefaultIdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -21,10 +20,12 @@ import java.util.Set;
 public class ProteinEvidence {
 
     /**
-     * The ui is an artificial identifiers, combination of projectAccession:assayAccession:reportedAccession
+     * The ui is an artificial identifiers, combination of
+     * projectAccession:assayAccession:reportedAccession
+     *
      * For example: PXD000001:234567:QTFG23
      **/
-    String ui;
+    String usi;
     String projectAccession;
     String assayAccession;
     String reportedAccession;
@@ -37,4 +38,6 @@ public class ProteinEvidence {
     List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;
+    boolean isValid;
+    List<CvParam> qualityMethods;
 }

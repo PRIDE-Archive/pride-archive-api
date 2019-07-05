@@ -70,4 +70,26 @@ public class WsUtils {
             reportedProtein.append(":").append(values[i]);
         return new Triple<>(projectAccession, assayAccession, reportedProtein.toString());
     }
+
+    public static String[] parsePeptideEvidenceAccession(String accession) throws Exception {
+        String[] values = accession.split(":");
+        if(values.length < 4)
+            throw new Exception("No valid accession for PeptideEvidences");
+        String[] valueKeys = new String[4];
+        valueKeys[0] = values[0];
+        valueKeys[1] = values[1];
+        valueKeys[2] = values[2];
+        valueKeys[3] = peptideEvidenceUiToMongoPeptideUi(values[3]);
+        return valueKeys;
+    }
+
+    public static String peptideEvidenceUiToMongoPeptideUi(String value) {
+        return value.replace("|", ";");
+    }
+
+    public static String mongoPeptideUiToPeptideEvidence(String value) {
+        return value.replace(";", "|");
+    }
+
+
 }

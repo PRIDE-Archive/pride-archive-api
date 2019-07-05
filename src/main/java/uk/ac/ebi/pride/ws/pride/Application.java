@@ -33,7 +33,8 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 
 @SpringBootApplication
 @ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security",
-        "uk.ac.ebi.pride.utilities.ols.web.service.cache" , "uk.ac.ebi.pride.mongodb.configs"})
+        "uk.ac.ebi.pride.utilities.ols.web.service.cache" , "uk.ac.ebi.pride.mongodb.configs",
+        "uk.ac.ebi.pride.archive.spectra.configs"})
 public class Application {
 
     @Value("${deployment.env}")

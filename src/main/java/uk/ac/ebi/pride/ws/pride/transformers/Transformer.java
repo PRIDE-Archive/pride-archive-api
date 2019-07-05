@@ -2,17 +2,20 @@ package uk.ac.ebi.pride.ws.pride.transformers;
 
 import uk.ac.ebi.pride.archive.dataprovider.common.ITuple;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.archive.dataprovider.data.ptm.IdentifiedModificationProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
+import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,23 +86,23 @@ public class Transformer {
 
         List<Tuple<CvParam, CvParam>> sampleProperties = (mongoSampleMSrun.getSampleProperties() != null)? mongoSampleMSrun.getSampleProperties()
                 .stream().map( x-> {
-                    CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
-                    CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();
-                    return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()),
-                            new CvParam(value.getCvLabel(), value.getAccession(),value.getName(),value.getValue()));
+                    CvParamProvider key = (CvParamProvider) x.getKey();
+                    CvParamProvider value = (CvParamProvider) x.getValue();
+                    return new Tuple<>(new CvParam(key.getCvLabel(), key.getAccession(), key.getName(), key.getValue()),
+                            new CvParam(value.getCvLabel(), value.getAccession(), value.getName(), value.getValue()));
                 })
                 .collect(Collectors.toList())
                 : Collections.emptyList();
 
         List<Tuple<CvParam, CvParam>> msrunProperties = (mongoSampleMSrun.getMsRunProperties() != null)? mongoSampleMSrun.getMsRunProperties()
                 .stream().map( x-> {
-                    CvParamProvider key = (CvParamProvider) ((ITuple) x).getKey();
-                    CvParamProvider value = (CvParamProvider) ((ITuple) x).getValue();
-                    return new Tuple<CvParam, CvParam>(new CvParam(key.getCvLabel(), key.getAccession(),key.getName(),key.getValue()),
-                            new CvParam(value.getCvLabel(), value.getAccession(),value.getName(),value.getValue()));
+                    CvParamProvider key = (CvParamProvider) x.getKey();
+                    CvParamProvider value = (CvParamProvider) x.getValue();
+                    return new Tuple<>(new CvParam(key.getCvLabel(), key.getAccession(), key.getName(), key.getValue()),
+                            new CvParam(value.getCvLabel(), value.getAccession(), value.getName(), value.getValue()));
                 })
                 .collect(Collectors.toList())
-                : Collections.emptyList();;
+                : Collections.emptyList();
 
 
         return new SampleMSRunRow(mongoSampleMSrun.getProjectAccession(), mongoSampleMSrun.getSampleAccession(),
@@ -120,4 +123,43 @@ public class Transformer {
         }
         return null;
     }
+
+    /**
+     * Transform a List of {@link IdentifiedModificationProvider} to a List of {@link IdentifiedModification}
+     * @param oldPtms List of {@link IdentifiedModificationProvider}
+     * @return List of {@link IdentifiedModification}
+     */
+    public static List<IdentifiedModification> transformModifications(Collection<? extends IdentifiedModificationProvider> oldPtms){
+        return oldPtms.stream().map(ptm -> {
+            CvParam ptmName = new CvParam(ptm.getModificationCvTerm().getCvLabel(),
+                    ptm.getModificationCvTerm().getAccession(),
+                    ptm.getModificationCvTerm().getName(),
+                    ptm.getModificationCvTerm().getValue());
+
+            CvParam neutral = null;
+            if(ptm.getNeutralLoss() != null)
+                neutral = new CvParam(ptm.getNeutralLoss().getCvLabel(),
+                        ptm.getNeutralLoss().getAccession(),
+                        ptm.getNeutralLoss().getName(),
+                        ptm.getNeutralLoss().getValue());
+
+            List<Tuple<Integer, List<CvParam>>> ptmPositions = ptm.getPositionMap().stream().map(position ->{
+                Collection<CvParamProvider> scores = (Collection<CvParamProvider>) position.getValue();
+                Integer currentPosition = position.getKey();
+                List<CvParam> newScores = scores.stream().map(score -> new CvParam(score.getCvLabel(),
+                        score.getAccession(), score.getName(),
+                        score.getValue())).collect(Collectors.toList());
+                return new Tuple<>(currentPosition, newScores);
+            }).collect(Collectors.toList());
+
+            IdentifiedModification newPTM = IdentifiedModification.builder()
+                    .modification(ptmName)
+                    .neutralLoss(neutral)
+                    .positionMap(ptmPositions)
+                    .build();
+
+            return newPTM;
+        }).collect(Collectors.toList());
+    }
+
 }

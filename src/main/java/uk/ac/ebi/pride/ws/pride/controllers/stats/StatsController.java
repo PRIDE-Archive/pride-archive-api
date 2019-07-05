@@ -58,7 +58,7 @@ public class StatsController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> statistics(@PathVariable(value = "name", required = true, name = "name") String name){
+    public ResponseEntity<Object> statistics(@PathVariable(value = "name", name = "name") String name){
 
         Object stats = mongoStatsService.findLastGeneratedStats().getSubmissionsCount().get(name);
         if (stats == null || ((List)stats).size() == 0)
@@ -80,9 +80,9 @@ public class StatsController {
         MongoPrideStats stats = mongoStatsService.findLastGeneratedStats();
         if (stats != null){
             if(stats.getSubmissionsCount() != null)
-                statNames.addAll(stats.getSubmissionsCount().entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList()));
+                statNames.addAll(stats.getSubmissionsCount().keySet().stream().collect(Collectors.toList()));
             if(stats.getComplexStats() != null)
-                statNames.addAll(stats.getComplexStats().entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList()));
+                statNames.addAll(stats.getComplexStats().keySet().stream().collect(Collectors.toList()));
         }
 
         return new ResponseEntity<>(statNames, HttpStatus.OK);

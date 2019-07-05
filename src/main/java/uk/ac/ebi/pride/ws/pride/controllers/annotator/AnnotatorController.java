@@ -24,8 +24,6 @@ import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
-import uk.ac.ebi.pride.utilities.pridemod.io.unimod.model.Unimod;
-import uk.ac.ebi.pride.utilities.pridemod.io.unimod.xml.UnimodReader;
 import uk.ac.ebi.pride.utilities.pridemod.model.PTM;
 import uk.ac.ebi.pride.utilities.pridemod.model.UniModPTM;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
@@ -107,9 +105,9 @@ public class AnnotatorController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/annotator/valuesByAttribute", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<CvParam>> getSampleAttributes(@RequestParam(value = "attributeAccession", required = true) String attributeAccession,
-                                                             @RequestParam(value = "ontologyAccession" , required = true) String ontologyAccession,
-                                                             @RequestParam(value = "keyword", required = true) String keyword) {
+    public ResponseEntity<List<CvParam>> getSampleAttributes(@RequestParam(value = "attributeAccession") String attributeAccession,
+                                                             @RequestParam(value = "ontologyAccession") String ontologyAccession,
+                                                             @RequestParam(value = "keyword") String keyword) {
 
         List<CvParam> valueAttributes = new ArrayList<>();
         if(attributeAccession.equalsIgnoreCase(CvTermReference.PRIDE_VARIABLE_MODIFICATION.getAccession()) || attributeAccession.equalsIgnoreCase(CvTermReference.PRIDE_FIXED_MODIFICATION.getAccession())){
@@ -127,7 +125,7 @@ public class AnnotatorController {
             }
 
             valueAttributes = ptms.stream().filter( x-> (x instanceof UniModPTM))
-                    .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + String.valueOf(x.getMonoDeltaMass()) + ")", String.valueOf(x.getMonoDeltaMass())))
+                    .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + x.getMonoDeltaMass() + ")", String.valueOf(x.getMonoDeltaMass())))
                     .collect(Collectors.toList());
 
         }else{
@@ -173,8 +171,8 @@ public class AnnotatorController {
     /**
      * It would be great if this function read from UNIMOD OLS. However, the current implementation needs to read from UNIMOD directly.
      *
-     * @param keyword
-     * @return
+     * @param keyword Keyword to search reagent
+     * @return List of Terms
      */
     @ApiOperation(notes = "Get Reagent Values", value = "annotator", nickname = "reagentValues", tags = {"annotator"} )
     @ApiResponses({
@@ -197,7 +195,7 @@ public class AnnotatorController {
 
         List<CvParam> valueAttributes = terms.stream().filter( x-> (x instanceof UniModPTM))
                 .filter( x-> (((UniModPTM)x).getClassifications().contains("isotopic label") || ((UniModPTM)x).getClassifications().contains("multiple")))
-                .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + String.valueOf(x.getMonoDeltaMass()) + ")", String.valueOf(x.getMonoDeltaMass())))
+                .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + x.getMonoDeltaMass() + ")", String.valueOf(x.getMonoDeltaMass())))
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(valueAttributes, HttpStatus.OK);
