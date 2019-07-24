@@ -30,6 +30,8 @@ build_dev:
 build_prod:
   environment: prod
   extends: .buildscript
+  only:
+    - master
 
 #test:
 #  stage: test
