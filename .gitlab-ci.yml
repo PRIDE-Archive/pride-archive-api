@@ -19,6 +19,7 @@ before_script:
   - chmod 600 ~/.ssh/known_hosts
 
 build:
+  environment: *
   stage: build
   script:
     - mvn $MAVEN_CLI_OPTS compile
@@ -30,6 +31,7 @@ build:
 
 deploy:
   stage: deploy
+  environment: dev
   script:
     - mvn $MAVEN_CLI_OPTS package -DskipTests
     - envsubst < config/.application.yml > config/application.yml
