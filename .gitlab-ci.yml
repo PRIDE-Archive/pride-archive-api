@@ -1,4 +1,4 @@
-image: maven:3.3.9-jdk-8
+image: maven:3.3.9-jdk-8-alpine
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
@@ -23,15 +23,15 @@ before_script:
   script:
     - mvn $MAVEN_CLI_OPTS compile
 
-build_dev:
-  environment: dev
-  extends: .buildscript
-
-build_prod:
-  environment: prod
-  extends: .buildscript
-  only:
-    - master
+#build_dev:
+#  environment: dev
+#  extends: .buildscript
+#
+#build_prod:
+#  environment: prod
+#  extends: .buildscript
+#  only:
+#    - master
 
 #test:
 #  stage: test
