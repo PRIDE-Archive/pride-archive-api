@@ -18,11 +18,18 @@ before_script:
   - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
   - chmod 600 ~/.ssh/known_hosts
 
-build:
-  environment: '*'
+.buildscript:
   stage: build
   script:
     - mvn $MAVEN_CLI_OPTS compile
+
+build_dev:
+  environment: dev
+  extends: .buildscript
+
+build_prod:
+  environment: prod
+  extends: .buildscript
 
 #test:
 #  stage: test
