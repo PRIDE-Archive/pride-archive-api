@@ -46,7 +46,7 @@ deploy:
     - envsubst < config/.application.yml > config/application.yml
     - cd target && jar_file=`ls *jar` && ln -s $jar_file $JAR_FILE_LINK && cd ..
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
-    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && mv *jar $BACKUP_DIR/ && mv config $BACKUP_DIR/"
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && mv *jar $BACKUP_DIR/ && [ -f config ] && mv config $BACKUP_DIR/"
     - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && sh $STOP_SCRIPT && sh $START_SCRIPT"
     #  only:
