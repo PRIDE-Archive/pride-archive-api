@@ -19,7 +19,7 @@ before_script:
   - chmod 600 ~/.ssh/known_hosts
 
 build:
-  environment: *
+  environment: '*'
   stage: build
   script:
     - mvn $MAVEN_CLI_OPTS compile
