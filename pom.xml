@@ -176,11 +176,10 @@
             <!-- Maven should filter properties files -->
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>*.properties</include>
-                    <include>*/*</include>
-                </includes>
+                <excludes>
+                    <exclude>*.properties</exclude>
+                </excludes>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <plugins>
