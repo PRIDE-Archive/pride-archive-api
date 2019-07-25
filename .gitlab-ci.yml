@@ -48,6 +48,6 @@ deploy:
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && (mv *jar $BACKUP_DIR/ || true) && (mv config $BACKUP_DIR/ || true)"
     - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH
-    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && sh $START_SCRIPT && exit"
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > log.log &) && exit"
     #  only:
     ##    - master

@@ -7,13 +7,19 @@ deployment.env: $deployment_env
 # LOGGING Properties
 logging:
   file: pride-archive-api.log
+  pattern:
+    file: '%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
+    console: '%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
   level:
     root: INFO
-    org.springframework.web: INFO
-    org.springframework.boot: INFO
-    org.apache.solr: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org:
+      springframework:
+        web: INFO
+        boot: INFO
+      apache.solr: INFO
+      hibernate:
+        SQL: INFO
+        type.descriptor.sql.BasicBinder: INFO
 
 # To avoid errors while parsing null values in objects
 spring.jackson.default-property-inclusion: NON_NULL
