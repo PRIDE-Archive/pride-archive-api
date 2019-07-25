@@ -6,6 +6,7 @@ deployment.env: $deployment_env
 
 # LOGGING Properties
 logging:
+  path: logs
   file: pride-archive-api.log
   pattern:
     file: '%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
