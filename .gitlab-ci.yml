@@ -44,7 +44,7 @@ deploy:
   script:
     - mvn $MAVEN_CLI_OPTS package -DskipTests
     - envsubst < config/.application.yml > config/application.yml
-    - cd target && jar_file=`ls *jar` && ln -s $jar_file $JAR_FILE_LINK && cd ..
+    - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && (mv *jar $BACKUP_DIR/ || true) && (mv config $BACKUP_DIR/ || true)"
     - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH
