@@ -49,4 +49,6 @@ public class WsContastants {
     public static String CONTACT_PRIDE = " Contact pride support: pride-support@ebi.ac.uk";
     public static String AAP_TOKEN_MISMATCH_ERROR = "Authorization Token is invalid";
 
+    public static String AAP_TOKEN_MISMATCH_ERROR = "Authorization Token is invalid";
+
 }
