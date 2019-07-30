@@ -143,7 +143,7 @@ public class UserProfileService {
                 boolean isUpdateSuccessful = aapService.updateUserData(token, userReference,oldUserSumary);
                 if(!isUpdateSuccessful){
                     String msg = "Failed to update user detail in AAP: " + oldUserSumary.getEmail();
-                    System.out.println(msg);
+                    log.error(msg);
                     throw new UserAccessException(msg,oldUserSumary.getEmail());
                 }
             }
@@ -153,7 +153,7 @@ public class UserProfileService {
                 userRepository.save(user);
             } catch (Exception ex) {
                 String msg = "Failed to update user detail, user email: " + oldUserSumary.getEmail();
-                System.out.println(ex.getMessage()+";"+msg);
+                log.error(ex.getMessage()+";"+msg);
                 throw new UserAccessException(msg, ex, oldUserSumary.getEmail());
             }
         }

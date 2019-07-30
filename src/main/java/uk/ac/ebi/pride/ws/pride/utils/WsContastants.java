@@ -47,5 +47,6 @@ public class WsContastants {
     public static String PROTEIN_NOT_FOUND = "The protein evidence accession is not in the database -- ";
     public static final String PEPTIDE_USI_NOT_FOUND = "The peptide evidence accession is not in the database --";
     public static String CONTACT_PRIDE = " Contact pride support: pride-support@ebi.ac.uk";
+    public static String AAP_TOKEN_MISMATCH_ERROR = "Authorization Token is invalid";
 
 }

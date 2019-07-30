@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.security.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -13,6 +14,7 @@ import java.io.IOException;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Slf4j
 public class SimpleCORSFilter extends OncePerRequestFilter {
 
     @Override
@@ -34,7 +36,7 @@ public class SimpleCORSFilter extends OncePerRequestFilter {
             response.addHeader("cors.exposed.headers", "Access-Control-Allow-Origin,"
                     + "Access-Control-Allow-Credentials");*/
         }
-        System.out.println("########### Simple CORS Filter: "+request.getRequestURL()+" ############");
+        log.info("########### Simple CORS Filter: " + request.getRequestURL() + " ############");
 
         /*filterChain.doFilter(new HttpServletRequestWrapper((HttpServletRequest) request) {
             @Override

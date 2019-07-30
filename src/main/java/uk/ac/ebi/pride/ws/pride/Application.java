@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -35,6 +36,7 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 @ComponentScan({"uk.ac.ebi.pride.ws.pride","uk.ac.ebi.tsc.aap.client.security",
         "uk.ac.ebi.pride.utilities.ols.web.service.cache" , "uk.ac.ebi.pride.mongodb.configs",
         "uk.ac.ebi.pride.archive.spectra.configs"})
+@Slf4j
 public class Application {
 
     @Value("${deployment.env}")
@@ -42,7 +44,7 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        System.out.println("################ deploymentEnv:"+deploymentEnv);
+        log.info("################ deploymentEnv:"+deploymentEnv);
     }
 
     @Component
