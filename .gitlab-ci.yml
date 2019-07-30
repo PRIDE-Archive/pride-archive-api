@@ -1,0 +1,53 @@
+image: maven:3.3.9-jdk-8-alpine
+
+variables:
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+
+before_script:
+  - which ssh-agent || (apk add --update openssh-client bash openssl rsync gettext)
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
+  - chmod 600 ~/.ssh/known_hosts
+
+.buildscript:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS compile
+
+#build_dev:
+#  environment: dev
+#  extends: .buildscript
+#
+#build_prod:
+#  environment: prod
+#  extends: .buildscript
+#  only:
+#    - master
+
+#test:
+#  stage: test
+#  script:
+#    - mvn $MAVEN_CLI_OPTS test
+
+deploy:
+  stage: deploy
+  environment: dev
+  script:
+    - mvn $MAVEN_CLI_OPTS package -DskipTests
+    - envsubst < config/.application.yml > config/application.yml
+    - cd target && jar_file=`ls *jar` && ln -s $jar_file $JAR_FILE_LINK && cd ..
+    - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && (mv *jar $BACKUP_DIR/ || true) && (mv config $BACKUP_DIR/ || true)"
+    - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
+    #  only:
+    ##    - master
