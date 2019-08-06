@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.ws.test.integration;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -46,7 +48,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {Application.class, ArchiveMongoConfig.class, SolrCloudConfig.class,SwaggerConfig.class,TestService.class})
+@SpringBootTest(classes = {Application.class, ArchiveMongoConfig.class, SolrCloudConfig.class,SwaggerConfig.class/*,TestService.class*/})
 @TestPropertySource(locations = "classpath:application.properties")
 @AutoConfigureRestDocs
 public class ArchiveAPITest {
@@ -65,8 +67,8 @@ public class ArchiveAPITest {
     @Autowired
     private  AAPService aapService;
 
-    @Autowired
-    private TestService testService;
+    /*@Autowired
+    private TestService testService;*/
 
     private Map<String,String> testValuesMap;
 
@@ -89,14 +91,14 @@ public class ArchiveAPITest {
         /*Populate required values for testing endpoints*/
         testValuesMap = new HashMap<String,String>();
 
-        String fileAccession = testService.getFileAccession();
+        String fileAccession = "PXF00000963831";//testService.getFileAccession();
         testValuesMap.put(TestConstants.FILE_ACCESSION,fileAccession);
 
         testValuesMap.put(TestConstants.PROJECT_ACCESSION,"PRD000001");
 
-        List<String> msRunValuesList = testService.getMsRunFileAccession();
-        testValuesMap.put(TestConstants.FILE_ACCESSION_WITH_MSRUN, msRunValuesList.get(0));
-        testValuesMap.put(TestConstants.PROJECT_ACCESSION_WITH_MSRUN,msRunValuesList.get(1));
+        //List<String> msRunValuesList = testService.getMsRunFileAccession();
+        testValuesMap.put(TestConstants.FILE_ACCESSION_WITH_MSRUN, "PXF00000042521"/*msRunValuesList.get(0)*/);
+        testValuesMap.put(TestConstants.PROJECT_ACCESSION_WITH_MSRUN,"PXD011455"/*msRunValuesList.get(1)*/);
     }
 
     /*Files Tests*/
@@ -256,23 +258,16 @@ public class ArchiveAPITest {
                         requestHeaders(
                                 headerWithName("Authorization").description(
                                         "Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
-                        pathParameters(parameterWithName("accession").description("The unique file identifier.")),
-                        requestFields(
-                                fieldWithPath("MSRunMetadata").description("The JSON payload containing the MSRunMetadata similar to the payload in example request."),
-                                fieldWithPath("MSRunMetadata.FileProperties").description("The JSON object containing the FileProperties for raw files."),
-                                fieldWithPath("MSRunMetadata.IdSettings").description("The JSON object containing the IdSettings for raw files."),
-                                fieldWithPath("MSRunMetadata.InstrumentProperties").description("The JSON object containing the InstrumentProperties for raw files."),
-                                fieldWithPath("MSRunMetadata.ScanSettings").description("The JSON object containing the ScanSettings for raw files."),
-                                fieldWithPath("MSRunMetadata.MsData").description("The JSON object containing the MsData for raw files.")
-                        )));
+                        pathParameters(parameterWithName("accession").description("The unique file identifier."))
+                        ));
     }
 
 
-    /*@Test
+    @Test
     public void putMsRunsDataPart() throws Exception{
         String aapToken = aapService.getAAPToken();
         String payload = "{\"MSRunMetadata\":{     \"FileProperties\": [       {         \"accession\": \"NCIT:C47922\",         \"cvLabel\": \"NCIT\",         \"name\": \"Pathname\",         \"value\": \"/Users/yperez/Downloads/SMXL7_GR24_1.raw\"       },       {         \"accession\": \"NCIT:C25714\",         \"cvLabel\": \"NCIT\",         \"name\": \"Version\",         \"value\": \"64\"       },       {         \"accession\": \"NCIT:C69199\",         \"cvLabel\": \"NCIT\",         \"name\": \"Content Creation Date\",         \"value\": \"15/07/2014 23:58:41\"       },       {         \"accession\": \"NCIT:C25365\",         \"cvLabel\": \"NCIT\",         \"name\": \"Description\",         \"value\": \"\"       }     ]   }   }";
-        this.mockMvc.perform(put("/msruns/{accession}/updateMetadataParts?fieldName={fieldName}","PXF00001876616","FileProperties")
+        this.mockMvc.perform(put("/msruns/{accession}/updateMetadataParts?fieldName={fieldName}","PXF00000042521","FileProperties")
                 .header("Authorization", "Bearer "+aapToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON).content(payload))
                 .andExpect(status().isOk())
@@ -283,27 +278,7 @@ public class ArchiveAPITest {
                                 headerWithName("Authorization").description(
                                         "Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
                         requestParameters(parameterWithName("fieldName").description("The field inside MSRunMetadata to be updated. This can be any one of these: "+PrideArchiveField.MS_RUN_ID_SETTINGS+","+PrideArchiveField.MS_RUN_SCAN_SETTINGS+","+PrideArchiveField.MS_RUN_FILE_PROPERTIES+","+PrideArchiveField.MS_RUN_INSTRUMENT_PROPERTIES+","+PrideArchiveField.MS_RUN_MS_DATA+"."))));
-    }*/
-
-
-    /*User Pages Tests*/
-
-    //Edit User Profile /update-profile
-    /*@Test
-    public void updateUserProfile() throws Exception{
-        String aapToken = aapService.getAAPToken();
-        String payload = "{\"UserProfile\":{\"email\":\"inuganti@ebi.ac.uk\",\"title\":\"Mr\",\"firstName\":\"AVINASH\",\"lastName\":\"INUGANTI\",\"affiliation\":\"EBI\",\"country\":\"UK\",\"orcid\":\"4321-1234-3333-4444\",\"acceptedTermsOfUse\":true}}";
-        this.mockMvc.perform(post("/user/update-profile").header("Authorization", "Bearer "+aapToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON).content(payload))
-                .andExpect(status().isOk())
-                .andDo(document("post-update-user-profile", preprocessRequest(DocumentationUtils.maskTokenPreProcessor(),prettyPrint()),
-                            preprocessResponse(prettyPrint()),
-                            requestHeaders(
-                                    headerWithName("Authorization").description("Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
-                        requestFields(
-                                fieldWithPath("UserProfile").description("The JSON payload containing the user profile editable information similar to the payload in example request.")
-                                )));
-    }*/
+    }
 
 
 }

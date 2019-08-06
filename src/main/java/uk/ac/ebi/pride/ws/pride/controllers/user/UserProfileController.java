@@ -132,6 +132,7 @@ public class UserProfileController {
                 userProfileService.updateProfile(token,currentUser.getUserReference(),currentUser.getEmail(),userProfile);
                 return ResponseEntity.ok().build();
             } catch (Exception ex) {
+                ex.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
             }
         }
