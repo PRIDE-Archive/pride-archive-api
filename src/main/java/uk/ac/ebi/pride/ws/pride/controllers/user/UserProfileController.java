@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.controllers.user;
 
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import javax.validation.Valid;
 //`@ApiIgnore
 @RestController
 @RequestMapping(path = "/user")
+@Slf4j
 public class UserProfileController {
 
     @Autowired
@@ -66,6 +68,7 @@ public class UserProfileController {
             String userRef = userProfileService.registerNewUser(userSummary);
             return ResponseEntity.ok(String.valueOf(userRef));
         }catch(Exception e){
+            log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
@@ -88,6 +91,7 @@ public class UserProfileController {
                 userProfileService.changePassword(currentUser.getUserReference(),changePassword);
                 return ResponseEntity.ok().build();
             } catch (Exception ex) {
+                log.error(ex.getMessage(), ex);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
             }
         }
@@ -103,6 +107,7 @@ public class UserProfileController {
             UserSummary userSummary = userProfileService.getProfile(currentUser.getEmail());
             return ResponseEntity.ok(userSummary);
         }catch(Exception e){
+            log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error fetching user profile:"+e.getMessage());
         }
     }
@@ -132,7 +137,7 @@ public class UserProfileController {
                 userProfileService.updateProfile(token,currentUser.getUserReference(),currentUser.getEmail(),userProfile);
                 return ResponseEntity.ok().build();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.error(ex.getMessage(), ex);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
             }
         }

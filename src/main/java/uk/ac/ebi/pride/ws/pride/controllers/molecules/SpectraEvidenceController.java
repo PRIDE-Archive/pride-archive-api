@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.controllers.molecules;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
+@Slf4j
 public class SpectraEvidenceController {
 
 
@@ -61,7 +63,7 @@ public class SpectraEvidenceController {
             if(evidence != null)
                 spectrumOptional = Optional.of(evidence);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
 
         return spectrumOptional.<ResponseEntity<Object>>map( spectrum ->
@@ -101,7 +103,7 @@ public class SpectraEvidenceController {
             try {
                 psms.add(spectralArchive.readPSM(psm.getUsi()));
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }));
 

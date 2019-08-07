@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
@@ -23,6 +24,7 @@ import java.util.*;
  * This code is licensed under the Apache License, Version 2.0 (the
  * @author ypriverol
  */
+@Slf4j
 public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<MongoPrideProject, ProjectResource> {
 
     public PrideProjectResourceAssembler(Class<?> controllerClass, Class<ProjectResource> resourceType) {
@@ -42,7 +44,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
             Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
             links.add(link);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
 
         return new ProjectResource(transform(mongoPrideProject), links);

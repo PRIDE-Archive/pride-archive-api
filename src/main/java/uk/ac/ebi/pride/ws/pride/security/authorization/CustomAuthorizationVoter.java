@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.security.authorization;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -9,6 +10,7 @@ import uk.ac.ebi.tsc.aap.client.model.User;
 import java.util.Collection;
 import java.util.Set;
 
+@Slf4j
 public class CustomAuthorizationVoter implements AccessDecisionVoter {
     @Override
     public boolean supports(ConfigAttribute attribute) {
@@ -27,7 +29,7 @@ public class CustomAuthorizationVoter implements AccessDecisionVoter {
                 return ACCESS_GRANTED;
             }
         }catch(Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
 
         return ACCESS_DENIED;

@@ -38,6 +38,12 @@
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-spectra-archive</artifactId>
             <version>${uk.ac.ebi.pride.archive.spectra-archive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>uk.ac.ebi.pride.archive</groupId>
+                    <artifactId>data-provider-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--Spring dependencies-->
@@ -99,12 +105,24 @@
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-mongodb-repo</artifactId>
             <version>${uk.ac.ebi.pride.archive.pride-mongodb-repo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>uk.ac.ebi.pride.archive</groupId>
+                    <artifactId>data-provider-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-solr-indexes</artifactId>
             <version>${uk.ac.ebi.pride.archive.pride-solr-indexes.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>uk.ac.ebi.pride.archive</groupId>
+                    <artifactId>data-provider-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author ypriverol
  */
+@Slf4j
 public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<MongoPrideFile, PrideFileResource> {
 
     public ProjectFileResourceAssembler(Class<?> controller, Class<PrideFileResource> resourceType) {
@@ -32,7 +34,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
         List<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null? mongoFile.getPublicFileLocations().stream()
                 .map( x -> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
 
-        System.out.println(mongoFile);
+        log.info(mongoFile.toString());
 
         CvParamProvider category = mongoFile.getFileCategory() != null? new DefaultCvParam(mongoFile.getFileCategory().getCvLabel(),
                 mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()): null;

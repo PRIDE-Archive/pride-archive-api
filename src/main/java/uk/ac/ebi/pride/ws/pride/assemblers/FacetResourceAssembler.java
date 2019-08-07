@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.query.result.*;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author ypriverol
  */
+@Slf4j
 public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrProject, FacetResource> {
 
 
@@ -66,7 +68,7 @@ public class FacetResourceAssembler extends ResourceAssemblerSupport<PrideSolrPr
                                             date = finalDateFormat.parse(entry.getValue());
                                             return new SimpleFacetFieldEntry(entry.getField(), finalDateFormat.format(date), entry.getValueCount());
                                         } catch (ParseException e) {
-                                            e.printStackTrace();
+                                            log.error(e.getMessage(),e);
                                         }
                                         return null;
                                     }).filter(Objects::nonNull)

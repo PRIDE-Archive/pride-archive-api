@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.controllers.molecules;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 public class ProteinEvidenceController {
 
     final PrideMoleculesMongoService moleculesMongoService;
@@ -55,7 +57,7 @@ public class ProteinEvidenceController {
                     usi.getSecond(), usi.getThird());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
 
         return mongoProteinEvidence.<ResponseEntity<Object>>map(mongoPrideProject ->

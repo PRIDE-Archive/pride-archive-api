@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.controllers.molecules;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RestController
+@Slf4j
 public class PeptideEvidenceController {
 
     final PrideMoleculesMongoService moleculesMongoService;
@@ -127,13 +129,13 @@ public class PeptideEvidenceController {
                         try {
                             psms.add(spectralArchive.readPSM(x.getUsi()));
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            log.error(e.getMessage(),e);
                         }
                     });
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
 
@@ -163,7 +165,7 @@ public class PeptideEvidenceController {
                 mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
 

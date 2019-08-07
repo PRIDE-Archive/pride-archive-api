@@ -144,7 +144,7 @@ public class AAPService {
             ResponseEntity<String> responseEntity = restTemplate.exchange(aapAuthURL + "?_method=patch", HttpMethod.POST, new HttpEntity(changePwdJson, createChangePwdHeaders(changePassword.getEmail(), changePassword.getOldPassword())), String.class);
             return responseEntity.getStatusCode().is2xxSuccessful();
         }catch(Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
             return false;
         }
     }
@@ -156,7 +156,7 @@ public class AAPService {
             ResponseEntity<String> responseEntity = restTemplate.exchange(aapAuthURL + "/" + userReference , HttpMethod.PUT, new HttpEntity(updateUserRegJSON, frameUserAuthToken(token)), String.class);
             return responseEntity.getStatusCode().is2xxSuccessful();
         }catch(Exception e){
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
             return false;
         }
     }
