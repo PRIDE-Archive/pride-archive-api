@@ -42,8 +42,9 @@ deploy:
   stage: deploy
   environment: dev
   script:
+    - export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml
-    - (rm resources/application.properties || true) && (cp config/application.yml resources/) && ls -al resources/
+    - (rm src/main/resources/application.properties || true) && (cp config/application.yml src/main/resources/) && ls -al src/main/resources/
     - mvn $MAVEN_CLI_OPTS package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
