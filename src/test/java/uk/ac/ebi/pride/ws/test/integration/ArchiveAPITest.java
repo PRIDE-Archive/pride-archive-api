@@ -44,7 +44,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {Application.class, ArchiveMongoConfig.class, SolrCloudConfig.class, SwaggerConfig.class/*,TestService.class*/})
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = {"classpath:application.properties", "classpath:application.yml"})
 @AutoConfigureRestDocs
 public class ArchiveAPITest {
 

@@ -42,8 +42,9 @@ deploy:
   stage: deploy
   environment: dev
   script:
-    - mvn $MAVEN_CLI_OPTS package -DskipTests
     - envsubst < config/.application.yml > config/application.yml
+    - (rm resources/application.properties || true) && (cp config/application.yml resources/) && ls -al resources/
+    - mvn $MAVEN_CLI_OPTS package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && (mv *jar $BACKUP_DIR/ || true) && (mv config $BACKUP_DIR/ || true)"
