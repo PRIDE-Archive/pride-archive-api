@@ -34,9 +34,6 @@ import java.util.Collections;
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${deployment.env}")
-    private String  deploymentEnv;
-
     @Bean
     public Docket swaggerSpringMvcPlugin() {
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
@@ -45,15 +42,6 @@ public class SwaggerConfig {
                 .paths(paths())
                 .build().apiInfo(apiInfo())
                 .securitySchemes(Collections.singletonList(apiKey()));
-
-        if(deploymentEnv != null && deploymentEnv.equalsIgnoreCase("prd")){
-            docket = docket.pathProvider(new RelativePathProvider(null) {
-                @Override
-                public String getApplicationBasePath() {
-                    return "/pride/ws/archive/v2";
-                }
-            });
-        }
 
         return docket;
     }

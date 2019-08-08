@@ -2,11 +2,11 @@ server:
   port: $port
   servlet.contextPath: /pride/ws/archive
 
-deployment.env: $deployment_env
+app.vhost: $app_vhost
 
 # LOGGING Properties
 logging:
-  path: './logs/'
+  path: './logs_${HOSTNAME}/'
   level:
     root: INFO
     org:

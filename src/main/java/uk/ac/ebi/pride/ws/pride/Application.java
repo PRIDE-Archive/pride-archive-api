@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -39,12 +38,8 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 @Slf4j
 public class Application {
 
-    @Value("${deployment.env}")
-    private static String  deploymentEnv;
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        log.info("################ deploymentEnv:"+deploymentEnv);
     }
 
     @Component

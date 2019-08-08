@@ -209,6 +209,9 @@
                         </goals>
                         <configuration>
                             <backend>html</backend>
+                            <attributes>
+                                <snippets>${project.build.directory}/generated-snippets</snippets>
+                            </attributes>
                         </configuration>
                     </execution>
                 </executions>
