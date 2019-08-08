@@ -42,9 +42,11 @@ deploy:
   stage: deploy
   environment: dev
   script:
-    - export HOSTNAME='${HOSTNAME}'
+    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml
-    - (rm src/main/resources/application.properties || true) && (export HOSTNAME='h1') && (envsubst < config/.application.yml > src/main/resources/application.yml) && (ls -al src/main/resources/)
+    - (rm src/main/resources/application.properties || true)
+    - export HOSTNAME=$HOSTNAME_BCKUP
+    - (envsubst < config/.application.yml > src/main/resources/application.yml) && (ls -al src/main/resources/)
     - mvn $MAVEN_CLI_OPTS package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
