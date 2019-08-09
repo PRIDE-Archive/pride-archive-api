@@ -1,7 +1,6 @@
 package uk.ac.ebi.pride.ws.test.integration;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,22 +23,22 @@ import uk.ac.ebi.pride.ws.pride.Application;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
 import uk.ac.ebi.pride.ws.pride.service.user.AAPService;
-import uk.ac.ebi.pride.ws.test.integration.service.TestService;
 import uk.ac.ebi.pride.ws.test.integration.util.DocumentationUtils;
 import uk.ac.ebi.pride.ws.test.integration.util.TestConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
@@ -48,7 +47,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 @AutoConfigureRestDocs
 public class ArchiveAPITest {
 
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
@@ -81,12 +80,12 @@ public class ArchiveAPITest {
                 .apply(documentationConfiguration(this.restDocumentation).uris()
                         .withScheme("https")
                         .withHost(host)
-                        .withPort(80)
+                        .withPort(443)
                 )
                 .build();
 
         /*Populate required values for testing endpoints*/
-        testValuesMap = new HashMap<String, String>();
+        testValuesMap = new HashMap<>();
 
         String fileAccession = "PXF00000963831";//testService.getFileAccession();
         testValuesMap.put(TestConstants.FILE_ACCESSION, fileAccession);
