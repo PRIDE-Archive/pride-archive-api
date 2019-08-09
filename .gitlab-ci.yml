@@ -55,7 +55,7 @@ deploy_dev:
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
     #  only:
     ##    - master
-    when: manual
+  when: manual
 
 deploy_prod:
   stage: deploy
@@ -74,4 +74,4 @@ deploy_prod:
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
     #  only:
     ##    - master
-    when: manual
+  when: manual
