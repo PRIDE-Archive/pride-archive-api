@@ -10,7 +10,7 @@ cache:
     - target/
 
 before_script:
-  - which ssh-agent || (apk add --update openssh-client bash openssl rsync gettext)
+  - which ssh-agent || (apk add --update openssh-client bash openssl rsync gettext rsync)
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir ~/.ssh
@@ -38,7 +38,7 @@ before_script:
 #  script:
 #    - mvn $MAVEN_CLI_OPTS test
 
-deploy:
+deploy_dev:
   stage: deploy
   environment: dev
   script:
@@ -47,7 +47,7 @@ deploy:
     - (rm src/main/resources/application.properties || true)
     - export HOSTNAME=$HOSTNAME_BCKUP
     - (envsubst < config/.application.yml > src/main/resources/application.yml) && (ls -al src/main/resources/)
-    - mvn $MAVEN_CLI_OPTS package
+    - mvn $MAVEN_CLI_OPTS clean package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && (mv *jar $BACKUP_DIR/ || true) && (mv config $BACKUP_DIR/ || true)"
@@ -55,3 +55,23 @@ deploy:
     - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
     #  only:
     ##    - master
+  when: manual
+
+deploy_prod:
+  stage: deploy
+  environment: prod
+  script:
+    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
+    - envsubst < config/.application.yml > config/application.yml
+    - (rm src/main/resources/application.properties || true)
+    - export HOSTNAME=$HOSTNAME_BCKUP
+    - (envsubst < config/.application.yml > src/main/resources/application.yml) && (ls -al src/main/resources/)
+    - mvn $MAVEN_CLI_OPTS clean package
+    - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
+    - BACKUP_DIR=backup_$(date +"%Y%m%d_%H%M%S")
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $BACKUP_DIR && (mv *jar $BACKUP_DIR/ || true) && (mv config $BACKUP_DIR/ || true)"
+    - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && chmod -R 700 config && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
+    #  only:
+    ##    - master
+  when: manual
