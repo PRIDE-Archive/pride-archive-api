@@ -66,18 +66,13 @@ spring.pridedb.solr:
 
 #aap props
 aap:
-  url: https://api.aai.ebi.ac.uk
-  domains.url: https://api.aai.ebi.ac.uk
-  profiles.url: https://api.aai.ebi.ac.uk
-  auth.url: https://explore.api.aai.ebi.ac.uk/auth
+  auth.url: $aap_auth_url
   domain:
-    management.url: https://explore.api.aai.ebi.ac.uk/my/management
-    url: https://explore.api.aai.ebi.ac.uk/domains
+    management.url: $aap_domain_management_url
+    url: $aap_domain_url
   pride.service:
     uname: $aap_pride_user
     pwd: $aap_pride_passwd
-jwt.certificate: https://explore.api.aai.ebi.ac.uk/meta/public.der
-
 
 #email properties
 spring.mail.host: smtp.ebi.ac.uk

@@ -79,7 +79,7 @@ public class ArchiveAPITest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
                 .apply(springSecurity()) // this is the key
                 .apply(documentationConfiguration(this.restDocumentation).uris()
-                        .withScheme("http")
+                        .withScheme("https")
                         .withHost(host)
                         .withPort(80)
                 )
