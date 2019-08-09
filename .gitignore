@@ -60,3 +60,5 @@ release.properties
 
 
 /pride-archive-api.log
+config/application.yml
+config/application.yaml

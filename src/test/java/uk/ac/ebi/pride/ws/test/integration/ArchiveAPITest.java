@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.JUnitRestDocumentation;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {Application.class, ArchiveMongoConfig.class, SolrCloudConfig.class, SwaggerConfig.class/*,TestService.class*/})
-@TestPropertySource(locations = {"classpath:application.properties", "classpath:application.yml"})
+@PropertySource(value = {"classpath:application.properties", "classpath:application.yml"}, ignoreResourceNotFound = true)
 @AutoConfigureRestDocs
 public class ArchiveAPITest {
 

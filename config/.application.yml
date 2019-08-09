@@ -73,6 +73,7 @@ aap:
   pride.service:
     uname: $aap_pride_user
     pwd: $aap_pride_passwd
+jwt.certificate: $aap_jwt_cer
 
 #email properties
 spring.mail.host: smtp.ebi.ac.uk
