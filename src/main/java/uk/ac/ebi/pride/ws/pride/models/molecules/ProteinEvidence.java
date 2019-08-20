@@ -40,4 +40,7 @@ public class ProteinEvidence {
     private boolean isDecoy;
     boolean isValid;
     List<CvParam> qualityMethods;
+    Integer numberPeptides;
+    Integer numberPSMs;
+    Double sequenceCoverage;
 }

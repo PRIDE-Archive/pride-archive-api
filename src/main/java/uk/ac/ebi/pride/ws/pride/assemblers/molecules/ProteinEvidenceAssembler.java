@@ -90,6 +90,9 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                                 ((CvParamProvider) x).getName(), ((CvParamProvider) x).getValue()))
                         .collect(Collectors.toList()))
                 .ptms(ptms)
+                .numberPeptides(prideMongoProteinEvidence.getNumberPeptides())
+                .numberPSMs(prideMongoProteinEvidence.getNumberPSMs())
+                .sequenceCoverage(prideMongoProteinEvidence.getSequenceCoverage())
                 .build();
     }
 }
