@@ -18,7 +18,7 @@ import java.util.List;
 @Relation(collectionRelation = "peptideevidences")
 public class PeptideEvidence {
 
-    String usi;
+    String accession;
     String projectAccession;
     String assayAccession;
     String proteinAccession;
