@@ -46,7 +46,7 @@ public class SpectraEvidenceController {
         this.moleculesMongoService = moleculesMongoService;
     }
 
-    @ApiOperation(notes = "Get an Spectrum by the specific usi", value = "molecules", nickname = "getSpectrum", tags = {"molecules"} )
+    @ApiOperation(notes = "Get an Spectrum by the specific usi", value = "spectra", nickname = "getSpectrum", tags = {"spectra"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
@@ -72,7 +72,7 @@ public class SpectraEvidenceController {
                         + usi + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
     }
 
-    @ApiOperation(notes = "Get an Spectrum by the Project Accession or Assay Accession usi", value = "molecules", nickname = "getSpectrumBy", tags = {"molecules"} )
+    @ApiOperation(notes = "Get an Spectrum by the Project Accession or Assay Accession usi", value = "spectra", nickname = "getSpectrumBy", tags = {"spectra"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)

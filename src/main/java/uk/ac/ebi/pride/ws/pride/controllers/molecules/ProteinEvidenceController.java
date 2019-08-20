@@ -39,7 +39,7 @@ public class ProteinEvidenceController {
 
 
     @ApiOperation(notes = "Get the protein evidence for the specific accession",
-            value = "molecules", nickname = "getProteinEvidence", tags = {"molecules"} )
+            value = "proteins", nickname = "getProteinEvidence", tags = {"proteins"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
@@ -69,7 +69,7 @@ public class ProteinEvidenceController {
 
 
 
-    @ApiOperation(notes = "Get all the protein evidences", value = "molecules", nickname = "getProteinEvidences", tags = {"molecules"} )
+    @ApiOperation(notes = "Get all the protein evidences", value = "proteins", nickname = "getProteinEvidences", tags = {"proteins"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)

@@ -60,7 +60,7 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
             ptms = Transformer.transformModifications(mongoPeptide.getPtmList());
 
         return PeptideEvidence.builder()
-                .usi(WsUtils.getIdentifier(mongoPeptide.getProjectAccession(),
+                .accession(WsUtils.getIdentifier(mongoPeptide.getProjectAccession(),
                         mongoPeptide.getAssayAccession(),
                         mongoPeptide.getProteinAccession(),
                         WsUtils.mongoPeptideUiToPeptideEvidence(mongoPeptide.getPeptideAccession())))
