@@ -13,8 +13,7 @@ import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -59,6 +58,26 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
         if(archiveSpectrum.getModifications() != null)
             ptms = Transformer.transformModifications(archiveSpectrum.getModifications());
 
+        HashMap<Double, Double> peaks = new HashMap<>();
+        for(int i=0; i < archiveSpectrum.getMasses().length; i++){
+            peaks.put(archiveSpectrum.getMasses()[i], archiveSpectrum.getIntensities()[i]);
+        }
+
+        peaks = peaks.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        Iterator<Map.Entry<Double, Double>> it = peaks.entrySet().iterator();
+        int count = 0;
+        Map.Entry<Double, Double> entry;
+        while(it.hasNext()){
+            entry = it.next();
+            archiveSpectrum.getMasses()[count] = entry.getKey();
+            archiveSpectrum.getIntensities()[count] = entry.getValue();
+            count++;
+        }
+
         return SpectrumEvidence.builder()
                 .usi(archiveSpectrum.getUsi())
                 .peptideSequence(archiveSpectrum.getPeptideSequence())
@@ -74,6 +93,8 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
                         .collect(Collectors.toList()))
                 .attributes(attributes)
                 .ptms(ptms)
+                .charge(archiveSpectrum.getPrecursorCharge())
+                .precursorMZ(archiveSpectrum.getPrecursorMz())
                 .build();
 
     }

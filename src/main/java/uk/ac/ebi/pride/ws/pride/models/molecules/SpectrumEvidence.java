@@ -29,4 +29,6 @@ public class SpectrumEvidence {
     boolean isDecoy;
     boolean isValid;
     List<CvParam> qualityMethods;
+    Integer charge;
+    Double precursorMZ;
 }
