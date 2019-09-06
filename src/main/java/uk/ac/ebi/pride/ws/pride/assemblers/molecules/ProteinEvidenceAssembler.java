@@ -41,7 +41,7 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
         Link link = ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
                         .getPeptideEvidencesByProteinEvidence(prideMongoProteinEvidence.getReportedAccession(),
-                                prideMongoProteinEvidence.getProjectAccession(), prideMongoProteinEvidence.getAssayAccession(), WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.EXTERNAL_PROJECT_ACCESSION))
+                                prideMongoProteinEvidence.getProjectAccession(), prideMongoProteinEvidence.getAssayAccession(), null, WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.EXTERNAL_PROJECT_ACCESSION))
                 .withRel(WsContastants.HateoasEnum.peptideevidences.name());
         links.add(link);
 

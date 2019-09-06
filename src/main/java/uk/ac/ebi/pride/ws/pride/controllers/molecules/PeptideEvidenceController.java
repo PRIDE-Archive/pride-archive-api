@@ -55,6 +55,7 @@ public class PeptideEvidenceController {
             @RequestParam(value = "proteinAccession", required = false) String proteinAccession,
             @RequestParam(value = "projectAccession", required = false) String projectAccession,
             @RequestParam(value = "assayAccession"  , required = false) String assayAccession,
+            @RequestParam(value = "peptideSequence", required = false) String peptideSequence,
             @RequestParam(value="pageSize", defaultValue = "100", required = false) Integer pageSize,
             @RequestParam(value="page", defaultValue = "0" ,  required = false) Integer page,
             @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
@@ -69,7 +70,7 @@ public class PeptideEvidenceController {
         }
 
         Page<PrideMongoPeptideEvidence> mongoPeptides = moleculesMongoService.findPeptideEvidences(projectAccession,
-                assayAccession, null, proteinAccession,
+                assayAccession, peptideSequence, proteinAccession,
                 PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class,
@@ -87,20 +88,20 @@ public class PeptideEvidenceController {
                 pageMetadata,
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
                         .getPeptideEvidencesByProteinEvidence(proteinAccession,
-                                projectAccession, assayAccession,
+                                projectAccession, assayAccession, peptideSequence,
                                 pageSize, page, sortDirection, sortFields)).withSelfRel(),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder
                         .methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession,
-                                projectAccession, assayAccession, pageSize, (int)
+                                projectAccession, assayAccession, peptideSequence, pageSize, (int)
                                         WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, pageSize,
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, peptideSequence, pageSize,
                         (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, pageSize, 0,
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, peptideSequence, pageSize, 0,
                         sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, pageSize, (int) totalPages, sortDirection, sortFields))
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, peptideSequence,  pageSize, (int) totalPages, sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
