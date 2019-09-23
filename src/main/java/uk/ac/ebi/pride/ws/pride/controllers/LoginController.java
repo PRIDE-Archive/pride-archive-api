@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.pride.ws.pride.models.user.Credentials;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
+import javax.validation.Valid;
 import java.nio.charset.Charset;
 
 @RestController
@@ -25,13 +27,14 @@ public class LoginController {
     @ApiOperation(notes = "Get a valid access token", value = "access token", nickname = "getAAPToken", tags = {"authorization"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = APIError.class)
     })
     @RequestMapping(path = "getAAPToken",method = RequestMethod.POST)
-    public String getAAPToken(String username, String password) throws Exception {
+    public String getAAPToken(@RequestBody @Valid Credentials credentials) throws Exception {
         ResponseEntity<String> response = null;
         try{
-            HttpEntity<String> entity = new HttpEntity<>(createHttpHeaders(username,password));
+            HttpEntity<String> entity = new HttpEntity<>(createHttpHeaders(credentials.getUsername(),credentials.getPassword()));
             RestTemplate restTemplate = new RestTemplate();
             response = restTemplate.exchange
                     (auth_url, HttpMethod.GET, entity, String.class);
@@ -48,7 +51,8 @@ public class LoginController {
     @ApiOperation(notes = "Get a valid access token", value = "access token", nickname = "test-token-validity", tags = {"authorization"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = APIError.class)
     })
     @RequestMapping(method = RequestMethod.POST,path="/token-validation")
     public String getTokenValidity(){
