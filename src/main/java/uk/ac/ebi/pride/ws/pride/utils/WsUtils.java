@@ -18,9 +18,17 @@ import uk.ac.ebi.pride.utilities.util.Tuple;
  */
 public class WsUtils {
 
-    public static Tuple<Integer, Integer> validatePageLimit(int start, int size){
+    public static Tuple<Integer, Integer> validatePageLimit(int start, int size) {
         if(size > WsContastants.MAX_PAGINATION_SIZE || size < 0 )
             size = WsContastants.MAX_PAGINATION_SIZE;
+        if(start < 0)
+            start = 0;
+        return new Tuple<>(start, size);
+    }
+
+    public static Tuple<Integer, Integer> validatePageLimit(int start, int size, int maxPageSize) {
+        if(size > maxPageSize || size < 0 )
+            size = maxPageSize;
         if(start < 0)
             start = 0;
         return new Tuple<>(start, size);

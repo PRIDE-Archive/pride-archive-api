@@ -61,7 +61,7 @@ public class PeptideEvidenceController {
             @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
             @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,  required = false) String sortFields){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize, WsContastants.MAX_PAGINATION_SIZE_PEPTIDE_EVIDENCES);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
         Sort.Direction direction = Sort.Direction.DESC;

@@ -25,6 +25,7 @@ public class WsContastants {
     public static final String FACET_PARAM_NAME = "facet";
 
     public static final int MAX_PAGINATION_SIZE = 100;
+    public static final int MAX_PAGINATION_SIZE_PEPTIDE_EVIDENCES = 1000;
     public static final int MINOR_PAGINATION = 0;
 
     public static String CONNECTIONS_PER_HOST = "10";
