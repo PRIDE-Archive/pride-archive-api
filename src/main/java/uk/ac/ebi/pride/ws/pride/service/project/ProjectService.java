@@ -18,8 +18,7 @@ public class ProjectService {
     private UserRepository userRepository;
 
     public List<Project> findUserProjects(String userReference, boolean isPublic) {
-        //TODO remove hard coded value
-        Long userId = userRepository.findByUserRef(/*userReference"usr-7a201de8-7acf-4e6f-a2fd-c30073d9c249"*/"usr-55ef870a-fdae-4a37-9d68-952a907b273a").getId();
+        Long userId = userRepository.findByUserRef(userReference).getId();
         List<Project> projectsList = projectRepository.findFilteredBySubmitterIdAndIsPublic(userId,isPublic);
         return projectsList;
     }

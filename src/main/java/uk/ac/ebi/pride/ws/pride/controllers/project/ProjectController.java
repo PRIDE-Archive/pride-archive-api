@@ -243,11 +243,10 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/reviewer-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "projects/reviewer-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<Project>> getReviewerProjects(Authentication authentication) {
         User currentUser = (User) (authentication).getDetails();
-        //TODO remove the hard coded value after web is tested
-        List<Project> projectsList = projectService.findReviewerProjects(/*currentUser.getUserReference()*/"usr-0e1bdbd3-16ab-429e-a1b5-42342f0174f0");
+        List<Project> projectsList = projectService.findReviewerProjects(currentUser.getUserReference());
         return ResponseEntity.ok().body(projectsList);
     }
 
