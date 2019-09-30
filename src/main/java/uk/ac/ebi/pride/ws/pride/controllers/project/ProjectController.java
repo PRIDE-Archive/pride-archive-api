@@ -40,6 +40,7 @@ import uk.ac.ebi.tsc.aap.client.model.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
@@ -227,7 +228,7 @@ public class ProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/my-private-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/projects/private", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<Project>> getPrivateProjects(@RequestParam(value="isPublic", defaultValue = "true") boolean isPublic,
                                                          Authentication authentication) {
 
@@ -238,12 +239,27 @@ public class ProjectController {
         return ResponseEntity.ok().body(projectsList);
     }
 
+    @ApiOperation(notes = "Private PRIDE Archive Project submitted by the user which is under review of the reviewer. User needs to be authenticated to view his private submissions", value = "reviewer view private submission", nickname = "getPrivateProjectForReviewer", tags = {"projects"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/projects/private/reviewer-submissions/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Project> getPrivateProjectForReviewer(@PathVariable(value ="accession") String projectAccession,
+                                                            Authentication authentication) {
+
+        User currentUser = (User) (authentication).getDetails();
+        List<Project> projectsList = projectService.findReviewerProjects(currentUser.getUserReference());
+        Project privateProject = projectsList.stream().filter(project -> project.getAccession().equals(projectAccession)).collect(Collectors.toList()).get(0);
+        return ResponseEntity.ok().body(privateProject);
+    }
+
     @ApiOperation(notes = "List of PRIDE Archive Projects accessible to reviewer. User needs to be authenticated to view these submissions", value = "reviewer projects", nickname = "getReviewerSubmissions", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "projects/reviewer-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "projects/private/reviewer-submissions", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<Project>> getReviewerProjects(Authentication authentication) {
         User currentUser = (User) (authentication).getDetails();
         List<Project> projectsList = projectService.findReviewerProjects(currentUser.getUserReference());
