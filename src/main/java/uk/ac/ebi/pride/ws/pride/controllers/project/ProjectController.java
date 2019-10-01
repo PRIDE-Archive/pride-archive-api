@@ -250,7 +250,11 @@ public class ProjectController {
 
         User currentUser = (User) (authentication).getDetails();
         List<Project> projectsList = projectService.findReviewerProjects(currentUser.getUserReference());
-        Project privateProject = projectsList.stream().filter(project -> project.getAccession().equals(projectAccession)).collect(Collectors.toList()).get(0);
+        List<Project> privateProjects = projectsList.stream().filter(project -> project.getAccession().equals(projectAccession)).collect(Collectors.toList());
+        Project privateProject = null;
+        if(privateProjects.size() == 1){
+            privateProject = privateProjects.get(0);
+        }
         return ResponseEntity.ok().body(privateProject);
     }
 
