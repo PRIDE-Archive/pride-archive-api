@@ -100,7 +100,7 @@ public class UserProfileController {
     @ApiOperation(notes = "View user's profile. User needs to be authenticated to access", value = "viewProfile", nickname = "viewProfile", tags = {"User"} )
     @PreAuthorize("isAuthenticated()")
     @GetMapping(path="/view-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateProfile(Authentication authentication){
+    public ResponseEntity<Object> getProfile(Authentication authentication){
 
         User currentUser = (User) (authentication).getDetails();
         try{

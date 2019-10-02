@@ -26,10 +26,11 @@ spring.jackson.default-property-inclusion: NON_NULL
 spring:
   jpa.database: default
   datasource:
-    oracle.jdbcUrl: $oracle_jdbc_url
-    oracle.username: $oracle_username
-    oracle.password: $oracle_password
-    oracle.driver-class-name: oracle.jdbc.OracleDriver
+    oracle:
+      jdbcUrl: $oracle_jdbc_url
+      username: $oracle_username
+      password: $oracle_password
+      driver-class-name: oracle.jdbc.OracleDriver
 
 
 # Configuration for MongoDB
@@ -47,8 +48,9 @@ mongodb:
       ports: $NOT_USED
     single.machine.host: $NOT_USED
     machine.uri: $mongodb_machine_uri
-  molecules.database: $mongodb_molecules_db
-  molecules.machine.uri: $mongodb_molecules_machine_uri
+  molecules:
+    database: $mongodb_molecules_db
+    machine.uri: $mongodb_molecules_machine_uri
 
 mongo.single.machine: $NOT_USED
 
