@@ -267,7 +267,8 @@ public class ProjectController {
     public ResponseEntity<List<Project>> getReviewerProjects(Authentication authentication) {
         User currentUser = (User) (authentication).getDetails();
         List<Project> projectsList = projectService.findReviewerProjects(currentUser.getUserReference());
-        return ResponseEntity.ok().body(projectsList);
+        List<Project> privateProjectsList = projectsList.stream().filter(project -> !project.isPublicProject()).collect(Collectors.toList());
+        return ResponseEntity.ok().body(privateProjectsList);
     }
 
     @ApiOperation(notes = "Get all the Files for an specific project in PRIDE.", value = "projects", nickname = "getFilesByProject", tags = {"projects"} )
