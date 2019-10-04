@@ -38,37 +38,50 @@ public class ProteinEvidenceController {
     }
 
 
-    @ApiOperation(notes = "Get the protein evidence for the specific accession",
-            value = "proteins", nickname = "getProteinEvidence", tags = {"proteins"} )
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
-    @RequestMapping(value = "/proteinevidences/{accession}", method = RequestMethod.GET,
-            produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<Object> getProteinEvidence(@PathVariable(value = "accession") String accession){
+//    @ApiOperation(notes = "Get the protein evidence for the specific accession",
+//            value = "proteins", nickname = "getProteinEvidence", tags = {"proteins"} )
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+//    })
+//    @RequestMapping(value = "/proteinevidence", method = RequestMethod.GET,
+//            produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public HttpEntity<Object> getProteinEvidence(@RequestParam(value = "accession", required = true) String accession){
+//
+//        Optional<PrideMongoProteinEvidence> mongoProteinEvidence = Optional.empty();
+//        ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class,
+//                ProteinEvidenceResource.class);
+//        try {
+//            Triple<String, String, String> usi = WsUtils.parseProteinEvidenceAccession(accession);
+//             mongoProteinEvidence = moleculesMongoService.findProteinsEvidence(usi.getFirst(),
+//                    usi.getSecond(), usi.getThird());
+//
+//        } catch (Exception e) {
+//            log.error(e.getMessage(),e);
+//        }
+//
+//        return mongoProteinEvidence.<ResponseEntity<Object>>map(mongoPrideProject ->
+//                new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
+//                .orElseGet(() -> new ResponseEntity<>(WsContastants.PROTEIN_NOT_FOUND
+//                        + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+//    }
 
-        Optional<PrideMongoProteinEvidence> mongoProteinEvidence = Optional.empty();
-        ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class,
-                ProteinEvidenceResource.class);
-        try {
-            Triple<String, String, String> usi = WsUtils.parseProteinEvidenceAccession(accession);
-             mongoProteinEvidence = moleculesMongoService.findProteinsEvidence(usi.getFirst(),
-                    usi.getSecond(), usi.getThird());
-
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-        }
-
-        return mongoProteinEvidence.<ResponseEntity<Object>>map(mongoPrideProject ->
-                new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(WsContastants.PROTEIN_NOT_FOUND
-                        + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
-    }
-
-
-
-
+    /**
+     * In order to retrieve all protein evidences use this function. If you want to retrieve one specific proteinevidence,you can use the following parameters:
+     *
+     * projectAccession - Project that contains the protein evidence.
+     * assayAccession - Assay that contains the protein evidence.
+     * reportedAccession - Protein reported Accession
+     *
+     * @param projectAccession Project Accession
+     * @param assayAccession Assay Accession
+     * @param reportedAccession Reported Protein Accession
+     * @param pageSize Page Size
+     * @param page Page
+     * @param sortDirection Sort Direction ASC or DESC
+     * @param sortFields Sort Fields
+     * @return
+     */
     @ApiOperation(notes = "Get all the protein evidences", value = "proteins", nickname = "getProteinEvidences", tags = {"proteins"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
@@ -101,7 +114,7 @@ public class ProteinEvidenceController {
 
         Page<PrideMongoProteinEvidence> mongoProteins = moleculesMongoService.findAllProteinEvidences(projectAccession, assayAccession, reportedAccession, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
-        ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class, ProteinEvidenceResource.class);
+        ProteinEvidenceAssembler assembler = new ProteinEvidenceAssembler(ProteinEvidenceController.class, ProteinEvidenceResource.class, sortDirection, sortFields);
 
         List<ProteinEvidenceResource> resources = assembler.toResources(mongoProteins);
 

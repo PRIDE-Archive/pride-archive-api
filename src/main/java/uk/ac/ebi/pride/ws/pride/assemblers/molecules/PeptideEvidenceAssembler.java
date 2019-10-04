@@ -6,6 +6,7 @@ import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
+import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;
 import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidenceResource;
@@ -20,8 +21,14 @@ import java.util.stream.Collectors;
 
 public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMongoPeptideEvidence, PeptideEvidenceResource> {
 
-    public PeptideEvidenceAssembler(Class<?> controllerClass, Class<PeptideEvidenceResource> resourceType) {
+
+    private String sortDirection;
+    private String sortFields;
+
+    public PeptideEvidenceAssembler(Class<?> controllerClass, Class<PeptideEvidenceResource> resourceType, String sortDirection, String sortFields) {
         super(controllerClass, resourceType);
+        this.sortDirection = sortDirection;
+        this.sortFields = sortFields;
     }
 
     @Override
@@ -30,18 +37,12 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
-                        .getPeptideEvidence(WsUtils.getIdentifier(peptideEvidence.getProjectAccession(),
-                                peptideEvidence.getAssayAccession(),
-                                peptideEvidence.getProteinAccession(),
-                                WsUtils.mongoPeptideUiToPeptideEvidence(peptideEvidence.getPeptideAccession()))))
+                        .getPeptideEvidences(peptideEvidence.getProjectAccession(), peptideEvidence.getAssayAccession(), peptideEvidence.getProteinAccession(), peptideEvidence.getPeptideAccession(),"", 10, 0, sortDirection, sortFields))
                 .withSelfRel());
 
         links.add(ControllerLinkBuilder.linkTo(
-                ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
-                        .getPsmsByPeptideEvidence(WsUtils.getIdentifier(peptideEvidence.getProjectAccession(),
-                                peptideEvidence.getAssayAccession(),
-                                peptideEvidence.getProteinAccession(),
-                                WsUtils.mongoPeptideUiToPeptideEvidence(peptideEvidence.getPeptideAccession()))))
+                ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
+                        .getSpectrumBy(peptideEvidence.getProjectAccession(), peptideEvidence.getAssayAccession(), peptideEvidence.getProteinAccession(), peptideEvidence.getPeptideAccession(), "", 0, sortDirection, sortFields))
                 .withRel(WsContastants.HateoasEnum.psms.name()));
 
 

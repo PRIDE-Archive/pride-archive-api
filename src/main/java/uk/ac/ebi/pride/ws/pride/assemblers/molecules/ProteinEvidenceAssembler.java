@@ -23,8 +23,13 @@ import java.util.stream.Collectors;
 
 public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMongoProteinEvidence, ProteinEvidenceResource> {
 
-    public ProteinEvidenceAssembler(Class<?> controllerClass, Class<ProteinEvidenceResource> resourceType) {
-        super(controllerClass, resourceType);
+    private String sortDirection;
+    private String sortFields;
+
+    public ProteinEvidenceAssembler(Class<?> proteinEvidenceControllerClass, Class<ProteinEvidenceResource> proteinEvidenceResourceClass, String sortDirection, String sortFields) {
+        super(proteinEvidenceControllerClass, proteinEvidenceResourceClass);
+        this.sortDirection = sortDirection;
+        this.sortFields = sortFields;
     }
 
     @Override
@@ -33,15 +38,15 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(ProteinEvidenceController.class)
-                        .getProteinEvidence(WsUtils.getIdentifier(prideMongoProteinEvidence.getProjectAccession(),
+                        .getProteinEvidences(prideMongoProteinEvidence.getProjectAccession(),
                                 prideMongoProteinEvidence.getAssayAccession(),
-                                prideMongoProteinEvidence.getReportedAccession())))
+                                prideMongoProteinEvidence.getReportedAccession(), 10, 0, sortDirection, sortFields))
                 .withSelfRel());
 
         Link link = ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
-                        .getPeptideEvidencesByProteinEvidence(prideMongoProteinEvidence.getReportedAccession(),
-                                prideMongoProteinEvidence.getProjectAccession(), prideMongoProteinEvidence.getAssayAccession(), null, WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.EXTERNAL_PROJECT_ACCESSION))
+                        .getPeptideEvidences(prideMongoProteinEvidence.getProjectAccession(), prideMongoProteinEvidence.getAssayAccession(), prideMongoProteinEvidence.getReportedAccession(),
+                                "","", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.EXTERNAL_PROJECT_ACCESSION))
                 .withRel(WsContastants.HateoasEnum.peptideevidences.name());
         links.add(link);
 

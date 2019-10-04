@@ -51,10 +51,11 @@ public class PeptideEvidenceController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/peptideevidences", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<Object> getPeptideEvidencesByProteinEvidence(
-            @RequestParam(value = "proteinAccession", required = false) String proteinAccession,
+    public HttpEntity<Object> getPeptideEvidences(
             @RequestParam(value = "projectAccession", required = false) String projectAccession,
             @RequestParam(value = "assayAccession"  , required = false) String assayAccession,
+            @RequestParam(value = "proteinAccession", required = false) String proteinAccession,
+            @RequestParam(value = "peptideEvidenceAccession" ,required = false) String peptideEvidenceAccession,
             @RequestParam(value = "peptideSequence", required = false) String peptideSequence,
             @RequestParam(value="pageSize", defaultValue = "100", required = false) Integer pageSize,
             @RequestParam(value="page", defaultValue = "0" ,  required = false) Integer page,
@@ -74,7 +75,7 @@ public class PeptideEvidenceController {
                 PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class,
-                PeptideEvidenceResource.class);
+                PeptideEvidenceResource.class, sortDirection, sortFields);
 
         List<PeptideEvidenceResource> resources = assembler.toResources(mongoPeptides);
 
@@ -87,94 +88,92 @@ public class PeptideEvidenceController {
         PagedResources<PeptideEvidenceResource> pagedResources = new PagedResources<>(resources,
                 pageMetadata,
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
-                        .getPeptideEvidencesByProteinEvidence(proteinAccession,
-                                projectAccession, assayAccession, peptideSequence,
+                        .getPeptideEvidences(projectAccession, assayAccession, proteinAccession, peptideEvidenceAccession, peptideSequence,
                                 pageSize, page, sortDirection, sortFields)).withSelfRel(),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder
-                        .methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession,
-                                projectAccession, assayAccession, peptideSequence, pageSize, (int)
-                                        WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.next.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, peptideSequence, pageSize,
-                        (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.previous.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, peptideSequence, pageSize, 0,
-                        sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.first.name()),
-                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class).getPeptideEvidencesByProteinEvidence(proteinAccession, projectAccession, assayAccession, peptideSequence,  pageSize, (int) totalPages, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.last.name())
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
+                        .getPeptideEvidences(projectAccession, assayAccession, proteinAccession, peptideEvidenceAccession, peptideSequence,
+                                pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
+                        .getPeptideEvidences(projectAccession, assayAccession, proteinAccession, peptideEvidenceAccession, peptideSequence,
+                                pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
+                        .getPeptideEvidences(projectAccession, assayAccession, proteinAccession, peptideEvidenceAccession, peptideSequence,
+                                pageSize, 0, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.first.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideEvidenceController.class)
+                        .getPeptideEvidences(projectAccession, assayAccession, proteinAccession, peptideEvidenceAccession, peptideSequence,
+                                pageSize, (int) totalPages, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);
     }
 
-    @ApiOperation(notes = "Get psms by peptide evidence accession ",
-            value = "peptides", nickname = "getPsmsByPeptideEvidence", tags = {"peptides"} )
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
-    @RequestMapping(value = "/peptideevidences/{accession}/psms", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<Object> getPsmsByPeptideEvidence(@PathVariable(value = "accession") String accession) {
+//    @ApiOperation(notes = "Get psms by peptide evidence accession ",
+//            value = "peptides", nickname = "getPsmsByPeptideEvidence", tags = {"peptides"} )
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+//    })
+//    @RequestMapping(value = "/peptideevidences/{accession}/psms", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public HttpEntity<Object> getPsmsByPeptideEvidence(@PathVariable(value = "accession") String accession) {
+//
+//        Optional<PrideMongoPeptideEvidence> mongoPeptide = Optional.empty();
+//        SpectraResourceAssembler assembler = new SpectraResourceAssembler(SpectraEvidenceController.class, SpectrumEvidenceResource.class);
+//        ConcurrentLinkedQueue<PSMProvider> psms = new ConcurrentLinkedQueue<>();
+//
+//        if(accession != null && ! accession.isEmpty()){
+//            try {
+//                String[] values = WsUtils.parsePeptideEvidenceAccession(accession);
+//                mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
+//                if(mongoPeptide.isPresent()){
+//                    mongoPeptide.get().getPsmAccessions().parallelStream().forEach( x-> {
+//                        try {
+//                            psms.add(spectralArchive.readPSM(x.getUsi()));
+//                        } catch (IOException e) {
+//                            log.error(e.getMessage(),e);
+//                        }
+//                    });
+//                }
+//
+//            } catch (Exception e) {
+//                log.error(e.getMessage(),e);
+//            }
+//        }
+//
+//        if(!psms.isEmpty()){
+//            return new ResponseEntity<>(assembler.toResources(psms), HttpStatus.OK);
+//        }
+//
+//        return new ResponseEntity<>(WsContastants.PEPTIDE_USI_NOT_FOUND
+//                        + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+//    }
 
-        Optional<PrideMongoPeptideEvidence> mongoPeptide = Optional.empty();
-        SpectraResourceAssembler assembler = new SpectraResourceAssembler(SpectraEvidenceController.class, SpectrumEvidenceResource.class);
-        ConcurrentLinkedQueue<PSMProvider> psms = new ConcurrentLinkedQueue<>();
-
-        if(accession != null && ! accession.isEmpty()){
-            try {
-                String[] values = WsUtils.parsePeptideEvidenceAccession(accession);
-                mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
-                if(mongoPeptide.isPresent()){
-                    mongoPeptide.get().getPsmAccessions().parallelStream().forEach( x-> {
-                        try {
-                            psms.add(spectralArchive.readPSM(x.getUsi()));
-                        } catch (IOException e) {
-                            log.error(e.getMessage(),e);
-                        }
-                    });
-                }
-
-            } catch (Exception e) {
-                log.error(e.getMessage(),e);
-            }
-        }
-
-        if(!psms.isEmpty()){
-            return new ResponseEntity<>(assembler.toResources(psms), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(WsContastants.PEPTIDE_USI_NOT_FOUND
-                        + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ApiOperation(notes = "Get Peptide Evidence by accession ",
-            value = "peptides", nickname = "getPeptideEvidence", tags = {"peptides"} )
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
-    @RequestMapping(value = "/peptideevidences/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<Object> getPeptideEvidence(@PathVariable(value = "accession") String accession) {
-
-        Optional<PrideMongoPeptideEvidence> mongoPeptide = Optional.empty();
-        PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class, PeptideEvidenceResource.class);
-
-        if(accession != null && ! accession.isEmpty()){
-            try {
-                String[] values = WsUtils.parsePeptideEvidenceAccession(accession);
-                mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
-
-            } catch (Exception e) {
-                log.error(e.getMessage(),e);
-            }
-        }
-
-        return mongoPeptide.<ResponseEntity<Object>>map(mongoPrideProject ->
-                new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(WsContastants.PROTEIN_NOT_FOUND
-                        + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
-    }
+//    @ApiOperation(notes = "Get Peptide Evidence by accession ",
+//            value = "peptides", nickname = "getPeptideEvidence", tags = {"peptides"} )
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+//    })
+//    @RequestMapping(value = "/peptideevidences/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public HttpEntity<Object> getPeptideEvidence(@PathVariable(value = "accession") String accession) {
+//
+//        Optional<PrideMongoPeptideEvidence> mongoPeptide = Optional.empty();
+//        PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class, PeptideEvidenceResource.class);
+//
+//        if(accession != null && ! accession.isEmpty()){
+//            try {
+//                String[] values = WsUtils.parsePeptideEvidenceAccession(accession);
+//                mongoPeptide = moleculesMongoService.findPeptideEvidence(values[0], values[1], values[2], values[3]);
+//
+//            } catch (Exception e) {
+//                log.error(e.getMessage(),e);
+//            }
+//        }
+//
+//        return mongoPeptide.<ResponseEntity<Object>>map(mongoPrideProject ->
+//                new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
+//                .orElseGet(() -> new ResponseEntity<>(WsContastants.PROTEIN_NOT_FOUND
+//                        + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+//    }
 
 
 }
