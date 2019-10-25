@@ -120,7 +120,7 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
-                        .getSpectrum(WsUtils.getIdentifier(spectrum.getUsi())))
+                        .getSpectrum(spectrum.getUsi()))
                 .withSelfRel());
 
         return new SpectrumEvidenceResource(spectrum, links);
