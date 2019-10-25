@@ -5,6 +5,7 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PSMProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.mongodb.molecules.model.psm.PrideMongoPsmSummaryEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;
 import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidence;
@@ -97,5 +98,31 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
                 .precursorMZ(archiveSpectrum.getPrecursorMz())
                 .build();
 
+    }
+
+    public SpectrumEvidenceResource toResource(PrideMongoPsmSummaryEvidence psmEvidence) {
+
+        List<CvParam> attributes = new ArrayList<>();
+        if(psmEvidence.getBestPSMScore() != null)
+            attributes.add(new CvParam(psmEvidence.getBestPSMScore().getCvLabel(), psmEvidence.getBestPSMScore().getAccession(), psmEvidence.getBestPSMScore().getName(), psmEvidence.getBestPSMScore().getValue()));
+
+        SpectrumEvidence spectrum = SpectrumEvidence.builder()
+                .usi(psmEvidence.getUsi())
+                .peptideSequence(psmEvidence.getPeptideSequence())
+                .isDecoy(psmEvidence.getIsDecoy())
+                .isValid(psmEvidence.getIsValid())
+                .attributes(attributes)
+                .charge(psmEvidence.getCharge())
+                .precursorMZ(psmEvidence.getPrecursorMass())
+                .attributes(attributes)
+                .build();
+
+        List<Link> links = new ArrayList<>();
+        links.add(ControllerLinkBuilder.linkTo(
+                ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
+                        .getSpectrum(WsUtils.getIdentifier(spectrum.getUsi())))
+                .withSelfRel());
+
+        return new SpectrumEvidenceResource(spectrum, links);
     }
 }

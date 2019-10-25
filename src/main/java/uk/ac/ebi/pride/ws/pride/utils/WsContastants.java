@@ -9,6 +9,18 @@ public class WsContastants {
         next, previous, last, first, facets, files, peptideevidences, psms;
     }
 
+    public enum ResultType{
+        FULL("full"),
+        COMPACT("compact");
+
+        String name;
+
+        ResultType(String name){
+            this.name = name;
+        }
+
+    }
+
     public enum GAP_DATE {
         DAY("+1DAY"),
         MONTH("+1MONTH"),

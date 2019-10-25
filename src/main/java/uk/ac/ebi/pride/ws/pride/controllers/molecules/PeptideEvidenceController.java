@@ -71,7 +71,7 @@ public class PeptideEvidenceController {
         }
 
         Page<PrideMongoPeptideEvidence> mongoPeptides = moleculesMongoService.findPeptideEvidences(projectAccession,
-                assayAccession, peptideSequence, proteinAccession,
+                assayAccession, peptideSequence, proteinAccession, peptideEvidenceAccession,
                 PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideEvidenceAssembler assembler = new PeptideEvidenceAssembler(PeptideEvidenceController.class,

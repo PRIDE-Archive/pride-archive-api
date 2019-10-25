@@ -4,6 +4,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PeptideSpectrumOverview;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;
@@ -40,9 +41,13 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                         .getPeptideEvidences(peptideEvidence.getProjectAccession(), peptideEvidence.getAssayAccession(), peptideEvidence.getProteinAccession(), peptideEvidence.getPeptideAccession(),"", 10, 0, sortDirection, sortFields))
                 .withSelfRel());
 
+        List<String> usis = new ArrayList<>();
+        for(PeptideSpectrumOverview peptideSpectrumOverview: peptideEvidence.getPsmAccessions())
+            usis.add(peptideSpectrumOverview.getUsi());
+
         links.add(ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
-                        .getSpectrumBy(peptideEvidence.getProjectAccession(), peptideEvidence.getAssayAccession(), peptideEvidence.getProteinAccession(), peptideEvidence.getPeptideAccession(), "", 0, sortDirection, sortFields))
+                        .getSpectrumBy(usis,peptideEvidence.getProjectAccession(),peptideEvidence.getAssayAccession(),peptideEvidence.getPeptideSequence(),"",  WsContastants.ResultType.FULL, 0, sortDirection, sortFields))
                 .withRel(WsContastants.HateoasEnum.psms.name()));
 
 
