@@ -103,8 +103,12 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
     public SpectrumEvidenceResource toResource(PrideMongoPsmSummaryEvidence psmEvidence) {
 
         List<CvParam> attributes = new ArrayList<>();
-        if(psmEvidence.getBestPSMScore() != null)
-            attributes.add(new CvParam(psmEvidence.getBestPSMScore().getCvLabel(), psmEvidence.getBestPSMScore().getAccession(), psmEvidence.getBestPSMScore().getName(), psmEvidence.getBestPSMScore().getValue()));
+        if(psmEvidence.getAdditionalAttributes() != null)
+            attributes = psmEvidence.getAdditionalAttributes()
+                    .stream()
+                    .map(x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+                    .collect(Collectors.toList());
+
 
         SpectrumEvidence spectrum = SpectrumEvidence.builder()
                 .usi(psmEvidence.getUsi())
