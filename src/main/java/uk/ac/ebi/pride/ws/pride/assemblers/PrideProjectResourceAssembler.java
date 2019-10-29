@@ -8,7 +8,6 @@ import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
-import uk.ac.ebi.pride.mongodb.archive.model.param.MongoCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.solr.indexes.pride.utils.StringUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
@@ -101,7 +100,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .build();
     }
 
-    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<MongoCvParam, List<MongoCvParam>>> samplesDescription, CvTermReference efoTerm) {
+    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<DefaultCvParam, List<DefaultCvParam>>> samplesDescription, CvTermReference efoTerm) {
         Set<CvParamProvider> resultTerms = new HashSet<>();
         samplesDescription.stream()
                 .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
