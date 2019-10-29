@@ -10,7 +10,7 @@ cache:
     - target/
 
 before_script:
-  - which ssh-agent || (apk add --update openssh-client bash openssl rsync gettext tzdata)
+  - apk add --update openssh-client bash openssl rsync gettext tzdata
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir ~/.ssh
@@ -23,21 +23,6 @@ before_script:
   script:
     - mvn $MAVEN_CLI_OPTS compile
 
-#build_dev:
-#  environment: dev
-#  extends: .buildscript
-#
-#build_prod:
-#  environment: prod
-#  extends: .buildscript
-#  only:
-#    - master
-
-#test:
-#  stage: test
-#  script:
-#    - mvn $MAVEN_CLI_OPTS test
-
 deploy_dev:
   stage: deploy
   environment: dev
@@ -47,7 +32,6 @@ deploy_dev:
     - chmod -R 700 config
     - (rm src/main/resources/application.properties || true)
     - export HOSTNAME=$HOSTNAME_BCKUP
-#    - (envsubst < config/.application.yml > src/main/resources/application.yml) && (ls -al src/main/resources/)
     - mvn $MAVEN_CLI_OPTS clean package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
@@ -67,7 +51,6 @@ deploy_prod:
     - chmod -R 700 config
     - (rm src/main/resources/application.properties || true)
     - export HOSTNAME=$HOSTNAME_BCKUP
-#    - (envsubst < config/.application.yml > src/main/resources/application.yml) && (ls -al src/main/resources/)
     - mvn $MAVEN_CLI_OPTS clean package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
