@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.sample.MongoISampleMSRunRow;
@@ -29,7 +30,6 @@ import uk.ac.ebi.pride.utilities.pridemod.model.UniModPTM;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunTable;
@@ -193,7 +193,7 @@ public class AnnotatorController {
             terms.addAll(modReader.getPTMListByPatternDescription(keyword));
         }
 
-        List<CvParam> valueAttributes = terms.stream().filter( x-> (x instanceof UniModPTM))
+        List<CvParam> valueAttributes = terms.stream().filter(x-> (x instanceof UniModPTM))
                 .filter( x-> (((UniModPTM)x).getClassifications().contains("isotopic label") || ((UniModPTM)x).getClassifications().contains("multiple")))
                 .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName() + " " + "(mass:" + x.getMonoDeltaMass() + ")", String.valueOf(x.getMonoDeltaMass())))
                 .collect(Collectors.toList());

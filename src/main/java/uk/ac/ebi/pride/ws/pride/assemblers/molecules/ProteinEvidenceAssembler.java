@@ -3,20 +3,19 @@ package uk.ac.ebi.pride.ws.pride.assemblers.molecules;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.data.ptm.IdentifiedModification;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.protein.PrideMongoProteinEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.ProteinEvidenceController;
-import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.molecules.ProteinEvidence;
 import uk.ac.ebi.pride.ws.pride.models.molecules.ProteinEvidenceResource;
-import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,10 +58,7 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
      * @return A {@link ProteinEvidence}
      */
     private ProteinEvidence transform(PrideMongoProteinEvidence prideMongoProteinEvidence) {
-        List<CvParam> additionalAttributes = prideMongoProteinEvidence.getAdditionalAttributes()
-                .stream()
-                .map( x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                .collect(Collectors.toList());
+        List<CvParam> additionalAttributes = prideMongoProteinEvidence.getAdditionalAttributes();
 
         CvParam bestSearchEngine = null;
         if(prideMongoProteinEvidence.getBestSearchEngineScore() != null){

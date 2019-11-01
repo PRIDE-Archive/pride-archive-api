@@ -1,16 +1,14 @@
 package uk.ac.ebi.pride.ws.pride.transformers;
 
-import uk.ac.ebi.pride.archive.dataprovider.common.ITuple;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.archive.dataprovider.data.ptm.IdentifiedModification;
 import uk.ac.ebi.pride.archive.dataprovider.data.ptm.IdentifiedModificationProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
-import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
-import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 
@@ -43,19 +41,19 @@ public class Transformer {
 
         if(mongoFile.getFileProperties() != null)
             msRun.setFileProperties(mongoFile.getFileProperties()
-                    .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
                     .collect(Collectors.toSet()));
         if(mongoFile.getInstrumentProperties() != null)
             msRun.setInstrumentProperties(mongoFile.getInstrumentProperties()
-                    .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
                     .collect(Collectors.toSet()));
         if(mongoFile.getMsData() != null)
             msRun.setMsData(mongoFile.getMsData()
-                    .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
                     .collect(Collectors.toSet()));
         if(mongoFile.getScanSettings() != null)
             msRun.setScanSettings(mongoFile.getScanSettings()
-                    .stream().map(x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
                     .collect(Collectors.toSet()));
         if(mongoFile.getIdSettings() != null)
             msRun.setIdSettings(new ArrayList<>(mongoFile.getIdSettings()));
@@ -143,20 +141,16 @@ public class Transformer {
                         ptm.getNeutralLoss().getName(),
                         ptm.getNeutralLoss().getValue());
 
-            List<Tuple<Integer, List<CvParam>>> ptmPositions = ptm.getPositionMap().stream().map(position ->{
+            List<Tuple<Integer, List<? extends CvParamProvider>>> ptmPositions = ptm.getPositionMap().stream().map(position ->{
                 Collection<CvParamProvider> scores = (Collection<CvParamProvider>) position.getValue();
                 Integer currentPosition = position.getKey();
                 List<CvParam> newScores = scores.stream().map(score -> new CvParam(score.getCvLabel(),
                         score.getAccession(), score.getName(),
                         score.getValue())).collect(Collectors.toList());
-                return new Tuple<>(currentPosition, newScores);
+                return new Tuple<Integer, List<? extends CvParamProvider>>(currentPosition, newScores);
             }).collect(Collectors.toList());
 
-            IdentifiedModification newPTM = IdentifiedModification.builder()
-                    .modification(ptmName)
-                    .neutralLoss(neutral)
-                    .positionMap(ptmPositions)
-                    .build();
+            IdentifiedModification newPTM = new IdentifiedModification(neutral, ptmPositions, ptmName, new ArrayList<>());
 
             return newPTM;
         }).collect(Collectors.toList());

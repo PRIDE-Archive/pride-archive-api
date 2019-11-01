@@ -4,18 +4,17 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PSMProvider;
+import uk.ac.ebi.pride.archive.dataprovider.data.ptm.IdentifiedModification;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.mongodb.molecules.model.psm.PrideMongoPsmSummaryEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;
-import uk.ac.ebi.pride.ws.pride.models.molecules.IdentifiedModification;
 import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidence;
 import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidenceResource;
-import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvider, SpectrumEvidenceResource> {
@@ -104,10 +103,7 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
 
         List<CvParam> attributes = new ArrayList<>();
         if(psmEvidence.getAdditionalAttributes() != null)
-            attributes = psmEvidence.getAdditionalAttributes()
-                    .stream()
-                    .map(x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toList());
+            attributes = psmEvidence.getAdditionalAttributes();
 
 
         SpectrumEvidence spectrum = SpectrumEvidence.builder()

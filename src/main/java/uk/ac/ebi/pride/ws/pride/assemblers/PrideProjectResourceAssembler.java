@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
@@ -100,11 +100,11 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .build();
     }
 
-    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<DefaultCvParam, List<DefaultCvParam>>> samplesDescription, CvTermReference efoTerm) {
+    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<CvParam, List<CvParam>>> samplesDescription, CvTermReference efoTerm) {
         Set<CvParamProvider> resultTerms = new HashSet<>();
         samplesDescription.stream()
                 .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
-                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new DefaultCvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
+                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new CvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
         return resultTerms;
     }
 

@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
@@ -30,13 +30,13 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
     public PrideFileResource toResource(MongoPrideFile mongoFile) {
 
         List<CvParamProvider> additionalAttributes = mongoFile.getAdditionalAttributes()!=null?mongoFile.getAdditionalAttributes().stream()
-                .map( x-> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
+                .map( x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
         List<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null? mongoFile.getPublicFileLocations().stream()
-                .map( x -> new DefaultCvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
+                .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toList()) : Collections.emptyList();
 
         log.info(mongoFile.toString());
 
-        CvParamProvider category = mongoFile.getFileCategory() != null? new DefaultCvParam(mongoFile.getFileCategory().getCvLabel(),
+        CvParamProvider category = mongoFile.getFileCategory() != null? new CvParam(mongoFile.getFileCategory().getCvLabel(),
                 mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()): null;
 
         PrideFile file = PrideFile.builder()

@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.springframework.hateoas.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
-import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;

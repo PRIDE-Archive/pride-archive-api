@@ -3,8 +3,8 @@ package uk.ac.ebi.pride.ws.pride.models.file;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.param.DefaultCvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.archive.dataprovider.msrun.idsettings.IdSetting;
@@ -29,19 +29,19 @@ public class MSRunMetadata implements MsRunProvider {
 
     // File Properties in CvTerms
     @JsonProperty(PrideArchiveField.MS_RUN_FILE_PROPERTIES)
-    Set<DefaultCvParam> fileProperties;
+    Set<CvParam> fileProperties;
 
     // Instruments Properties
     @JsonProperty(PrideArchiveField.MS_RUN_INSTRUMENT_PROPERTIES)
-    Set<DefaultCvParam> instrumentProperties;
+    Set<CvParam> instrumentProperties;
 
     // MS Data Properties
     @JsonProperty(PrideArchiveField.MS_RUN_MS_DATA)
-    Set<DefaultCvParam> msData;
+    Set<CvParam> msData;
 
     // Scan MS Properties
     @JsonProperty(PrideArchiveField.MS_RUN_SCAN_SETTINGS)
-    Set<DefaultCvParam> scanSettings;
+    Set<CvParam> scanSettings;
 
     // Scan ID Settings
     @JsonProperty(PrideArchiveField.MS_RUN_ID_SETTINGS)
@@ -50,10 +50,10 @@ public class MSRunMetadata implements MsRunProvider {
     public MSRunMetadata() {
     }
 
-    public MSRunMetadata(Set<DefaultCvParam> fileProperties,
-                         Set<DefaultCvParam> instrumentProperties,
-                         Set<DefaultCvParam> msData,
-                         Set<DefaultCvParam> scanSettings,
+    public MSRunMetadata(Set<CvParam> fileProperties,
+                         Set<CvParam> instrumentProperties,
+                         Set<CvParam> msData,
+                         Set<CvParam> scanSettings,
                          Set<IdSetting> idSettings) {
         this.fileProperties = fileProperties;
         this.instrumentProperties = instrumentProperties;
@@ -62,31 +62,31 @@ public class MSRunMetadata implements MsRunProvider {
         this.idSettings = idSettings;
     }
 
-    public void setFileProperties(Set<DefaultCvParam> fileProperties) {
+    public void setFileProperties(Set<CvParam> fileProperties) {
         this.fileProperties = fileProperties;
     }
 
-    public void setInstrumentProperties(Set<DefaultCvParam> instrumentProperties) {
+    public void setInstrumentProperties(Set<CvParam> instrumentProperties) {
         this.instrumentProperties = instrumentProperties;
     }
 
-    public void setMsData(Set<DefaultCvParam> msData) {
+    public void setMsData(Set<CvParam> msData) {
         this.msData = msData;
     }
 
-    public void setScanSettings(Set<DefaultCvParam> scanSettings) {
+    public void setScanSettings(Set<CvParam> scanSettings) {
         this.scanSettings = scanSettings;
     }
 
-    public Set<DefaultCvParam> getFileProperties() {
+    public Set<CvParam> getFileProperties() {
         return fileProperties;
     }
 
-    public Set<DefaultCvParam> getInstrumentProperties() {
+    public Set<CvParam> getInstrumentProperties() {
         return instrumentProperties;
     }
 
-    public Set<DefaultCvParam> getMsData() {
+    public Set<CvParam> getMsData() {
         return msData;
     }
 

@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.hateoas.core.Relation;
-import uk.ac.ebi.pride.ws.pride.models.param.CvParam;
+import uk.ac.ebi.pride.archive.dataprovider.data.ptm.IdentifiedModification;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
