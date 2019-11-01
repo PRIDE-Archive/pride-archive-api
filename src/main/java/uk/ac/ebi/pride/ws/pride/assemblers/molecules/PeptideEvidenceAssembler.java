@@ -4,7 +4,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PeptideSpectrumOverview;
+import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PeptideSpectrumOverview;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;

@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.ws.pride.models.file;
 import uk.ac.ebi.pride.archive.dataprovider.msrun.MsRunProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
-import uk.ac.ebi.pride.mongodb.archive.model.msrun.idsettings.IdSetting;
+import uk.ac.ebi.pride.archive.dataprovider.msrun.idsettings.IdSetting;
 
 import java.util.*;
 
