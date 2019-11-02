@@ -11,6 +11,7 @@ import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -24,12 +25,12 @@ public class SpectrumEvidence {
     Double[] mzs;
     Double[] intensities;
     int numPeaks;
-    List<CvParam> attributes;
+    Set<CvParam> attributes;
     String peptideSequence;
     List<IdentifiedModification> ptms;
     boolean isDecoy;
     boolean isValid;
-    List<CvParam> qualityMethods;
+    Set<CvParam> qualityMethods;
     Integer charge;
     Double precursorMZ;
 }

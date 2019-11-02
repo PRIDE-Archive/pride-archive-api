@@ -35,7 +35,7 @@ public class ProteinEvidence {
     String ensemblMappedProteinAccession;
     Set<String> proteinGroupMembers;
     String proteinDescription;
-    List<CvParam> additionalAttributes;
+    Set<CvParam> additionalAttributes;
     List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;

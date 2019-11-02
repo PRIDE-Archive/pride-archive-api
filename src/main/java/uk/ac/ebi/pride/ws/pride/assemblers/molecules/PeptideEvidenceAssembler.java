@@ -17,6 +17,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMongoPeptideEvidence, PeptideEvidenceResource> {
@@ -54,7 +55,7 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
     }
 
     private PeptideEvidence transform(PrideMongoPeptideEvidence mongoPeptide) {
-        List<CvParam> attributes = mongoPeptide.getAdditionalAttributes();
+        Set<CvParam> attributes = mongoPeptide.getAdditionalAttributes();
 
         List<IdentifiedModification> ptms = new ArrayList<>();
         if(mongoPeptide.getPtmList() != null && !mongoPeptide.getPtmList().isEmpty())
