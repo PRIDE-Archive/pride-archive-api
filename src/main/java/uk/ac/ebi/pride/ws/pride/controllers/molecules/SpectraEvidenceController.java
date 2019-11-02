@@ -82,18 +82,27 @@ public class SpectraEvidenceController {
     @RequestMapping(value = "/spectra", method = RequestMethod.GET,
             produces = {MediaType.APPLICATION_JSON_VALUE})
     //Todo: All the spectra retrieve methods should be done using java.util.concurrent.CompletableFuture from Spring.
-    public HttpEntity<Object> getSpectrumBy(@RequestParam(value = "usi", required = false) List<String> usi,
-                                            @RequestParam(value = "projectAccession", required = false) String projectAccession,
-                                            @RequestParam(value = "assayAccession", required = false) String assayAccession,
-                                            @RequestParam(value = "peptideSequence", required = false) String peptideSequence,
-                                            @RequestParam(value = "modifiedSequence", required = false) String modifiedSequence,
+    public HttpEntity<Object> getSpectrumBy(@RequestParam(value = "usi", defaultValue = "",
+             required = false) List<String> usi,
+                                            @RequestParam(value = "projectAccession", defaultValue = "",
+                                                    required = false) String projectAccession,
+                                            @RequestParam(value = "assayAccession", defaultValue = "",
+                                                    required = false) String assayAccession,
+                                            @RequestParam(value = "peptideSequence", defaultValue = "",
+                                                    required = false) String peptideSequence,
+                                            @RequestParam(value = "modifiedSequence", defaultValue = "",
+                                                    required = false) String modifiedSequence,
                                             @RequestParam(value ="resultType", defaultValue = "COMPACT") WsContastants.ResultType resultType,
-                                            @RequestParam(value="page", defaultValue = "0" ,  required = false) int page,
-                                            @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
-                                            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,  required = false) String sortFields){
+                                            @RequestParam(value="page", defaultValue = "0",
+                                                    required = false) int page,
+                                            @RequestParam(value="sortDirection", defaultValue = "DESC",
+                                                    required = false) String sortDirection,
+                                            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,
+                                                    required = false) String sortFields){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, 50);
         page = pageParams.getKey();
+
         Sort.Direction direction = Sort.Direction.DESC;
         if(sortDirection.equalsIgnoreCase("ASC")){
             direction = Sort.Direction.ASC;
