@@ -55,7 +55,8 @@ public class FileController {
     })
     @RequestMapping(value = "/files/fileByName", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity getFileByName(@RequestParam(value="fileName") String fileName,
-                                        @RequestParam(value = "projectAccession", required = false) String projectAccession
+                                        @RequestParam(value = "projectAccession", defaultValue = "",
+                                                required = false) String projectAccession
     ) {
         Page<MongoPrideFile> file = null;
         if(projectAccession != null && !projectAccession.isEmpty())
@@ -117,10 +118,14 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources> getFiles(@RequestParam(value="filter", required = false, defaultValue = "''") String filter,
-                                               @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
-                                               @RequestParam(value="page", defaultValue = "0" ,  required = false) int page,
-                                               @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
+    public HttpEntity<PagedResources> getFiles(@RequestParam(value="filter", required = false,
+            defaultValue = "''") String filter,
+                                               @RequestParam(value="pageSize", defaultValue = "100",
+                                                       required = false) int pageSize,
+                                               @RequestParam(value="page", defaultValue = "0",
+                                                       required = false) int page,
+                                               @RequestParam(value="sortDirection", defaultValue = "DESC",
+                                                       required = false) String sortDirection,
                                                @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE,  required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);

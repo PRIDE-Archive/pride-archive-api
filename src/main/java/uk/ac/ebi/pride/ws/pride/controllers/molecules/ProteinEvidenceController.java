@@ -89,13 +89,20 @@ public class ProteinEvidenceController {
     })
     @RequestMapping(value = "/proteinevidences", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> getProteinEvidences(
-            @RequestParam(value = "projectAccession", required = false) String projectAccession,
-            @RequestParam(value = "assayAccession" , required = false) String assayAccession,
-            @RequestParam(value = "reportedAccession", required = false) String reportedAccession,
-            @RequestParam(value="pageSize", defaultValue = "100", required = false) int pageSize,
-            @RequestParam(value="page", defaultValue = "0" ,  required = false) int page,
-            @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
-            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,  required = false) String sortFields){
+            @RequestParam(value = "projectAccession", defaultValue = "",
+                    required = false) String projectAccession,
+            @RequestParam(value = "assayAccession" , defaultValue = "",
+                    required = false) String assayAccession,
+            @RequestParam(value = "reportedAccession", defaultValue = "",
+                    required = false) String reportedAccession,
+            @RequestParam(value="pageSize", defaultValue = "100",
+                    required = false) int pageSize,
+            @RequestParam(value="page", defaultValue = "0",
+                    required = false) int page,
+            @RequestParam(value="sortDirection", defaultValue = "DESC",
+                    required = false) String sortDirection,
+            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,
+                    required = false) String sortFields){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();

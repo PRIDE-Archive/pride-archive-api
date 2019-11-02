@@ -52,15 +52,24 @@ public class PeptideEvidenceController {
     })
     @RequestMapping(value = "/peptideevidences", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> getPeptideEvidences(
-            @RequestParam(value = "projectAccession", required = false) String projectAccession,
-            @RequestParam(value = "assayAccession"  , required = false) String assayAccession,
-            @RequestParam(value = "proteinAccession", required = false) String proteinAccession,
-            @RequestParam(value = "peptideEvidenceAccession" ,required = false) String peptideEvidenceAccession,
-            @RequestParam(value = "peptideSequence", required = false) String peptideSequence,
-            @RequestParam(value="pageSize", defaultValue = "100", required = false) Integer pageSize,
-            @RequestParam(value="page", defaultValue = "0" ,  required = false) Integer page,
-            @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
-            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,  required = false) String sortFields){
+            @RequestParam(value = "projectAccession", defaultValue = "",
+                    required = false) String projectAccession,
+            @RequestParam(value = "assayAccession"  , defaultValue = "",
+                    required = false) String assayAccession,
+            @RequestParam(value = "proteinAccession", defaultValue = "",
+                    required = false) String proteinAccession,
+            @RequestParam(value = "peptideEvidenceAccession", defaultValue = "",
+                    required = false) String peptideEvidenceAccession,
+            @RequestParam(value = "peptideSequence", defaultValue = "",
+                    required = false) String peptideSequence,
+            @RequestParam(value="pageSize", defaultValue = "100",
+                    required = false) Integer pageSize,
+            @RequestParam(value="page", defaultValue = "0",
+                    required = false) Integer page,
+            @RequestParam(value="sortDirection", defaultValue = "DESC",
+                    required = false) String sortDirection,
+            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,
+                    required = false) String sortFields){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize, WsContastants.MAX_PAGINATION_SIZE_PEPTIDE_EVIDENCES);
         page = pageParams.getKey();
