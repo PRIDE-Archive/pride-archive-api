@@ -18,6 +18,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMongoProteinEvidence, ProteinEvidenceResource> {
@@ -58,7 +59,7 @@ public class ProteinEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
      * @return A {@link ProteinEvidence}
      */
     private ProteinEvidence transform(PrideMongoProteinEvidence prideMongoProteinEvidence) {
-        List<CvParam> additionalAttributes = prideMongoProteinEvidence.getAdditionalAttributes();
+        Set<CvParam> additionalAttributes = prideMongoProteinEvidence.getAdditionalAttributes();
 
         CvParam bestSearchEngine = null;
         if(prideMongoProteinEvidence.getBestSearchEngineScore() != null){

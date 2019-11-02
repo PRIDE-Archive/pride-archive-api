@@ -50,9 +50,9 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
 
     private SpectrumEvidence transform(PSMProvider archiveSpectrum){
 
-        List<CvParam> attributes = archiveSpectrum.getAttributes().stream()
+        Set<CvParam> attributes = archiveSpectrum.getAttributes().stream()
                 .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         List<IdentifiedModification> ptms = new ArrayList<>();
         if(archiveSpectrum.getModifications() != null)
@@ -90,7 +90,7 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
                         .stream()
                         .map( x-> new CvParam(((CvParamProvider) x).getCvLabel(), ((CvParamProvider) x).getAccession(),
                                 ((CvParamProvider) x).getName(), ((CvParamProvider) x).getValue()))
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toSet()))
                 .attributes(attributes)
                 .ptms(ptms)
                 .charge(archiveSpectrum.getPrecursorCharge())
@@ -101,7 +101,7 @@ public class SpectraResourceAssembler extends ResourceAssemblerSupport<PSMProvid
 
     public SpectrumEvidenceResource toResource(PrideMongoPsmSummaryEvidence psmEvidence) {
 
-        List<CvParam> attributes = new ArrayList<>();
+        Set<CvParam> attributes = new HashSet<>();
         if(psmEvidence.getAdditionalAttributes() != null)
             attributes = psmEvidence.getAdditionalAttributes();
 

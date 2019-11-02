@@ -31,7 +31,7 @@ public class PrideFile implements Serializable {
     String accession;
     CvParamProvider fileCategory;
     String md5Checksum;
-    List<? extends CvParamProvider> publicFileLocations;
+    Set<? extends CvParamProvider> publicFileLocations;
     long fileSizeBytes;
     String fileExtension;
     private String fileName;
@@ -39,6 +39,6 @@ public class PrideFile implements Serializable {
     private Date submissionDate;
     private Date publicationDate;
     private Date updatedDate;
-    List<? extends CvParamProvider> additionalAttributes;
+    Set<? extends CvParamProvider> additionalAttributes;
 
 }

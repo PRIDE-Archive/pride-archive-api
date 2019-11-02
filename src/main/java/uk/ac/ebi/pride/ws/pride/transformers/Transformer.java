@@ -12,10 +12,7 @@ import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -141,16 +138,16 @@ public class Transformer {
                         ptm.getNeutralLoss().getName(),
                         ptm.getNeutralLoss().getValue());
 
-            List<Tuple<Integer, List<? extends CvParamProvider>>> ptmPositions = ptm.getPositionMap().stream().map(position ->{
+            List<Tuple<Integer, Set<? extends CvParamProvider>>> ptmPositions = ptm.getPositionMap().stream().map(position ->{
                 Collection<CvParamProvider> scores = (Collection<CvParamProvider>) position.getValue();
                 Integer currentPosition = position.getKey();
-                List<CvParam> newScores = scores.stream().map(score -> new CvParam(score.getCvLabel(),
+                Set<CvParam> newScores = scores.stream().map(score -> new CvParam(score.getCvLabel(),
                         score.getAccession(), score.getName(),
-                        score.getValue())).collect(Collectors.toList());
-                return new Tuple<Integer, List<? extends CvParamProvider>>(currentPosition, newScores);
+                        score.getValue())).collect(Collectors.toSet());
+                return new Tuple<Integer, Set<? extends CvParamProvider>>(currentPosition, newScores);
             }).collect(Collectors.toList());
 
-            IdentifiedModification newPTM = new IdentifiedModification(neutral, ptmPositions, ptmName, new ArrayList<>());
+            IdentifiedModification newPTM = new IdentifiedModification(neutral, ptmPositions, ptmName, new HashSet<>());
 
             return newPTM;
         }).collect(Collectors.toList());

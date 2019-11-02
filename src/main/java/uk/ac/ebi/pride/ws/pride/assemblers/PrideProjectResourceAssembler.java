@@ -100,7 +100,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .build();
     }
 
-    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<CvParam, List<CvParam>>> samplesDescription, CvTermReference efoTerm) {
+    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<CvParam, Set<CvParam>>> samplesDescription, CvTermReference efoTerm) {
         Set<CvParamProvider> resultTerms = new HashSet<>();
         samplesDescription.stream()
                 .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))

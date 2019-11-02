@@ -10,6 +10,7 @@ import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -24,7 +25,7 @@ public class PeptideEvidence {
     String assayAccession;
     String proteinAccession;
     String peptideSequence;
-    List<CvParam> properties;
+    Set<CvParam> properties;
     List<IdentifiedModification> ptms;
     CvParam bestSearchEngineScore;
     private boolean isDecoy;
@@ -32,6 +33,6 @@ public class PeptideEvidence {
     Integer endPostion;
     Integer missedCleavages;
     Boolean isValid;
-    List<CvParam> qualityMethods;
+    Set<CvParam> qualityMethods;
 
 }
