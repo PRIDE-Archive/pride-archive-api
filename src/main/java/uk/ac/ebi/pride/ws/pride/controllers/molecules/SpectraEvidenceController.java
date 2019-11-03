@@ -92,15 +92,19 @@ public class SpectraEvidenceController {
                                                     required = false) String peptideSequence,
                                             @RequestParam(value = "modifiedSequence", defaultValue = "",
                                                     required = false) String modifiedSequence,
-                                            @RequestParam(value ="resultType", defaultValue = "COMPACT") WsContastants.ResultType resultType,
+                                            @RequestParam(value ="resultType",
+                                                    defaultValue = "COMPACT")WsContastants.ResultType resultType,
                                             @RequestParam(value="page", defaultValue = "0",
                                                     required = false) int page,
+                                            @RequestParam(value = "pageSize", defaultValue = "50",
+                                                    required = false) int pageSize,
                                             @RequestParam(value="sortDirection", defaultValue = "DESC",
                                                     required = false) String sortDirection,
-                                            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,
+                                            @RequestParam(value="sortConditions",
+                                                    defaultValue = PrideArchiveField.EXTERNAL_PROJECT_ACCESSION,
                                                     required = false) String sortFields){
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, 50);
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
 
         Sort.Direction direction = Sort.Direction.DESC;
@@ -110,10 +114,10 @@ public class SpectraEvidenceController {
 
         Page<PrideMongoPsmSummaryEvidence> peptides = null;
         if(usi != null && !usi.isEmpty())
-            peptides = moleculesMongoService.findPsmSummaryEvidences(usi, PageRequest.of(page, 50, direction, sortFields.split(",")));
+            peptides = moleculesMongoService.findPsmSummaryEvidences(usi, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
         else
              peptides = moleculesMongoService.findPsmSummaryEvidences(projectAccession, assayAccession, peptideSequence, modifiedSequence,
-                     PageRequest.of(page, 50, direction, sortFields.split(",")));
+                     PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         ConcurrentLinkedQueue<SpectrumEvidenceResource> psms = new ConcurrentLinkedQueue<>();
         SpectraResourceAssembler assembler = new SpectraResourceAssembler(SpectraEvidenceController.class, SpectrumEvidenceResource.class);
@@ -130,19 +134,23 @@ public class SpectraEvidenceController {
 
 
         long totalPages = peptides.getTotalPages();
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(50, page, psms.size(), totalPages);
+        PagedResources.PageMetadata pageMetadata = new PagedResources
+                .PageMetadata(pageSize, page, peptides.getTotalElements(), totalPages);
 
         PagedResources<SpectrumEvidenceResource> pagedResources = new PagedResources<>(psms, pageMetadata,
                 linkTo(methodOn(SpectraEvidenceController.class)
-                        .getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence, modifiedSequence, resultType, page, sortDirection, sortFields)).withSelfRel(),
+                        .getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence,
+                                modifiedSequence, resultType, page, pageSize, sortDirection, sortFields))
+                        .withSelfRel(),
                 linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence, modifiedSequence, resultType,
-                        (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
+                        (int) WsUtils.validatePage(page + 1, totalPages), pageSize,
+                        sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
                 linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence, modifiedSequence, resultType,
-                        (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence, modifiedSequence, resultType,0,
+                        (int) WsUtils.validatePage(page - 1, totalPages), pageSize, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
+                linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence, modifiedSequence, resultType,0,pageSize,
                         sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.first.name()),
                 linkTo(methodOn(SpectraEvidenceController.class).getSpectrumBy(usi, projectAccession, assayAccession, peptideSequence, modifiedSequence, resultType,
-                        (int) totalPages, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.last.name())
+                        (int) totalPages,pageSize,  sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.last.name())
         ) ;
 
         return new HttpEntity<>(pagedResources);
