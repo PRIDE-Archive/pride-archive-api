@@ -47,7 +47,7 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
 
         links.add(ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
-                        .getSpectrumBy(usis,peptideEvidence.getProjectAccession(),peptideEvidence.getAssayAccession(),peptideEvidence.getPeptideSequence(),"",  WsContastants.ResultType.FULL, 0, sortDirection, sortFields))
+                        .getSpectrumBy(usis,peptideEvidence.getProjectAccession(),peptideEvidence.getAssayAccession(),peptideEvidence.getPeptideSequence(),"",  WsContastants.ResultType.FULL, 0, 10, sortDirection, sortFields))
                 .withRel(WsContastants.HateoasEnum.psms.name()));
 
 
