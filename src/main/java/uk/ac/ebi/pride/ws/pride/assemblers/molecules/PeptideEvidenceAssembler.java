@@ -42,8 +42,10 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                 .withSelfRel());
 
         List<String> usis = new ArrayList<>();
-        for(PeptideSpectrumOverview peptideSpectrumOverview: peptideEvidence.getPsmAccessions())
-            usis.add(peptideSpectrumOverview.getUsi());
+        if(peptideEvidence.getPsmAccessions() != null) {
+            for(PeptideSpectrumOverview peptideSpectrumOverview: peptideEvidence.getPsmAccessions())
+                usis.add(peptideSpectrumOverview.getUsi());
+        }
 
         links.add(ControllerLinkBuilder.linkTo(
                 ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
