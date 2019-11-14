@@ -11,5 +11,5 @@ RUN mvn clean package
 # Package stage
 FROM maven:3.3.9-jdk-8-alpine
 WORKDIR /pride-api
-COPY --from=build-env COPY /pride-api/target/*.jar ./
+COPY --from=build-env /pride-api/target/*.jar ./
 CMD [ "java", "-jar", "*.jar" ]
