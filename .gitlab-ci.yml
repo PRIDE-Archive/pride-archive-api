@@ -3,6 +3,7 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   PRIDE_CONFIG_MAP: pride-api-configmap
   DOCKER_PULL_SECRET: pride-gitlab-docker-secret
+  IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
 services:
   - docker:18.09-dind
