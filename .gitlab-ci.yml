@@ -1,30 +1,65 @@
-image: maven:3.3.9-jdk-8-alpine
-
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  PRIDE_CONFIG_MAP: pride-api-configmap
+  DOCKER_PULL_SECRET: pride-gitlab-docker-secret
 
-cache:
-  paths:
-    - .m2/repository/
-    - target/
+services:
+  - docker:18.09-dind
 
-before_script:
-  - apk add --update openssh-client bash openssl rsync gettext tzdata
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  - mkdir ~/.ssh
-  - chmod 700 ~/.ssh
-  - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
-  - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts; done
+#include:
+#  - template: Container-Scanning.gitlab-ci.yml
+#  - template: Dependency-Scanning.gitlab-ci.yml
+#  - template: License-Management.gitlab-ci.yml
 
-.buildscript:
+build:
+  image: docker:18.09
   stage: build
   script:
-    - mvn $MAVEN_CLI_OPTS compile
+    - docker info
+    - docker build -t $IMAGE .
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker push $IMAGE
 
-.deploy_script:
+kube_deploy_test:
+  environment: test-env
+  extends: .kube_deploy_script
+
+kube_deploy_prod:
+  environment: prod
+  extends: .kube_deploy_script
+
+.kube_deploy_script:
   stage: deploy
+  image: dtzar/helm-kubectl
+  script:
+    - apk add --update bash gettext tzdata
+    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
+    - envsubst < config/.application.yml > config/application.yml
+    - export HOSTNAME=$HOSTNAME_BCKUP
+    - kubectl create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=gitlab-ci-token --docker-password=$CI_BUILD_TOKEN || true
+    - kubectl create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
+    - kubectl create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
+    - envsubst < .kubernetes.yml > kubernetes.yml
+    - cat kubernetes.yml
+    - kubectl apply -f kubernetes.yml
+  when: manual
+
+.env_prep:
+  image: maven:3.3.9-jdk-8-alpine
+  script:
+    - apk add --update openssh-client bash openssl rsync gettext tzdata
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
+    - chmod 600 ~/.ssh/known_hosts
+
+deploy_dev:
+  stage: deploy
+  environment: dev
+  extends: .env_prep
   script:
     - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml
@@ -34,24 +69,29 @@ before_script:
     - mvn $MAVEN_CLI_OPTS clean package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
-    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
-    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && mkdir $DEPLOY_DIR"
-    - rsync -a target/*jar config $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]}:$DEPLOY_PATH/$DEPLOY_DIR/
-    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current"
-    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh $SERVER_USER@$i "bash && cd $DEPLOY_PATH && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"; sleep 2m; done
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $DEPLOY_DIR"
+    - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH/$DEPLOY_DIR/
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
     #  only:
     ##    - master
-
-deploy_prod:
-  environment: prod
-  extends: .deploy_script
-  #  only:
-  #    - master
   when: manual
 
-deploy_dev:
-  environment: dev
-  extends: .deploy_script
-  #  only:
-  #    - master
+deploy_prod:
+  stage: deploy
+  environment: prod
+  extends: .env_prep
+  script:
+    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
+    - envsubst < config/.application.yml > config/application.yml
+    - chmod -R 700 config
+    - (rm src/main/resources/application.properties || true)
+    - export HOSTNAME=$HOSTNAME_BCKUP
+    - mvn $MAVEN_CLI_OPTS clean package
+    - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
+    - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $DEPLOY_DIR"
+    - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH/$DEPLOY_DIR/
+    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
+    #  only:
+    ##    - master
   when: manual
