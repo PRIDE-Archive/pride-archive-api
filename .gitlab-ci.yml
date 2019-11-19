@@ -5,9 +5,6 @@ variables:
   DOCKER_PULL_SECRET: pride-gitlab-docker-secret
   IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
-services:
-  - docker:18.09-dind
-
 #include:
 #  - template: Container-Scanning.gitlab-ci.yml
 #  - template: Dependency-Scanning.gitlab-ci.yml
@@ -16,6 +13,8 @@ services:
 build:
   image: docker:18.09
   stage: build
+  services:
+    - docker:18.09-dind
   script:
     - docker info
     - docker build -t $IMAGE .
