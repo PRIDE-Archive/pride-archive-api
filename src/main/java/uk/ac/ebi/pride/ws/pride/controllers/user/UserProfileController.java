@@ -55,93 +55,93 @@ public class UserProfileController {
     @Autowired
     private UserProfileService userProfileService;
 
-    @ApiOperation(notes = "Register a new user", value = "registration", nickname = "registerNewUser", tags = {"User"} )
-    @RequestMapping(method = RequestMethod.POST,path="/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> registerNewUser(@RequestBody @Valid UserSummary userSummary,BindingResult errors){
-
-        if(errors.hasErrors())
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
-        }
-
-        try{
-            String userRef = userProfileService.registerNewUser(userSummary);
-            return ResponseEntity.ok(String.valueOf(userRef));
-        }catch(Exception e){
-            log.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-
-    }
-
-    @ApiOperation(notes = "Change password for a user. User needs to be authenticated to access", value = "change-pwd", nickname = "changePwd", tags = {"User"} )
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> changePassword(@RequestBody @Valid ChangePassword changePassword,
-                                                 BindingResult errors,
-                                                 Authentication authentication){
-        if (errors.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
-        } else {
-            try {
-                User currentUser = (User) (authentication).getDetails();
-                if(!currentUser.getEmail().equalsIgnoreCase(changePassword.getEmail())){
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email mismatch occurred");
-                }
-                userProfileService.changePassword(currentUser.getUserReference(),changePassword);
-                return ResponseEntity.ok().build();
-            } catch (Exception ex) {
-                log.error(ex.getMessage(), ex);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-            }
-        }
-    }
-
-    @ApiOperation(notes = "View user's profile. User needs to be authenticated to access", value = "viewProfile", nickname = "viewProfile", tags = {"User"} )
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping(path="/view-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getProfile(Authentication authentication){
-
-        User currentUser = (User) (authentication).getDetails();
-        try{
-            UserSummary userSummary = userProfileService.getProfile(currentUser.getEmail());
-            return ResponseEntity.ok(userSummary);
-        }catch(Exception e){
-            log.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error fetching user profile:"+e.getMessage());
-        }
-    }
-
-    @ApiOperation(notes = "Update user's profile. User needs to be authenticated to access", value = "updateProfile", nickname = "updateProfile", tags = {"User"} )
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping(path="/update-profile", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateProfile(@RequestBody @Valid UserProfile userProfile,
-                                                BindingResult errors,
-                                                HttpServletRequest request,
-                                                Authentication authentication){
-        String token = request.getHeader("Authorization");
-        if(token!=null && token.startsWith("Bearer ")){
-            token = token.replaceFirst("Bearer ","");
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WsContastants.AAP_TOKEN_MISMATCH_ERROR);
-        }
-
-        if (errors.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
-        } else {
-            try {
-                User currentUser = (User) (authentication).getDetails();
-                if(!currentUser.getEmail().equalsIgnoreCase(userProfile.getEmail())){
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email mismatch occurred");
-                }
-                userProfileService.updateProfile(token,currentUser.getUserReference(),currentUser.getEmail(),userProfile);
-                return ResponseEntity.ok().build();
-            } catch (Exception ex) {
-                log.error(ex.getMessage(), ex);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-            }
-        }
-    }
+//    @ApiOperation(notes = "Register a new user", value = "registration", nickname = "registerNewUser", tags = {"User"} )
+//    @RequestMapping(method = RequestMethod.POST,path="/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Object> registerNewUser(@RequestBody @Valid UserSummary userSummary,BindingResult errors){
+//
+//        if(errors.hasErrors())
+//        {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
+//        }
+//
+//        try{
+//            String userRef = userProfileService.registerNewUser(userSummary);
+//            return ResponseEntity.ok(String.valueOf(userRef));
+//        }catch(Exception e){
+//            log.error(e.getMessage(), e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//
+//    }
+//
+//    @ApiOperation(notes = "Change password for a user. User needs to be authenticated to access", value = "change-pwd", nickname = "changePwd", tags = {"User"} )
+//    @PreAuthorize("isAuthenticated()")
+//    @PostMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Object> changePassword(@RequestBody @Valid ChangePassword changePassword,
+//                                                 BindingResult errors,
+//                                                 Authentication authentication){
+//        if (errors.hasErrors()) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
+//        } else {
+//            try {
+//                User currentUser = (User) (authentication).getDetails();
+//                if(!currentUser.getEmail().equalsIgnoreCase(changePassword.getEmail())){
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email mismatch occurred");
+//                }
+//                userProfileService.changePassword(currentUser.getUserReference(),changePassword);
+//                return ResponseEntity.ok().build();
+//            } catch (Exception ex) {
+//                log.error(ex.getMessage(), ex);
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+//            }
+//        }
+//    }
+//
+//    @ApiOperation(notes = "View user's profile. User needs to be authenticated to access", value = "viewProfile", nickname = "viewProfile", tags = {"User"} )
+//    @PreAuthorize("isAuthenticated()")
+//    @GetMapping(path="/view-profile", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Object> getProfile(Authentication authentication){
+//
+//        User currentUser = (User) (authentication).getDetails();
+//        try{
+//            UserSummary userSummary = userProfileService.getProfile(currentUser.getEmail());
+//            return ResponseEntity.ok(userSummary);
+//        }catch(Exception e){
+//            log.error(e.getMessage(), e);
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error fetching user profile:"+e.getMessage());
+//        }
+//    }
+//
+//    @ApiOperation(notes = "Update user's profile. User needs to be authenticated to access", value = "updateProfile", nickname = "updateProfile", tags = {"User"} )
+//    @PreAuthorize("isAuthenticated()")
+//    @PostMapping(path="/update-profile", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Object> updateProfile(@RequestBody @Valid UserProfile userProfile,
+//                                                BindingResult errors,
+//                                                HttpServletRequest request,
+//                                                Authentication authentication){
+//        String token = request.getHeader("Authorization");
+//        if(token!=null && token.startsWith("Bearer ")){
+//            token = token.replaceFirst("Bearer ","");
+//        }else{
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WsContastants.AAP_TOKEN_MISMATCH_ERROR);
+//        }
+//
+//        if (errors.hasErrors()) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
+//        } else {
+//            try {
+//                User currentUser = (User) (authentication).getDetails();
+//                if(!currentUser.getEmail().equalsIgnoreCase(userProfile.getEmail())){
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email mismatch occurred");
+//                }
+//                userProfileService.updateProfile(token,currentUser.getUserReference(),currentUser.getEmail(),userProfile);
+//                return ResponseEntity.ok().build();
+//            } catch (Exception ex) {
+//                log.error(ex.getMessage(), ex);
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+//            }
+//        }
+//    }
 
 
 }
