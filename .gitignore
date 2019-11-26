@@ -24,41 +24,5 @@
 *.log
 *.sql
 *.sqlite
-<<<<<<< HEAD
-*.log*
-*.tmp
-   
-
-# OS generated files #
-######################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Intellij generated files #
-#####################
-*.iml
-
-# Eclipse generated files #
-###########################
-/.settings
-.classpath
-.project
-
-# Directory to ignore #
-#####################
-log/
-target/
 .idea/
-
-pom.xml.releaseBackup
-release.properties
-
-
-/pride-archive-api.log
-config/application.yml
-config/application.yaml
+target/
