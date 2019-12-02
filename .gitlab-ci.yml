@@ -15,8 +15,8 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir ~/.ssh
   - chmod 700 ~/.ssh
-  - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
-  - chmod 600 ~/.ssh/known_hosts
+  - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
+  - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts; done
 
 .buildscript:
   stage: build
