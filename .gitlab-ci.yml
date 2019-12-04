@@ -1,8 +1,8 @@
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  PRIDE_CONFIG_MAP: pride-api-configmap
-  DOCKER_PULL_SECRET: pride-gitlab-docker-secret
+  PRIDE_CONFIG_MAP: pride-api-configmap-$CI_PIPELINE_IID
+  DOCKER_PULL_SECRET: pride-gitlab-docker-secret-$CI_PIPELINE_IID
   IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
 #include:
@@ -25,21 +25,37 @@ kube_deploy_test:
   environment: test-env
   extends: .kube_deploy_script
 
-kube_deploy_prod:
-  environment: prod
+kube_deploy_prod_hh:
+  environment: prod-hh
+  variables:
+    NAMESPACE: pride-api-prod
+  extends: .kube_deploy_script
+
+kube_deploy_prod_hx:
+  environment: prod-hx
+  variables:
+    NAMESPACE: pride-api-prod
   extends: .kube_deploy_script
 
 .kube_deploy_script:
   stage: deploy
   image: dtzar/helm-kubectl
   script:
-    - apk add --update bash gettext tzdata
+    - apk add --update bash gettext tzdata coreutils
     - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml
     - export HOSTNAME=$HOSTNAME_BCKUP
-    - kubectl create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=gitlab-ci-token --docker-password=$CI_BUILD_TOKEN || true
-    - kubectl create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
-    - kubectl create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
+    - mkdir -p ~/.kube
+    - echo $KUBE_CONFIG > kubeconfig
+    - base64 -d kubeconfig > ~/.kube/config
+    - kubectl config get-contexts
+    - kubectl create namespace $NAMESPACE || true
+    - kubectl -n $NAMESPACE delete secret $DOCKER_PULL_SECRET || true
+    - kubectl -n $NAMESPACE create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN
+# create configmap for first time
+    - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
+# replace configmap if it already exists
+    - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
     - envsubst < .kubernetes.yml > kubernetes.yml
     - cat kubernetes.yml
     - kubectl apply -f kubernetes.yml
@@ -53,12 +69,11 @@ kube_deploy_prod:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
-    - chmod 600 ~/.ssh/known_hosts
+    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
+    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts; done
 
-deploy_dev:
+.deploy_script:
   stage: deploy
-  environment: dev
   extends: .env_prep
   script:
     - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
@@ -69,29 +84,24 @@ deploy_dev:
     - mvn $MAVEN_CLI_OPTS clean package
     - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
     - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
-    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $DEPLOY_DIR"
-    - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH/$DEPLOY_DIR/
-    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
+    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
+    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && mkdir $DEPLOY_DIR"
+    - rsync -a target/*jar config $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]}:$DEPLOY_PATH/$DEPLOY_DIR/
+    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current"
+    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh $SERVER_USER@$i "bash && cd $DEPLOY_PATH && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"; sleep 2m; done
     #  only:
     ##    - master
-  when: manual
 
 deploy_prod:
-  stage: deploy
   environment: prod
-  extends: .env_prep
-  script:
-    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
-    - envsubst < config/.application.yml > config/application.yml
-    - chmod -R 700 config
-    - (rm src/main/resources/application.properties || true)
-    - export HOSTNAME=$HOSTNAME_BCKUP
-    - mvn $MAVEN_CLI_OPTS clean package
-    - cd target && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
-    - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
-    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && mkdir $DEPLOY_DIR"
-    - rsync -a target/*jar config $SERVER_USER@$DEPLOY_SERVER:$DEPLOY_PATH/$DEPLOY_DIR/
-    - ssh $SERVER_USER@$DEPLOY_SERVER "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"
-    #  only:
-    ##    - master
+  extends: .deploy_script
+  #  only:
+  #    - master
+  when: manual
+
+deploy_dev:
+  environment: dev
+  extends: .deploy_script
+  #  only:
+  #    - master
   when: manual
