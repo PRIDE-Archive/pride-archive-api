@@ -17,6 +17,7 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -72,13 +73,24 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
      * @return Pride Project
      */
     public PrideProject transform(MongoPrideProject mongoPrideProject){
+        Collection<CvParam> additionalAttributes = mongoPrideProject.getAttributes();
+        SimpleDateFormat year = new SimpleDateFormat("YYYY");
+        SimpleDateFormat month = new SimpleDateFormat("MM");
+
+        if(additionalAttributes == null)
+            additionalAttributes = new ArrayList<>();
+
+        Date publicationDate = mongoPrideProject.getPublicationDate();
+        additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase()
+                + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession()));
+
         return PrideProject.builder()
                 .accession(mongoPrideProject.getAccession())
                 .title(mongoPrideProject.getTitle())
                 .references(new HashSet<>(mongoPrideProject.getCompleteReferences()))
                 .projectDescription(mongoPrideProject.getDescription())
                 .projectTags(mongoPrideProject.getProjectTags())
-                .additionalAttributes(mongoPrideProject.getAttributes())
+                .additionalAttributes(additionalAttributes)
                 .affiliations(mongoPrideProject.getAllAffiliations())
                 .identifiedPTMStrings(new HashSet<>(mongoPrideProject.getPtmList()))
                 .sampleProcessingProtocol(mongoPrideProject.getSampleProcessingProtocol())
