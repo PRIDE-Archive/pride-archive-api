@@ -73,21 +73,33 @@ public class ProjectController {
     }
 
 
-    @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
-            " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
-            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"} )
+    @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all" +
+            " the projects that at least contains one of the keyword. For example " +
+            " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one" +
+            " or both keywords. The _filter_ parameter provides allows the method " +
+            " to filter the results for specific values. The structure of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"} )
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<CompactProjectResource>> projects(@RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
-                                                                       @RequestParam(name="filter",  defaultValue = "''") String filter,
-                                                                       @RequestParam(name="pageSize",  defaultValue = "100") int pageSize,
-                                                                       @RequestParam(name="page" , defaultValue = "0" ) int page,
-                                                                       @RequestParam(name="dateGap", defaultValue = "") String dateGap,
-                                                                       @RequestParam(value="sortDirection", defaultValue = "DESC" ,  required = false) String sortDirection,
-                                                                       @RequestParam(value="sortFields", defaultValue = PrideProjectField.PROJECT_SUBMISSION_DATE ,  required = false) String sortFields){
+    public HttpEntity<PagedResources<CompactProjectResource>> projects(
+            @ApiParam(name = "keyword", value = "Keywords ( , separated) to query the PRIDE projects", defaultValue = "*:*")
+            @RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
+            @ApiParam(name = "filter", defaultValue = "''", value = "Refine the query for specific properties, " +
+                    "values (field1=value1)")
+            @RequestParam(name="filter",  defaultValue = "''") String filter,
+            @ApiParam(name = "pageSize", defaultValue = "100", value = "Number of projects returned in API call")
+            @RequestParam(name="pageSize",  defaultValue = "100") int pageSize,
+            @ApiParam(name = "page", defaultValue = "0", value = "Page to be retrieve, 0-based")
+            @RequestParam(name="page" , defaultValue = "0" ) int page,
+            @RequestParam(name="dateGap", defaultValue = "") String dateGap,
+            @ApiParam(name = "sortDirection", defaultValue = "DESC", value = "Sorting direction of the returned " +
+                    " projects (DESC, ASC)")
+            @RequestParam(value="sortDirection", defaultValue = "DESC" , required = false) String sortDirection,
+            @ApiParam(name = "sortFields", defaultValue = PrideProjectField.PROJECT_SUBMISSION_DATE , value = "Fields" +
+                    " to be used to sort the returned projects")
+            @RequestParam(value="sortFields", defaultValue = PrideProjectField.PROJECT_SUBMISSION_DATE , required = false) String sortFields){
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
