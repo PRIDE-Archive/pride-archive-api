@@ -2,7 +2,7 @@ variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   PRIDE_CONFIG_MAP: pride-api-configmap-$CI_PIPELINE_IID
-  DOCKER_PULL_SECRET: pride-gitlab-docker-secret-$CI_PIPELINE_IID
+  DOCKER_PULL_SECRET: pride-gitlab-docker-secret
   IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
 #include:
@@ -10,7 +10,7 @@ variables:
 #  - template: Dependency-Scanning.gitlab-ci.yml
 #  - template: License-Management.gitlab-ci.yml
 
-build:
+docker_build:
   image: docker:18.09
   stage: build
   services:
@@ -18,8 +18,9 @@ build:
   script:
     - docker info
     - docker build -t $IMAGE .
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $IMAGE
+  when: manual
 
 kube_deploy_test:
   environment: test-env
@@ -51,7 +52,7 @@ kube_deploy_prod_hx:
     - kubectl config get-contexts
     - kubectl create namespace $NAMESPACE || true
     - kubectl -n $NAMESPACE delete secret $DOCKER_PULL_SECRET || true
-    - kubectl -n $NAMESPACE create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=gitlab-ci-token --docker-password=$CI_JOB_TOKEN
+    - kubectl -n $NAMESPACE create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
 # create configmap for first time
     - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
 # replace configmap if it already exists
