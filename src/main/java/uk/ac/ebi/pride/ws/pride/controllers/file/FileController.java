@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.controllers.file;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,8 +81,10 @@ public class FileController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/files/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PrideFileResource> getFile(@PathVariable(value="accession") String accession) {
+    @RequestMapping(value = "/files/{file_accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<PrideFileResource> getFile(
+            @ApiParam(value = "file accession id", required = true, defaultValue = "")
+            @PathVariable(value="file_accession") String accession) {
 
         Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(accession);
 
@@ -148,7 +151,7 @@ public class FileController {
         List<PrideFileResource> resources = assembler.toResources(projectFiles);
 
         long totalElements = projectFiles.getTotalElements();
-        long totalPages = totalElements / pageSize;
+        long totalPages = projectFiles.getTotalPages();
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,

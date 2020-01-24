@@ -1,30 +1,81 @@
-image: maven:3.3.9-jdk-8-alpine
-
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  PRIDE_CONFIG_MAP: pride-api-configmap-$CI_PIPELINE_IID
+  DOCKER_PULL_SECRET: pride-gitlab-docker-secret
+  IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
-cache:
-  paths:
-    - .m2/repository/
-    - target/
+#include:
+#  - template: Container-Scanning.gitlab-ci.yml
+#  - template: Dependency-Scanning.gitlab-ci.yml
+#  - template: License-Management.gitlab-ci.yml
 
-before_script:
-  - apk add --update openssh-client bash openssl rsync gettext tzdata
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  - mkdir ~/.ssh
-  - chmod 700 ~/.ssh
-  - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
-  - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts; done
-
-.buildscript:
+docker_build:
+  image: docker:18.09
   stage: build
+  services:
+    - docker:18.09-dind
   script:
-    - mvn $MAVEN_CLI_OPTS compile
+    - docker info
+    - docker build -t $IMAGE .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $IMAGE
+  when: manual
+
+kube_deploy_test:
+  environment: test-env
+  extends: .kube_deploy_script
+
+kube_deploy_prod_hh:
+  environment: prod-hh
+  variables:
+    NAMESPACE: pride-api-prod
+  extends: .kube_deploy_script
+
+kube_deploy_prod_hx:
+  environment: prod-hx
+  variables:
+    NAMESPACE: pride-api-prod
+  extends: .kube_deploy_script
+
+.kube_deploy_script:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  script:
+    - apk add --update bash gettext tzdata coreutils
+    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
+    - envsubst < config/.application.yml > config/application.yml
+    - export HOSTNAME=$HOSTNAME_BCKUP
+    - mkdir -p ~/.kube
+    - echo $KUBE_CONFIG > kubeconfig
+    - base64 -d kubeconfig > ~/.kube/config
+    - kubectl config get-contexts
+    - kubectl create namespace $NAMESPACE || true
+    - kubectl -n $NAMESPACE delete secret $DOCKER_PULL_SECRET || true
+    - kubectl -n $NAMESPACE create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
+# create configmap for first time
+    - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
+# replace configmap if it already exists
+    - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
+    - envsubst < .kubernetes.yml > kubernetes.yml
+    - cat kubernetes.yml
+    - kubectl apply -f kubernetes.yml
+  when: manual
+
+.env_prep:
+  image: maven:3.3.9-jdk-8-alpine
+  script:
+    - apk add --update openssh-client bash openssl rsync gettext tzdata
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir ~/.ssh
+    - chmod 700 ~/.ssh
+    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
+    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts; done
 
 .deploy_script:
   stage: deploy
+  extends: .env_prep
   script:
     - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml

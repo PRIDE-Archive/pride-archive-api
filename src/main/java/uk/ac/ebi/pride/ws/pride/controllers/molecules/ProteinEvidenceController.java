@@ -126,7 +126,7 @@ public class ProteinEvidenceController {
         List<ProteinEvidenceResource> resources = assembler.toResources(mongoProteins);
 
         long totalElements = mongoProteins.getTotalElements();
-        long totalPages = totalElements / pageSize;
+        long totalPages = mongoProteins.getTotalPages();
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedResources<ProteinEvidenceResource> pagedResources = new PagedResources<>(resources, pageMetadata,
