@@ -89,7 +89,7 @@ public class PeptideEvidenceController {
         List<PeptideEvidenceResource> resources = assembler.toResources(mongoPeptides);
 
         long totalElements = mongoPeptides.getTotalElements();
-        long totalPages = totalElements / pageSize;
+        long totalPages = mongoPeptides.getTotalPages();
 
         PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize,
                 page, totalElements, totalPages);

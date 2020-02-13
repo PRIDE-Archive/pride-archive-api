@@ -32,7 +32,8 @@ import java.util.Optional;
  * @author ypriverol on 22/10/2018.
  */
 
-@RestController
+//@RestController
+@Deprecated
 public class MSRunController {
 
     final PrideFileMongoService mongoFileService;
