@@ -26,3 +26,4 @@
 *.sqlite
 .idea/
 target/
+*.iml
