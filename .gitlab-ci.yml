@@ -21,7 +21,6 @@ docker_build:
     - docker build -t $IMAGE .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $IMAGE
-  when: manual
 
 kube_deploy_test:
   environment: test-env
@@ -65,7 +64,7 @@ kube_deploy_prod_hx:
     - kubectl -n $NAMESPACE create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml -o yaml --dry-run | kubectl replace -f -
     - envsubst < .kubernetes.yml > kubernetes.yml
     - cat kubernetes.yml
-    - kubectl apply -f kubernetes.yml
+    - kubectl -n $NAMESPACE apply -f kubernetes.yml
   when: manual
 
 .deploy_script:

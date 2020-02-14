@@ -93,7 +93,7 @@ pride:
     login.url: https://www.ebi.ac.uk/pride/archive/login
 
 twitter:
-  account: $NOT_USED
+  account: https://twitter.com/pride_ebi
   num.tweets.to.show:  4
   pride:
     consumer: $NOT_USED
