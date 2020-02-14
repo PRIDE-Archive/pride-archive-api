@@ -6,8 +6,8 @@ WORKDIR /pride-api
 
 COPY src ./src
 COPY pom.xml ./
-COPY config ./config
-RUN mvn clean package -Djar.finalName=pride-api
+COPY config/application.yml ./application.yml
+RUN mvn clean package
 
 # Package stage
 FROM maven:3.3.9-jdk-8-alpine
