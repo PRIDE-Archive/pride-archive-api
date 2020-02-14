@@ -1,0 +1,23 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - $logpath/logs_*/*.log
+    multiline.pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+    multiline.negate: true
+    multiline.match: after
+
+fields:
+  log_type: springboot_default
+
+setup.template.settings:
+  index.number_of_shards: 3
+
+output.logstash:
+  hosts: $logstash_hosts
+  loadbalance: true
+  index: 'pride-api-v2'
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~

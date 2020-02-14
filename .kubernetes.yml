@@ -5,7 +5,7 @@ metadata:
   labels:
     app: pride-api
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: pride-api
@@ -13,7 +13,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 33%
+      maxUnavailable: 25%
   template:
     metadata:
       labels:
@@ -28,6 +28,14 @@ spec:
             items:
               - key: application.yml
                 path: application.yml
+        - name: filebeat-config
+          configMap:
+            name: $FILEBEAT_CONFIG_MAP
+            items:
+              - key: filebeat.yml
+                path: filebeat.yml
+        - name: logvolume
+          emptyDir: {}
       containers:
         - name: pride-api
           image: $IMAGE
@@ -37,6 +45,8 @@ spec:
             - name: application-config
               mountPath: "/pride-api/config/"
               readOnly: true
+            - name: logvolume
+              mountPath: $logpath
           livenessProbe:
             httpGet:
               path: /pride/ws/archive/v2/swagger-ui.html
@@ -49,6 +59,25 @@ spec:
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10
+        - name: filebeat-sidecar
+          image: docker.elastic.co/beats/filebeat:7.4.2
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: logvolume
+              mountPath: $logpath
+            - name: filebeat-config
+              mountPath: /usr/share/filebeat/filebeat.yml
+              subPath: filebeat.yml
 ---
 apiVersion: v1
 kind: Service
