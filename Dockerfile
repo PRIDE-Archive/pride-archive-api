@@ -6,6 +6,7 @@ WORKDIR /pride-api
 
 COPY src ./src
 COPY pom.xml ./
+COPY config ./config
 RUN mvn clean package -Djar.finalName=pride-api
 
 # Package stage
