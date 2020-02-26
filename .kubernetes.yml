@@ -39,6 +39,17 @@ spec:
       containers:
         - name: pride-api
           image: $IMAGE
+          env:
+            - name: JAVA_OPTS
+              value: "-Dhttp.proxyHost=$http_proxy_host -Dhttp.proxyPort=$http_proxy_port"
+            - name: HTTP_PROXY
+              value: "$http_proxy_host:$http_proxy_port"
+            - name: HTTPS_PROXY
+              value: "$http_proxy_host:$http_proxy_port"
+            - name: http_proxy
+              value: "$http_proxy_host:$http_proxy_port"
+            - name: https_proxy
+              value: "$http_proxy_host:$http_proxy_port"
           ports:
             - containerPort: $port
           volumeMounts:
@@ -49,13 +60,13 @@ spec:
               mountPath: $logpath
           livenessProbe:
             httpGet:
-              path: /pride/ws/archive/v2/swagger-ui.html
+              path: $context_path/actuator/health
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /pride/ws/archive/v2/swagger-ui.html
+              path: $context_path/actuator/health
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10

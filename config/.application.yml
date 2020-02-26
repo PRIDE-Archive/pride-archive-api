@@ -1,6 +1,6 @@
 server:
   port: $port
-  servlet.contextPath: /pride/ws/archive/v2
+  servlet.contextPath: $context_path
 
 app.vhost: $app_vhost
 
