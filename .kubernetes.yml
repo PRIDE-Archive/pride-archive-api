@@ -28,6 +28,9 @@ spec:
             items:
               - key: application.yml
                 path: application.yml
+          - name: log_volume
+            persistentVolumeClaim:
+              claimName: $log_volume
       containers:
         - name: pride-api
           image: $IMAGE
@@ -48,7 +51,7 @@ spec:
             - name: application-config
               mountPath: "/pride-api/config/"
               readOnly: true
-            - name: $log_volume
+            - name: log_volume
               mountPath: $logpath
           livenessProbe:
             httpGet:
