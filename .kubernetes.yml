@@ -28,35 +28,27 @@ spec:
             items:
               - key: application.yml
                 path: application.yml
-        - name: filebeat-config
-          configMap:
-            name: $FILEBEAT_CONFIG_MAP
-            items:
-              - key: filebeat.yml
-                path: filebeat.yml
-        - name: logvolume
-          emptyDir: {}
       containers:
         - name: pride-api
           image: $IMAGE
           env:
             - name: JAVA_OPTS
-              value: "-Dhttp.proxyHost=$http_proxy_host -Dhttp.proxyPort=$http_proxy_port"
+              value: "-Dhttp.proxyHost=$http_proxy_host -Dhttp.proxyPort=$http_proxy_port -Dhttps.proxyHost=$http_proxy_host -Dhttps.proxyPort=$http_proxy_port -Dhttp.nonProxyHosts=$non_proxy_hosts"
             - name: HTTP_PROXY
-              value: "$http_proxy_host:$http_proxy_port"
+              value: "http://$http_proxy_host:$http_proxy_port"
             - name: HTTPS_PROXY
-              value: "$http_proxy_host:$http_proxy_port"
+              value: "http://$http_proxy_host:$http_proxy_port"
             - name: http_proxy
-              value: "$http_proxy_host:$http_proxy_port"
+              value: "http://$http_proxy_host:$http_proxy_port"
             - name: https_proxy
-              value: "$http_proxy_host:$http_proxy_port"
+              value: "http://$http_proxy_host:$http_proxy_port"
           ports:
             - containerPort: $port
           volumeMounts:
             - name: application-config
               mountPath: "/pride-api/config/"
               readOnly: true
-            - name: logvolume
+            - name: $log_volume
               mountPath: $logpath
           livenessProbe:
             httpGet:
@@ -70,25 +62,6 @@ spec:
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10
-        - name: filebeat-sidecar
-          image: docker.elastic.co/beats/filebeat:7.4.2
-          env:
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
-            - name: NODE_NAME
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: spec.nodeName
-          volumeMounts:
-            - name: logvolume
-              mountPath: $logpath
-            - name: filebeat-config
-              mountPath: /usr/share/filebeat/filebeat.yml
-              subPath: filebeat.yml
 ---
 apiVersion: v1
 kind: Service

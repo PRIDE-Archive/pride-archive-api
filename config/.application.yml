@@ -78,9 +78,9 @@ aap:
 jwt.certificate: $aap_jwt_cer
 
 #email properties
-spring.mail.host: smtp.ebi.ac.uk
+spring.mail.host: $smtp_host
 pride.support:
-  smtp.server: smtp.ebi.ac.uk
+  smtp.server: $smtp_host
   email.address: pride-support@ebi.ac.uk
 
   # PRIDE urls for email sender

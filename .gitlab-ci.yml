@@ -2,7 +2,6 @@ variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   PRIDE_CONFIG_MAP: pride-api-configmap-$CI_PIPELINE_IID
-  FILEBEAT_CONFIG_MAP: filebeat-config-$CI_PIPELINE_IID
   DOCKER_PULL_SECRET: pride-gitlab-docker-secret
   IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
@@ -30,14 +29,10 @@ kube_deploy_test:
 
 kube_deploy_prod_hh:
   environment: prod-hh
-  variables:
-    NAMESPACE: pride-api-prod
   extends: .kube_deploy_script
 
 kube_deploy_prod_hx:
   environment: prod-hx
-  variables:
-    NAMESPACE: pride-api-prod
   extends: .kube_deploy_script
 
 .kube_deploy_script:
@@ -47,7 +42,6 @@ kube_deploy_prod_hx:
     - apk add --update bash gettext tzdata coreutils
     - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml
-    - envsubst < .filebeat.yml > filebeat.yml
     - export HOSTNAME=$HOSTNAME_BCKUP
     - mkdir -p ~/.kube
     - echo $KUBE_CONFIG > kubeconfig
@@ -60,10 +54,6 @@ kube_deploy_prod_hx:
     - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
 # replace configmap if it already exists
     - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
-# create configmap for first time
-    - kubectl -n $NAMESPACE create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml || true
-# replace configmap if it already exists
-    - kubectl -n $NAMESPACE create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml -o yaml --dry-run | kubectl replace -f -
     - envsubst < .kubernetes.yml > kubernetes.yml
     - cat kubernetes.yml
     - kubectl -n $NAMESPACE apply -f kubernetes.yml
