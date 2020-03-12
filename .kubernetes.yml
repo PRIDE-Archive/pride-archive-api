@@ -28,9 +28,9 @@ spec:
             items:
               - key: application.yml
                 path: application.yml
-          - name: log_volume
-            persistentVolumeClaim:
-              claimName: $log_volume
+        - name: log_volume
+          persistentVolumeClaim:
+            claimName: $log_volume
       containers:
         - name: pride-api
           image: $IMAGE
