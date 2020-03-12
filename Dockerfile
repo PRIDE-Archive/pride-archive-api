@@ -6,10 +6,11 @@ WORKDIR /pride-api
 
 COPY src ./src
 COPY pom.xml ./
+COPY config/application.yml ./application.yml
 RUN mvn clean package
 
 # Package stage
 FROM maven:3.3.9-jdk-8-alpine
 WORKDIR /pride-api
-COPY --from=build-env /pride-api/target/*.jar ./
-CMD [ "java", "-jar", "*.jar" ]
+COPY --from=build-env /pride-api/target/pride-api.jar ./
+ENTRYPOINT java ${JAVA_OPTS} -jar pride-api.jar
