@@ -49,7 +49,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
                 .fileCategory(category)
                 .fileName(mongoFile.getFileName())
                 .fileSizeBytes(mongoFile.getFileSizeBytes())
-                .md5Checksum(mongoFile.getMd5Checksum())
+                .checksum(mongoFile.getChecksum())
                 .publicationDate(mongoFile.getPublicationDate())
                 .publicFileLocations(publicFileLocations)
                 .updatedDate(mongoFile.getUpdatedDate())

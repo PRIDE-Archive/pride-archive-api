@@ -31,7 +31,9 @@ public class SimpleCORSFilter extends OncePerRequestFilter {
             response.addHeader("Access-Control-Allow-Headers", "Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Access-Control-Allow-Headers, Authorization");
 
         }
-        log.info("########### Simple CORS Filter: " + request.getRequestURL() + " ############");
+        if(!request.getRequestURL().toString().contains("actuator/health")) {
+            log.info("########### Simple CORS Filter: " + request.getRequestURL() + " ############");
+        }
 
         filterChain.doFilter(request, response);
     }

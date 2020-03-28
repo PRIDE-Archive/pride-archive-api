@@ -30,7 +30,7 @@ public class PrideFile implements Serializable {
     Set<String> analysisAccessions;
     String accession;
     CvParamProvider fileCategory;
-    String md5Checksum;
+    String checksum;
     Set<? extends CvParamProvider> publicFileLocations;
     long fileSizeBytes;
     String fileExtension;
