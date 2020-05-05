@@ -33,7 +33,11 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
         Set<CvParamProvider> additionalAttributes = mongoFile.getAdditionalAttributes()!=null?mongoFile.getAdditionalAttributes().stream()
                 .map( x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toSet()) : Collections.emptySet();
         Set<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null? mongoFile.getPublicFileLocations().stream()
-                .map( x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toSet()) : Collections.emptySet();
+                .map( x -> {
+                    String value = x.getValue();
+                    value = value.startsWith("ftp://")? value.replaceAll("#", "%23"): value;
+                    return new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), value);
+                }).collect(Collectors.toSet()) : Collections.emptySet();
 
         log.info(mongoFile.toString());
 
