@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
@@ -10,6 +11,7 @@ import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,12 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
             }
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
+            Date publicationDate = dataset.getPublicationDate();
+            SimpleDateFormat year = new SimpleDateFormat("YYYY");
+            SimpleDateFormat month = new SimpleDateFormat("MM");
+            String ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + dataset.getAccession();
+            links.add(new Link(new UriTemplate(ftpPath), "datasetFtpUrl"));
+
             datasets.add(new CompactProjectResource(dataset, links));
         }
 
