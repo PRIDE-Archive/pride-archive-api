@@ -15,21 +15,21 @@ import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.ReanalysisProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
+import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideReanalysisMongoService;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.pride.services.SolrProjectService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
-import uk.ac.ebi.pride.ws.pride.assemblers.CompactProjectResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.*;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
+import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.service.project.ProjectService;
@@ -60,17 +60,24 @@ public class ProjectController {
 
     final PrideProjectMongoService mongoProjectService;
 
+    final PrideReanalysisMongoService prideReanalysisMongoService;
+
     final private ProjectService projectService;
 
     @Autowired
-    public ProjectController(SolrProjectService solrProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler,
+    public ProjectController(SolrProjectService solrProjectService,
+                             CustomPagedResourcesAssembler customPagedResourcesAssembler,
                              PrideFileMongoService mongoFileService,
-                             PrideProjectMongoService mongoProjectService, ProjectService projectService, PrideMoleculesMongoService moleculesMongoService) {
+                             PrideProjectMongoService mongoProjectService,
+                             ProjectService projectService,
+                             PrideMoleculesMongoService moleculesMongoService,
+                             PrideReanalysisMongoService prideReanalysisMongoService) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
         this.projectService = projectService;
+        this.prideReanalysisMongoService = prideReanalysisMongoService;
 
     }
 
@@ -193,6 +200,25 @@ public class ProjectController {
                 ProjectResource.class);
         return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+
+    }
+
+    @ApiOperation(notes = "Return the list of publications that have re-used the specified dataset", value = "projects", nickname = "getReanalysedProjects", tags = {"projects"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = ApiResponse.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
+    })
+
+    @RequestMapping(value = "/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Object> getReanalysisProject(
+            @ApiParam(value = "The Accession id associated with this project")
+            @PathVariable(value = "accession", name = "accession") String accession) {
+
+        Optional<ReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
+        PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(ProjectController.class, ProjectReanalysisResource.class);
+        ResponseEntity<Object> responseEntity =  project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toResource(reanalysisProject), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+        return responseEntity;
 
     }
 
