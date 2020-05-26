@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.ReanalysisProject;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideReanalysisMongoService;
@@ -209,12 +209,12 @@ public class ProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
     })
 
-    @RequestMapping(value = "/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/projects/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Object> getReanalysisProject(
             @ApiParam(value = "The Accession id associated with this project")
             @PathVariable(value = "accession", name = "accession") String accession) {
 
-        Optional<ReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
+        Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
         PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(ProjectController.class, ProjectReanalysisResource.class);
         ResponseEntity<Object> responseEntity =  project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toResource(reanalysisProject), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));

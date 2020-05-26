@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.ReanalysisProject;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
 import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
 
@@ -15,14 +15,14 @@ import java.util.*;
  * @author Suresh Hewapathirana
  */
 @Slf4j
-public class PrideReanalysisProjectResourceAssembler extends ResourceAssemblerSupport<ReanalysisProject, ProjectReanalysisResource> {
+public class PrideReanalysisProjectResourceAssembler extends ResourceAssemblerSupport<MongoPrideReanalysisProject, ProjectReanalysisResource> {
 
     public PrideReanalysisProjectResourceAssembler(Class<?> controllerClass, Class<ProjectReanalysisResource> resourceType) {
         super(controllerClass, resourceType);
     }
 
     @Override
-    public ProjectReanalysisResource toResource(ReanalysisProject reanalysisProject) {
+    public ProjectReanalysisResource toResource(MongoPrideReanalysisProject reanalysisProject) {
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getReanalysisProject(reanalysisProject.getAccession())).withSelfRel());
 
@@ -31,11 +31,11 @@ public class PrideReanalysisProjectResourceAssembler extends ResourceAssemblerSu
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ProjectReanalysisResource> toResources(Iterable<? extends ReanalysisProject> entities) {
+    public List<ProjectReanalysisResource> toResources(Iterable<? extends MongoPrideReanalysisProject> entities) {
 
         List<ProjectReanalysisResource> projects = new ArrayList<>();
 
-        for(ReanalysisProject reanalysisProject: entities){
+        for(MongoPrideReanalysisProject reanalysisProject: entities){
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getReanalysisProject(reanalysisProject.getAccession())).withSelfRel());
             projects.add(new ProjectReanalysisResource(reanalysisProject, links));

@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.ws.pride.models.dataset;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.ReanalysisProject;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -17,14 +17,14 @@ import uk.ac.ebi.pride.mongodb.archive.model.projects.ReanalysisProject;
  * <p>
  * Created by ypriverol (ypriverol@gmail.com) on 25/05/2018.
  */
-public class ProjectReanalysisResource extends Resource<ReanalysisProject> {
+public class ProjectReanalysisResource extends Resource<MongoPrideReanalysisProject> {
 
     /**
      * Default constructor for Resource Dataset including hateoas links.
      * @param content Object that would be represented
      * @param links links.
      */
-    public ProjectReanalysisResource(ReanalysisProject content, Iterable<Link> links) {
+    public ProjectReanalysisResource(MongoPrideReanalysisProject content, Iterable<Link> links) {
         super(content, links);
     }
 }
