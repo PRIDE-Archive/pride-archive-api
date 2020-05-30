@@ -25,6 +25,7 @@ import java.util.Set;
  * @author ypriverol on 22/10/2018.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated
 public class MSRunMetadata implements MsRunProvider {
 
     // File Properties in CvTerms

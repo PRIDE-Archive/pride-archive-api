@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
@@ -22,9 +23,11 @@ import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
+import uk.ac.ebi.pride.ws.pride.utils.FileUtils;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +75,41 @@ public class FileController {
         }
         if(resource == null)
             return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity(resource, HttpStatus.OK);
+    }
+
+    @ApiOperation(notes = "Get an SDRF file from the accession", value = "files", nickname = "sdrfByAccession", tags = {"files"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/files/sdrfByAccession", method = RequestMethod.GET,
+            produces = {MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity getSDRFFile(@RequestParam(value="accession", required = true) String accession
+
+    ) {
+        Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(accession);
+
+        if(!file.isPresent())
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+
+        MongoPrideFile mongoFile = file.get();
+        Optional<CvParam> ftpURL = mongoFile.getPublicFileLocations()
+                .stream().filter(url -> url.getAccession()
+                        .equalsIgnoreCase("PRIDE:0000469"))
+                .findFirst();
+        if(!ftpURL.isPresent())
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+
+        String url = ftpURL.get().getValue();
+        String resource = null;
+        try {
+            resource = FileUtils.readFileURL(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return new ResponseEntity(resource, HttpStatus.OK);
     }
