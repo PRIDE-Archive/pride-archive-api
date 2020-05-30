@@ -5,7 +5,7 @@ metadata:
   labels:
     app: pride-api
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: pride-api
@@ -13,7 +13,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 33%
+      maxUnavailable: 25%
   template:
     metadata:
       labels:
@@ -28,24 +28,40 @@ spec:
             items:
               - key: application.yml
                 path: application.yml
+        - name: log-volume
+          persistentVolumeClaim:
+            claimName: $log_volume
       containers:
         - name: pride-api
           image: $IMAGE
+          env:
+            - name: JAVA_OPTS
+              value: "-Dhttp.proxyHost=$http_proxy_host -Dhttp.proxyPort=$http_proxy_port -Dhttps.proxyHost=$http_proxy_host -Dhttps.proxyPort=$http_proxy_port -Dhttp.nonProxyHosts=$non_proxy_hosts"
+            - name: HTTP_PROXY
+              value: "http://$http_proxy_host:$http_proxy_port"
+            - name: HTTPS_PROXY
+              value: "http://$http_proxy_host:$http_proxy_port"
+            - name: http_proxy
+              value: "http://$http_proxy_host:$http_proxy_port"
+            - name: https_proxy
+              value: "http://$http_proxy_host:$http_proxy_port"
           ports:
             - containerPort: $port
           volumeMounts:
             - name: application-config
               mountPath: "/pride-api/config/"
               readOnly: true
+            - name: log-volume
+              mountPath: $logpath
           livenessProbe:
             httpGet:
-              path: /pride/ws/archive/v2/swagger-ui.html
+              path: $context_path/actuator/health
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /pride/ws/archive/v2/swagger-ui.html
+              path: $context_path/actuator/health
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10

@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
@@ -43,6 +44,11 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
             method = ProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class, String.class, String.class);
             Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC" , PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
             links.add(link);
+            Date publicationDate = mongoPrideProject.getPublicationDate();
+            SimpleDateFormat year = new SimpleDateFormat("YYYY");
+            SimpleDateFormat month = new SimpleDateFormat("MM");
+            String ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
+            links.add(new Link(new UriTemplate(ftpPath), "datasetFtpUrl"));
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(),e);
         }
@@ -61,6 +67,11 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
             List<Link> links = new ArrayList<>();
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
             links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0,"DESC",PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
+            Date publicationDate = mongoPrideProject.getPublicationDate();
+            SimpleDateFormat year = new SimpleDateFormat("YYYY");
+            SimpleDateFormat month = new SimpleDateFormat("MM");
+            String ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
+            links.add(new Link(new UriTemplate(ftpPath), "datasetFtpUrl"));
             projects.add(new ProjectResource(project, links));
         }
 

@@ -16,11 +16,12 @@ docker_build:
   services:
     - docker:18.09-dind
   script:
+    - apk add --update bash gettext tzdata coreutils
     - docker info
+    - envsubst < config/.application.yml > config/application.yml
     - docker build -t $IMAGE .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $IMAGE
-  when: manual
 
 kube_deploy_test:
   environment: test-env
@@ -28,14 +29,10 @@ kube_deploy_test:
 
 kube_deploy_prod_hh:
   environment: prod-hh
-  variables:
-    NAMESPACE: pride-api-prod
   extends: .kube_deploy_script
 
 kube_deploy_prod_hx:
   environment: prod-hx
-  variables:
-    NAMESPACE: pride-api-prod
   extends: .kube_deploy_script
 
 .kube_deploy_script:
@@ -59,7 +56,7 @@ kube_deploy_prod_hx:
     - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
     - envsubst < .kubernetes.yml > kubernetes.yml
     - cat kubernetes.yml
-    - kubectl apply -f kubernetes.yml
+    - kubectl -n $NAMESPACE apply -f kubernetes.yml
   when: manual
 
 .deploy_script:
