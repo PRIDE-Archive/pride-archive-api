@@ -27,3 +27,5 @@
 .idea/
 target/
 *.iml
+
+config/application*
