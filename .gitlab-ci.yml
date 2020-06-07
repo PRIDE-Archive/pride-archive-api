@@ -84,7 +84,7 @@ kube_deploy_prod_hx:
     - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && mkdir -p $DEPLOY_PATH"
     - rsync -a $DEPLOY_DIR $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]}:$DEPLOY_PATH/
     - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current"
-    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh $SERVER_USER@$i "bash && cd $DEPLOY_PATH && (sh $STOP_SCRIPT || true) && (sh $START_SCRIPT > /dev/null 2>&1 &) && exit"; sleep 2m; done
+    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh $SERVER_USER@$i "bash && cd $DEPLOY_PATH && (bash -l $STOP_SCRIPT || true) && (bash -l $START_SCRIPT > /dev/null 2>&1 &) && exit"; sleep 2m; done
     #  only:
     ##    - master
 
