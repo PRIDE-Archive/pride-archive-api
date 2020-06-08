@@ -12,7 +12,7 @@ PRIDE;
 This is the PRIDE Archive REST API service documentation. This provides information required to query about projects, files and stats in PRIDE.
 
 If you want to explore by yourself our api, please visit this link
-link:/pride/ws/archive/[PRIDE Archive API]
+link:/pride/ws/archive/v2[PRIDE Archive API]
 
 = Resources
 
