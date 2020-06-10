@@ -267,7 +267,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludeDevtools>true</excludeDevtools>
-                    <finalName>pride-api</finalName>
+<!--                    <finalName>pride-api</finalName>-->
                 </configuration>
             </plugin>
             <plugin>
