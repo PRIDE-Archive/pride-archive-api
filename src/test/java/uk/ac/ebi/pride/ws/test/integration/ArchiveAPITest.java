@@ -22,19 +22,14 @@ import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.ws.pride.Application;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;
-import uk.ac.ebi.pride.ws.pride.service.user.AAPService;
-import uk.ac.ebi.pride.ws.test.integration.util.DocumentationUtils;
 import uk.ac.ebi.pride.ws.test.integration.util.TestConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -60,9 +55,6 @@ public class ArchiveAPITest {
 
     @Value("${server.servlet.contextPath}")
     private String contextPath;
-
-    @Autowired
-    private AAPService aapService;
 
     /*@Autowired
     private TestService testService;*/
@@ -240,41 +232,4 @@ public class ArchiveAPITest {
                         preprocessResponse(prettyPrint()), pathParameters(
                                 parameterWithName("accession").description("The unique file identifier."))));
     }
-
-    @Test
-    public void putMsRunsData() throws Exception {
-        String aapToken = aapService.getAAPToken();
-        String payload = "{\"MSRunMetadata\":{  \"additionalAttributesStrings\": [],  \"FileProperties\": [],  \"IdSettings\": [    {      \"id\": \"Protocol_1\",      \"FixedModifications\": [        {          \"massDelta\":57.021464,          \"residues\":[\"C\"],          \"composition\":\"H(3)C(2)NO\",          \"position\":\"Anywhere\",          \"name\":{            \"accession\":\"UNIMOD:4\",            \"name\":\"Carbamidomethyl\",            \"cvLabel\":\"UNIMOD\"          }        }      ],      \"VariableModifications\": [        {          \"massDelta\":0.984016,          \"residues\":[\"N\", \"Q\"],          \"position\":\"Anywhere\",          \"composition\":\"H(-1)N(-1)O\",          \"name\":{            \"accession\":\"UNIMOD:7\",            \"name\":\"Deamidated\",            \"cvLabel\":\"UNIMOD\"          }        },        {          \"massDelta\":15.994915,          \"residues\":[\"M\"],          \"position\":\"Anywhere\",          \"composition\":\"O\",          \"name\":{            \"accession\":\"UNIMOD:35\",            \"name\":\"Oxidation\",            \"cvLabel\":\"UNIMOD\"          }        }      ],      \"Enzymes\":[        {          \"id\":\"ENZ_0\",          \"cTermGain\":\"OH\",          \"nTermGain\":\"H\",          \"missedCleavages\":2,          \"semiSpecific\":\"0\",          \"SiteRegexp\":\"![CDATA[(?=[KR])(?!P)]]\",          \"name\":          {            \"accession\":\"MS:1001251\",            \"name\":\"Trypsin\",            \"cvLabel\":\"MS\"          }        }      ],      \"FragmentTolerance\":[        {          \"tolerance\":{            \"accession\":\"MS:1001413\",            \"name\":\"search tolerance minus value\",            \"value\":\"0.6\",            \"cvLabel\":\"MS\"          },          \"unit\":{            \"accession\":\"UO:0000221\",            \"name\":\"dalton\",            \"cvLabel\": \"UO\"          }        }      ],      \"ParentTolerance\":[        {          \"tolerance\":{            \"accession\":\"MS:1001412\",            \"name\":\"search tolerance plus value\",            \"value\":\"20\",            \"cvLabel\":\"MS\"          },          \"unit\":{            \"accession\":\"UO:0000169\",            \"name\":\"parts per million\",            \"cvLabel\": \"UO\"          }        },        {          \"tolerance\":{            \"accession\":\"MS:1001413\",            \"name\":\"search tolerance minus value\",            \"value\":\"20\",            \"cvLabel\":\"MS\"          },          \"unit\":{            \"accession\":\"UO:0000169\",            \"name\":\"parts per million\",            \"cvLabel\": \"UO\"          }        }      ]    }  ],  \"InstrumentProperties\": [    {      \"accession\": \"MS:1000494\",      \"name\": \"Thermo Scientific instrument model\",      \"value\": \"LTQ Orbitrap Velos\",      \"cvLabel\": \"MS\"    }  ],  \"MsData\": [],  \"ScanSettings\": []}}";
-        this.mockMvc.perform(put("/msruns/{accession}/updateMetadata", testValuesMap.get(TestConstants.FILE_ACCESSION_WITH_MSRUN)/*"PXF00001876616"*/)
-                .header("Authorization", "Bearer " + aapToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON).content(payload))
-                .andExpect(status().isOk())
-                .andDo(document("put-msrun-into-file", preprocessRequest(DocumentationUtils.maskTokenPreProcessor(), prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        requestHeaders(
-                                headerWithName("Authorization").description(
-                                        "Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
-                        pathParameters(parameterWithName("accession").description("The unique file identifier."))
-                ));
-    }
-
-
-    @Test
-    public void putMsRunsDataPart() throws Exception {
-        String aapToken = aapService.getAAPToken();
-        String payload = "{\"MSRunMetadata\":{     \"FileProperties\": [       {         \"accession\": \"NCIT:C47922\",         \"cvLabel\": \"NCIT\",         \"name\": \"Pathname\",         \"value\": \"/Users/yperez/Downloads/SMXL7_GR24_1.raw\"       },       {         \"accession\": \"NCIT:C25714\",         \"cvLabel\": \"NCIT\",         \"name\": \"Version\",         \"value\": \"64\"       },       {         \"accession\": \"NCIT:C69199\",         \"cvLabel\": \"NCIT\",         \"name\": \"Content Creation Date\",         \"value\": \"15/07/2014 23:58:41\"       },       {         \"accession\": \"NCIT:C25365\",         \"cvLabel\": \"NCIT\",         \"name\": \"Description\",         \"value\": \"\"       }     ]   }   }";
-        this.mockMvc.perform(put("/msruns/{accession}/updateMetadataParts?fieldName={fieldName}", "PXF00000042521", "FileProperties")
-                .header("Authorization", "Bearer " + aapToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE).accept(MediaType.APPLICATION_JSON).content(payload))
-                .andExpect(status().isOk())
-                .andDo(document("put-msrun-parts-into-file", preprocessRequest(DocumentationUtils.maskTokenPreProcessor(), prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        pathParameters(parameterWithName("accession").description("The unique file identifier.")),
-                        requestHeaders(
-                                headerWithName("Authorization").description(
-                                        "Access token beased authorization mechanism. Refer to authorization section for more information on obtaining the token")),
-                        requestParameters(parameterWithName("fieldName").description("The field inside MSRunMetadata to be updated. This can be any one of these: " + PrideArchiveField.MS_RUN_ID_SETTINGS + "," + PrideArchiveField.MS_RUN_SCAN_SETTINGS + "," + PrideArchiveField.MS_RUN_FILE_PROPERTIES + "," + PrideArchiveField.MS_RUN_INSTRUMENT_PROPERTIES + "," + PrideArchiveField.MS_RUN_MS_DATA + "."))));
-    }
-
-
 }

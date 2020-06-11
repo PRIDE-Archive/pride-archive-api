@@ -19,8 +19,6 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -80,9 +78,9 @@ public class StatsController {
         MongoPrideStats stats = mongoStatsService.findLastGeneratedStats();
         if (stats != null){
             if(stats.getSubmissionsCount() != null)
-                statNames.addAll(stats.getSubmissionsCount().keySet().stream().collect(Collectors.toList()));
+                statNames.addAll(new ArrayList<>(stats.getSubmissionsCount().keySet()));
             if(stats.getComplexStats() != null)
-                statNames.addAll(stats.getComplexStats().keySet().stream().collect(Collectors.toList()));
+                statNames.addAll(new ArrayList<>(stats.getComplexStats().keySet()));
         }
 
         return new ResponseEntity<>(statNames, HttpStatus.OK);
@@ -100,7 +98,5 @@ public class StatsController {
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
-
-
 
 }

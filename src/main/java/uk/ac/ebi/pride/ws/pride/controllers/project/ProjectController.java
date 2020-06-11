@@ -19,7 +19,6 @@ import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProjec
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideReanalysisMongoService;
-import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
 import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.pride.services.SolrProjectService;
@@ -32,7 +31,6 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
-import uk.ac.ebi.pride.ws.pride.service.project.ProjectService;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
@@ -62,21 +60,16 @@ public class ProjectController {
 
     final PrideReanalysisMongoService prideReanalysisMongoService;
 
-    final private ProjectService projectService;
-
     @Autowired
     public ProjectController(SolrProjectService solrProjectService,
                              CustomPagedResourcesAssembler customPagedResourcesAssembler,
                              PrideFileMongoService mongoFileService,
                              PrideProjectMongoService mongoProjectService,
-                             ProjectService projectService,
-                             PrideMoleculesMongoService moleculesMongoService,
                              PrideReanalysisMongoService prideReanalysisMongoService) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
-        this.projectService = projectService;
         this.prideReanalysisMongoService = prideReanalysisMongoService;
 
     }

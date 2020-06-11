@@ -10,26 +10,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PSMProvider;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.pride.archive.spectra.services.S3SpectralArchive;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.molecules.PeptideEvidenceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.molecules.SpectraResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidenceResource;
-import uk.ac.ebi.pride.ws.pride.models.molecules.SpectrumEvidenceResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RestController
 @Slf4j
