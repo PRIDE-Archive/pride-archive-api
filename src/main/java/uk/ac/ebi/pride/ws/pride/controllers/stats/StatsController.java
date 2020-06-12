@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import uk.ac.ebi.pride.archive.repo.repos.project.ProjectRepository;
+import uk.ac.ebi.pride.archive.repo.services.project.ProjectService;
 import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPrideStats;
 import uk.ac.ebi.pride.mongodb.archive.service.stats.PrideStatsMongoService;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
@@ -40,13 +40,13 @@ public class StatsController {
 
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
-    final ProjectRepository projectRepo;
+    final ProjectService projectService;
 
     @Autowired
-    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler,ProjectRepository projectRepo) {
+    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler,ProjectService projectService) {
         this.mongoStatsService = mongoStatsService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
-        this.projectRepo = projectRepo;
+        this.projectService = projectService;
     }
 
 
@@ -94,7 +94,7 @@ public class StatsController {
     @RequestMapping(value = "/stats/submissions-monthly", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Object> submissionsMonthly(){
 
-        List<List<String>> results = projectRepo.findMonthlySubmissions();
+        List<List<String>> results = projectService.findMonthlySubmissions();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
