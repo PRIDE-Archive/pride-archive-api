@@ -17,11 +17,13 @@ variables:
 #    - docker:18.09-dind
 #  script:
 #    - apk add --update bash gettext tzdata coreutils
+#    - envsubst '${JAR_FILE_NAME}' < .Dockerfile > Dockerfile
 #    - docker info
 #    - envsubst < config/.application.yml > config/application.yml
 #    - docker build -t $IMAGE .
 #    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 #    - docker push $IMAGE
+#  when: manual
 
 kube_deploy_test:
   environment: test-env
@@ -75,11 +77,10 @@ kube_deploy_prod_hx:
     - chmod -R 700 config
     - (rm src/main/resources/application.properties || true)
     - export HOSTNAME=$HOSTNAME_BCKUP
-    - mvn $MAVEN_CLI_OPTS clean package
+    - mvn $MAVEN_CLI_OPTS clean package -DjarFinalName=${JAR_FILE_NAME}
     - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
     - mkdir $DEPLOY_DIR
-    - cp -r target/*jar config $DEPLOY_DIR/
-    - cd $DEPLOY_DIR/ && jar_file=`ls *jar` && (ln -s $jar_file $JAR_FILE_LINK || true) && ls -al && cd ..
+    - cp -r target/${JAR_FILE_NAME}.jar config $DEPLOY_DIR/
     - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
     - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && mkdir -p $DEPLOY_PATH"
     - rsync -a $DEPLOY_DIR $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]}:$DEPLOY_PATH/

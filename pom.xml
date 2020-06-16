@@ -24,6 +24,7 @@
     -->
 
     <properties>
+        <jarFinalName>pride-api</jarFinalName>
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.4-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.architectural-pride-spring.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-spring.version>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>1.0.3-SNAPSHOT</uk.ac.ebi.pride.archive.pride-solr-indexes.version>
@@ -209,6 +210,7 @@
     </dependencies>
 
     <build>
+        <finalName>${jarFinalName}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
@@ -267,7 +269,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludeDevtools>true</excludeDevtools>
-<!--                    <finalName>pride-api</finalName>-->
                 </configuration>
             </plugin>
             <plugin>
