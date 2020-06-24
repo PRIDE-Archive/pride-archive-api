@@ -18,7 +18,6 @@
         mongodb-pridedb-prod-machine-rw
         oracle-pridedb-prod-machine
         oracle-pridedb-prod-rw-user
-        pride-aap-prod-env
         pride-spectra-archive-s3
         solr-cloud-prod-machine
     -->
@@ -33,7 +32,6 @@
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <archive.repo.version>1.0.3-SNAPSHOT</archive.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
-        <aapClientVersion>1.0.3-SNAPSHOT</aapClientVersion>
     </properties>
 
     <dependencies>
@@ -80,13 +78,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!--AAP Security-->
-        <dependency>
-            <groupId>uk.ac.ebi.tsc.aap.client</groupId>
-            <artifactId>security</artifactId>
-            <version>${aapClientVersion}</version>
         </dependency>
 
         <!-- TDD -->
@@ -303,10 +294,6 @@
     </build>
 
     <repositories>
-        <repository>
-            <id>AAP</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
         <repository>
             <id>nexus-ebi-release-repo</id>
             <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>

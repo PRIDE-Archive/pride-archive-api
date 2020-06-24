@@ -12,6 +12,10 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.archive.repo.client.AssayRepoClient;
+import uk.ac.ebi.pride.archive.repo.client.PrideRepoClientFactory;
+import uk.ac.ebi.pride.archive.repo.models.assay.Assay;
+import uk.ac.ebi.pride.archive.repo.models.project.Project;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
@@ -35,6 +39,7 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +76,6 @@ public class ProjectController {
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
         this.prideReanalysisMongoService = prideReanalysisMongoService;
-
     }
 
 
@@ -209,7 +213,7 @@ public class ProjectController {
 
         Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
         PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(ProjectController.class, ProjectReanalysisResource.class);
-        ResponseEntity<Object> responseEntity =  project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toResource(reanalysisProject), HttpStatus.OK))
+        ResponseEntity<Object> responseEntity = project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toResource(reanalysisProject), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
         return responseEntity;
 
