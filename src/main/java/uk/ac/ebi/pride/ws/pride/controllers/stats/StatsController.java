@@ -11,12 +11,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import uk.ac.ebi.pride.archive.repo.services.project.ProjectService;
+import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPrideStats;
 import uk.ac.ebi.pride.mongodb.archive.service.stats.PrideStatsMongoService;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,13 +41,13 @@ public class StatsController {
 
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
-    final ProjectService projectService;
+    final ProjectRepoClient projectRepoClient;
 
     @Autowired
-    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler,ProjectService projectService) {
+    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler,ProjectRepoClient projectRepoClient) {
         this.mongoStatsService = mongoStatsService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
-        this.projectService = projectService;
+        this.projectRepoClient = projectRepoClient;
     }
 
 
@@ -92,9 +93,9 @@ public class StatsController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/stats/submissions-monthly", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> submissionsMonthly(){
+    public ResponseEntity<Object> submissionsMonthly() throws IOException {
 
-        List<List<String>> results = projectService.findMonthlySubmissions();
+        List<List<String>> results = projectRepoClient.findMonthlySubmissions();
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

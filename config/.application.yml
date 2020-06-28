@@ -21,17 +21,10 @@ logging:
 # To avoid errors while parsing null values in objects
 spring.jackson.default-property-inclusion: NON_NULL
 
-
-# Oracle Database
-spring:
-  jpa.database: default
-  datasource:
-    continue-on-error: true
-    oracle:
-      jdbcUrl: $oracle_jdbc_url
-      username: $oracle_username
-      password: $oracle_password
-      driver-class-name: oracle.jdbc.OracleDriver
+pride-repo.api:
+  baseUrl: $repo_api_base_url
+  keyName: $repo_api_key_name
+  keyValue: $repo_api_key_value
 
 # Configuration for MongoDB
 mongodb:
