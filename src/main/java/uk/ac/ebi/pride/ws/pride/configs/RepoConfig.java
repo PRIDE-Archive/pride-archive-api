@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,17 +19,16 @@ public class RepoConfig {
     @Value("${pride-repo.api.keyValue}")
     private String apiKeyValue;
 
-    private PrideRepoClientFactory prideRepoClientFactory = null;
+    @Autowired
+    private PrideRepoClientFactory prideRepoClientFactory;
 
     @Bean
     public ProjectRepoClient getProjectRepoClient() {
-        return getPrideRepoClientFactory().getProjectRepoClient();
+        return prideRepoClientFactory.getProjectRepoClient();
     }
 
-    private PrideRepoClientFactory getPrideRepoClientFactory() {
-        if (prideRepoClientFactory == null)
-            prideRepoClientFactory = new PrideRepoClientFactory(apiBaseUrl, apiKeyName, apiKeyValue);
-
-        return prideRepoClientFactory;
+    @Bean
+    public PrideRepoClientFactory getPrideRepoClientFactory() {
+        return new PrideRepoClientFactory(apiBaseUrl, apiKeyName, apiKeyValue);
     }
 }
