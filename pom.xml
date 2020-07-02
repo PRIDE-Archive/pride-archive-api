@@ -30,7 +30,7 @@
         <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.4-SNAPSHOT</uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
         <uk.ac.ebi.pride.archive.spectra-archive.version>0.0.1-SNAPSHOT</uk.ac.ebi.pride.archive.spectra-archive.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
-        <archive.repo.version>1.0.3-SNAPSHOT</archive.repo.version>
+        <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
     </properties>
 
@@ -90,9 +90,9 @@
         </dependency>
 
         <dependency>
-            <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>archive-repo</artifactId>
-            <version>${archive.repo.version}</version>
+            <groupId>uk.ac.ebi.pride.repoclient</groupId>
+            <artifactId>pride-repo</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <!--<dependency>-->
