@@ -32,6 +32,7 @@
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
+        <pride-repo-client>0.0.1-SNAPSHOT</pride-repo-client>
     </properties>
 
     <dependencies>
@@ -90,9 +91,15 @@
         </dependency>
 
         <dependency>
-            <groupId>uk.ac.ebi.pride.repoclient</groupId>
-            <artifactId>pride-repo</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>uk.ac.ebi.pride.archive</groupId>
+            <artifactId>pride-repo-client</artifactId>
+            <version>${pride-repo-client}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-jpa</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--<dependency>-->
