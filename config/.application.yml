@@ -1,6 +1,8 @@
+spring.application.name: $app_name
+
 server:
   port: $port
-  servlet.contextPath: $context_path
+  servlet.contextPath: $contextPath
 
 app.vhost: $app_vhost
 
@@ -48,16 +50,8 @@ mongodb:
 mongo.single.machine: $NOT_USED
 
 ##### Solr CLoud #####
-solr:
-  master:
-    hh.url: $solr_master_hh_url
-    hx.url: $solr_master_hx_url
-spring.data.solr.zk-host:
-  hh: $solr_zk_hh
-  hx: $solr_zk_hx
 spring.pridedb.solr:
   hh.url: $solr_pridedb_hh_url
-  hx.url: $solr_pridedb_hx_url
 
 #email properties
 spring.mail.host: $smtp_host
