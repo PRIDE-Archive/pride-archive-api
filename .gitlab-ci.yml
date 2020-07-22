@@ -1,7 +1,8 @@
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  PRIDE_CONFIG_MAP: pride-api-configmap-$CI_PIPELINE_IID
+  SPRING_CONFIG_MAP: spring-configmap
+  FILEBEAT_CONFIG_MAP: filebeat-config
   DOCKER_PULL_SECRET: pride-gitlab-docker-secret
   IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
 
@@ -10,31 +11,31 @@ variables:
 #  - template: Dependency-Scanning.gitlab-ci.yml
 #  - template: License-Management.gitlab-ci.yml
 
-#docker_build:
-#  image: docker:18.09
-#  stage: build
-#  services:
-#    - docker:18.09-dind
-#  script:
-#    - apk add --update bash gettext tzdata coreutils
-#    - envsubst '${JAR_FILE_NAME}' < .Dockerfile > Dockerfile
-#    - docker info
-#    - envsubst < config/.application.yml > config/application.yml
-#    - docker build -t $IMAGE .
-#    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-#    - docker push $IMAGE
-#  when: manual
 
-kube_deploy_test:
-  environment: test-env
-  extends: .kube_deploy_script
+docker_build:
+  image: docker:18.09
+  stage: build
+  services:
+    - docker:18.09-dind
+  script:
+    - apk add --update bash gettext tzdata coreutils ca-certificates wget
+    - update-ca-certificates
+    - wget -O ${APM_AGENT_JAR} ${APM_AGENT_URL}
+    - ls
+    - envsubst '${JAR_FILE_NAME} ${APM_AGENT_JAR}' < .Dockerfile > Dockerfile
+    - cat Dockerfile
+    - docker info
+    - docker build -t $IMAGE .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $IMAGE
+  when: manual
 
-kube_deploy_prod_hh:
-  environment: prod-hh
-  extends: .kube_deploy_script
+#kube_deploy_prod_hh:
+#  environment: prod-k8s-hh
+#  extends: .kube_deploy_script
 
 kube_deploy_prod_hx:
-  environment: prod-hx
+  environment: prod-k8s-hx
   extends: .kube_deploy_script
 
 .kube_deploy_script:
@@ -44,21 +45,26 @@ kube_deploy_prod_hx:
     - apk add --update bash gettext tzdata coreutils
     - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
     - envsubst < config/.application.yml > config/application.yml
+    - envsubst < .filebeat.yml > filebeat.yml
     - export HOSTNAME=$HOSTNAME_BCKUP
     - mkdir -p ~/.kube
     - echo $KUBE_CONFIG > kubeconfig
     - base64 -d kubeconfig > ~/.kube/config
     - kubectl config get-contexts
-    - kubectl create namespace $NAMESPACE || true
-    - kubectl -n $NAMESPACE delete secret $DOCKER_PULL_SECRET || true
-    - kubectl -n $NAMESPACE create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
-# create configmap for first time
-    - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml || true
-# replace configmap if it already exists
-    - kubectl -n $NAMESPACE create configmap $PRIDE_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
+    - kubectl create namespace $k8s_namespace || true
+    - kubectl -n $k8s_namespace delete secret $DOCKER_PULL_SECRET || true
+    - kubectl -n $k8s_namespace create secret docker-registry $DOCKER_PULL_SECRET --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
+    # create configmap for first time
+    - kubectl -n $k8s_namespace create configmap $SPRING_CONFIG_MAP --from-file=config/application.yml || true
+    # replace configmap if it already exists
+    - kubectl -n $k8s_namespace create configmap $SPRING_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
+    # create configmap for first time
+    - kubectl -n $k8s_namespace create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml || true
+    # replace configmap if it already exists
+    - kubectl -n $k8s_namespace create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml -o yaml --dry-run | kubectl replace -f -
     - envsubst < .kubernetes.yml > kubernetes.yml
     - cat kubernetes.yml
-    - kubectl -n $NAMESPACE apply -f kubernetes.yml
+    - kubectl -n $k8s_namespace apply -f kubernetes.yml
   when: manual
 
 .deploy_script:
