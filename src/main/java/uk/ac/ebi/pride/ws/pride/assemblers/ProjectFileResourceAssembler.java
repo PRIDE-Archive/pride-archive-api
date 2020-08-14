@@ -39,7 +39,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
                     return new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), value);
                 }).collect(Collectors.toSet()) : Collections.emptySet();
 
-        log.info(mongoFile.toString());
+        log.debug(mongoFile.toString());
 
         CvParamProvider category = mongoFile.getFileCategory() != null? new CvParam(mongoFile.getFileCategory().getCvLabel(),
                 mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()): null;
