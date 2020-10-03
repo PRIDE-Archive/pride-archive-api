@@ -12,10 +12,6 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.pride.archive.repo.client.AssayRepoClient;
-import uk.ac.ebi.pride.archive.repo.client.PrideRepoClientFactory;
-import uk.ac.ebi.pride.archive.repo.models.assay.Assay;
-import uk.ac.ebi.pride.archive.repo.models.project.Project;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
@@ -39,7 +35,6 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
