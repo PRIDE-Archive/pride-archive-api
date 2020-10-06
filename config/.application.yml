@@ -50,8 +50,10 @@ mongodb:
 mongo.single.machine: $NOT_USED
 
 ##### Solr CLoud #####
-spring.pridedb.solr:
-  hh.url: $solr_pridedb_hh_url
+spring:
+  data:
+    solr:
+      host: $solr_pridedb_hh_urls
 
 #email properties
 spring.mail.host: $smtp_host
