@@ -8,7 +8,7 @@ app.vhost: $app_vhost
 
 # LOGGING Properties
 logging:
-  path: '$logpath/logs_${HOSTNAME}/'
+  path: $logspath/logs_${HOSTNAME}/
   level:
     root: INFO
     org:

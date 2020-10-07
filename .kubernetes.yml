@@ -110,10 +110,6 @@ spec:
       labels:
         app: $app_name-filebeat
     spec:
-      securityContext:
-        runAsUser: $NFS_UID
-        runAsGroup: $NFS_GID
-        fsGroup: $NFS_GID2
       volumes:
         - name: logvolume
           nfs:
@@ -142,6 +138,7 @@ spec:
           volumeMounts:
             - name: logvolume
               mountPath: $logs_vol_path
+              readOnly: true
             - name: filebeat-config
               mountPath: /usr/share/filebeat/filebeat.yml
               subPath: filebeat.yml
