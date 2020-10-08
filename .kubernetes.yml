@@ -138,7 +138,6 @@ spec:
           volumeMounts:
             - name: logvolume
               mountPath: $logs_vol_path
-              readOnly: true
             - name: filebeat-config
               mountPath: /usr/share/filebeat/filebeat.yml
               subPath: filebeat.yml
