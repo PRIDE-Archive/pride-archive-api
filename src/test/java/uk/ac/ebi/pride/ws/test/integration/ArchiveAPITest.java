@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.configs.ArchiveMongoConfig;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
+import uk.ac.ebi.pride.solr.commons.PrideProjectField;
 import uk.ac.ebi.pride.ws.pride.Application;
 import uk.ac.ebi.pride.ws.pride.configs.SolrCloudConfig;
 import uk.ac.ebi.pride.ws.pride.configs.SwaggerConfig;

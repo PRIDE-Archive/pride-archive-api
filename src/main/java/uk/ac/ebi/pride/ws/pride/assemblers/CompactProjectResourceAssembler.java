@@ -6,13 +6,16 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
+import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

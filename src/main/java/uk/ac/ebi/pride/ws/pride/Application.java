@@ -18,7 +18,7 @@ import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.hateoas.core.EvoInflectorRelProvider;
 import org.springframework.stereotype.Component;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
+import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 

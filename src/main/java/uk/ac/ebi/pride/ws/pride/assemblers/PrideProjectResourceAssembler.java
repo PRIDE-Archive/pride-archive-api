@@ -5,12 +5,12 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
-import uk.ac.ebi.pride.solr.indexes.pride.utils.StringUtils;
+import uk.ac.ebi.pride.solr.commons.Utils.StringUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
@@ -19,7 +19,13 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the

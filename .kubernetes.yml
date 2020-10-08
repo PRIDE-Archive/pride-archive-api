@@ -20,12 +20,17 @@ spec:
       labels:
         app: $app_name
     spec:
+      securityContext:
+        runAsUser: $NFS_UID
+        runAsGroup: $NFS_GID
+        fsGroup: $NFS_GID2
       imagePullSecrets:
         - name: $DOCKER_PULL_SECRET
       volumes:
         - name: logvolume
-          persistentVolumeClaim:
-            claimName: $log_volume_pvc
+          nfs:
+            server: $LOGS_NFS_SERVER
+            path: $LOGS_NFS_PATH
         - name: application-config
           configMap:
             name: $SPRING_CONFIG_MAP
@@ -56,7 +61,7 @@ spec:
               mountPath: "/app/config/"
               readOnly: true
             - name: logvolume
-              mountPath: $logspath
+              mountPath: $logs_vol_path
           livenessProbe:
             httpGet:
               path: $contextPath/actuator/health
@@ -107,8 +112,9 @@ spec:
     spec:
       volumes:
         - name: logvolume
-          persistentVolumeClaim:
-            claimName: $log_volume_pvc
+          nfs:
+            server: $LOGS_NFS_SERVER
+            path: $LOGS_NFS_PATH
         - name: filebeat-config
           configMap:
             name: $FILEBEAT_CONFIG_MAP
@@ -131,7 +137,8 @@ spec:
                   fieldPath: spec.nodeName
           volumeMounts:
             - name: logvolume
-              mountPath: $logspath
+              mountPath: $logs_vol_path
+              readOnly: true
             - name: filebeat-config
               mountPath: /usr/share/filebeat/filebeat.yml
               subPath: filebeat.yml
