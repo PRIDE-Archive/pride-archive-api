@@ -115,6 +115,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .countries(mongoPrideProject.getCountries() != null ? new HashSet<>(mongoPrideProject.getCountries()) : Collections.EMPTY_SET)
                 .keywords(mongoPrideProject.getKeywords())
                 .doi(mongoPrideProject.getDoi().isPresent()?mongoPrideProject.getDoi().get():null)
+                .submissionType(mongoPrideProject.getSubmissionType())
                 .publicationDate(mongoPrideProject.getPublicationDate())
                 .submissionDate(mongoPrideProject.getSubmissionDate())
                 .instruments(new ArrayList<>(mongoPrideProject.getInstrumentsCvParams()))
