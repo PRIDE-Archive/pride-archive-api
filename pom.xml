@@ -24,15 +24,21 @@
 
     <properties>
         <jarFinalName>pride-api</jarFinalName>
-        <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.4-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-tdd.version>
-        <uk.ac.ebi.pride.architectural-pride-spring.version>1.0.0-SNAPSHOT</uk.ac.ebi.pride.architectural-pride-spring.version>
-        <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.0-SNAPSHOT</uk.ac.ebi.pride.archive.pride-solr-indexes.version>
-        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.4-SNAPSHOT</uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
-        <uk.ac.ebi.pride.archive.spectra-archive.version>0.0.1-SNAPSHOT</uk.ac.ebi.pride.archive.spectra-archive.version>
+        <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.4-SNAPSHOT
+        </uk.ac.ebi.pride.architectural-pride-tdd.version>
+        <uk.ac.ebi.pride.architectural-pride-spring.version>1.0.0-SNAPSHOT
+        </uk.ac.ebi.pride.architectural-pride-spring.version>
+        <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.0-SNAPSHOT
+        </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
+        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.4-SNAPSHOT
+        </uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
+        <uk.ac.ebi.pride.archive.spectra-archive.version>0.0.1-SNAPSHOT
+        </uk.ac.ebi.pride.archive.spectra-archive.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
         <pride-repo-client>0.0.1-SNAPSHOT</pride-repo-client>
+        <cpdetector>1.0.7</cpdetector>
     </properties>
 
     <dependencies>
@@ -52,7 +58,19 @@
                     <groupId>uk.ac.ebi.pride.archive</groupId>
                     <artifactId>data-provider-api</artifactId>
                 </exclusion>
+                <!--  exclude this as this fails to download from maven a lot. Instead include it separately -->
+                <exclusion>
+                    <groupId>net.sourceforge.cpdetector</groupId>
+                    <artifactId>cpdetector</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <!-- this should download from nexus-ebi-intact-repo -->
+            <groupId>cpdetector</groupId>
+            <artifactId>cpdetector</artifactId>
+            <version>${cpdetector}</version>
         </dependency>
 
         <!--Spring dependencies-->
@@ -103,9 +121,9 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>uk.ac.ebi.pride.utilities</groupId>-->
-            <!--<artifactId>pride-utilities</artifactId>-->
-            <!--<version>${uk.ac.ebi.pride.archive.utilities.version}</version>-->
+        <!--<groupId>uk.ac.ebi.pride.utilities</groupId>-->
+        <!--<artifactId>pride-utilities</artifactId>-->
+        <!--<version>${uk.ac.ebi.pride.archive.utilities.version}</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -166,9 +184,9 @@
 
         <!--&lt;!&ndash;Spring REST Docs&ndash;&gt;-->
         <!--<dependency>-->
-            <!--<groupId>uk.ac.ebi.pride.utilities</groupId>-->
-            <!--<artifactId>pride-mod</artifactId>-->
-            <!--<version>2.1.11</version>-->
+        <!--<groupId>uk.ac.ebi.pride.utilities</groupId>-->
+        <!--<artifactId>pride-mod</artifactId>-->
+        <!--<version>2.1.11</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -295,7 +313,7 @@
                     <skipTests>false</skipTests>
                     <testFailureIgnore>true</testFailureIgnore>
                     <forkCount>0</forkCount>
-            </configuration>
+                </configuration>
             </plugin>
         </plugins>
     </build>
