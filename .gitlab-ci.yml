@@ -17,16 +17,12 @@ cache:
     - target/
 
 build:
-  variables:
-    DOCKER_AUTH_CONFIG: $docker_auth_json
   image: maven:3.3.9-jdk-8-alpine
   stage: build
   script:
     - mvn $MAVEN_CLI_OPTS compile
 
 docker_build:
-  variables:
-    DOCKER_AUTH_CONFIG: $docker_auth_json
   image: docker:18.09
   stage: build
   services:
@@ -53,8 +49,6 @@ kube_deploy_prod_hx:
   extends: .kube_deploy_script
 
 .kube_deploy_script:
-  variables:
-    DOCKER_AUTH_CONFIG: $docker_auth_json
   stage: deploy
   image: dtzar/helm-kubectl
   script:
@@ -84,8 +78,6 @@ kube_deploy_prod_hx:
   when: manual
 
 .deploy_script:
-  variables:
-    DOCKER_AUTH_CONFIG: $docker_auth_json
   stage: deploy
   image: maven:3.3.9-jdk-8-alpine
   script:
