@@ -34,6 +34,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -223,15 +224,19 @@ public class FileController {
     public ResponseEntity getSDRFFilesByProjectAccession(@RequestParam(value = "accession") String accession) {
 
         List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
-        Optional<MongoPrideFile> sdrfFile = files.stream()
+        List<MongoPrideFile> sdrfFiles = files.stream()
                 .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584"))
-                .findFirst();
+                .collect(Collectors.toList());
 
-        if (!sdrfFile.isPresent()) {
+        if (sdrfFiles == null || sdrfFiles.size() == 0) {
             return new ResponseEntity(null, HttpStatus.NO_CONTENT);
         }
 
-        Optional<CvParam> ftpURL = sdrfFile.get().getPublicFileLocations()
+        if (sdrfFiles.size() > 1) {
+            return new ResponseEntity("Contains more than one SDRF file", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<CvParam> ftpURL = sdrfFiles.get(0).getPublicFileLocations()
                 .stream()
                 .filter(url -> url.getAccession().equalsIgnoreCase("PRIDE:0000469"))
                 .findFirst();
