@@ -34,7 +34,6 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -220,22 +219,36 @@ public class FileController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/files/sdrfByProjectAccession", method = RequestMethod.GET,
-            produces = {MediaType.APPLICATION_JSON_VALUE})
+            produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity getSDRFFilesByProjectAccession(@RequestParam(value = "accession") String accession) {
 
         List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
+        Optional<MongoPrideFile> sdrfFile = files.stream()
+                .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584"))
+                .findFirst();
 
-        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
-        List<PrideFileResource> resources = null;
-
-        files = files.stream().filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584")).collect(Collectors.toList());
-
-        if (files != null && !files.isEmpty()) {
-            resources = assembler.toResources(files);
-            return new ResponseEntity<>(resources, HttpStatus.OK);
+        if (!sdrfFile.isPresent()) {
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
         }
 
-        return new ResponseEntity<>(resources, HttpStatus.NO_CONTENT);
+        Optional<CvParam> ftpURL = sdrfFile.get().getPublicFileLocations()
+                .stream()
+                .filter(url -> url.getAccession().equalsIgnoreCase("PRIDE:0000469"))
+                .findFirst();
+
+        if (!ftpURL.isPresent()) {
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+        }
+
+        String url = ftpURL.get().getValue();
+        String resource = null;
+        try {
+            resource = FileUtils.readFileURL(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity(resource, HttpStatus.OK);
     }
 
 }
