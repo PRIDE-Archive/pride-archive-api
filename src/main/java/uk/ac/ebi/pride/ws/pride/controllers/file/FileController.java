@@ -220,22 +220,40 @@ public class FileController {
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
     @RequestMapping(value = "/files/sdrfByProjectAccession", method = RequestMethod.GET,
-            produces = {MediaType.APPLICATION_JSON_VALUE})
+            produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity getSDRFFilesByProjectAccession(@RequestParam(value = "accession") String accession) {
 
         List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
+        List<MongoPrideFile> sdrfFiles = files.stream()
+                .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584"))
+                .collect(Collectors.toList());
 
-        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
-        List<PrideFileResource> resources = null;
-
-        files = files.stream().filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584")).collect(Collectors.toList());
-
-        if (files != null && !files.isEmpty()) {
-            resources = assembler.toResources(files);
-            return new ResponseEntity<>(resources, HttpStatus.OK);
+        if (sdrfFiles == null || sdrfFiles.size() == 0) {
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
         }
 
-        return new ResponseEntity<>(resources, HttpStatus.NO_CONTENT);
+        if (sdrfFiles.size() > 1) {
+            return new ResponseEntity("Contains more than one SDRF file", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<CvParam> ftpURL = sdrfFiles.get(0).getPublicFileLocations()
+                .stream()
+                .filter(url -> url.getAccession().equalsIgnoreCase("PRIDE:0000469"))
+                .findFirst();
+
+        if (!ftpURL.isPresent()) {
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+        }
+
+        String url = ftpURL.get().getValue();
+        String resource = null;
+        try {
+            resource = FileUtils.readFileURL(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity(resource, HttpStatus.OK);
     }
 
 }
