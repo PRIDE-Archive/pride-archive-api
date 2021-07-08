@@ -5,9 +5,9 @@ import org.springframework.hateoas.Resource;
 
 import java.util.List;
 
-public class PeptideEvidenceResource extends Resource<PeptideEvidence> {
+public class PeptideSummaryResource extends Resource<PeptideSummary> {
 
-    public PeptideEvidenceResource(PeptideEvidence content, List<Link> links) {
+    public PeptideSummaryResource(PeptideSummary content, List<Link> links) {
         super(content, links);
     }
 }

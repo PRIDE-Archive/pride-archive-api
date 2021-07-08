@@ -30,7 +30,7 @@
         </uk.ac.ebi.pride.architectural-pride-spring.version>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.0-SNAPSHOT
         </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
-        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.5-SNAPSHOT
+        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.6-SNAPSHOT
         </uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
         <uk.ac.ebi.pride.archive.spectra-archive.version>0.0.1-SNAPSHOT
         </uk.ac.ebi.pride.archive.spectra-archive.version>
