@@ -13,6 +13,7 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideSummary;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
@@ -49,7 +50,9 @@ public class PeptideSummaryController {
             @RequestParam(value = "page", defaultValue = "0",
                     required = false) Integer page,
             @RequestParam(value = "sortDirection", defaultValue = "DESC",
-                    required = false) String sortDirection) {
+                    required = false) String sortDirection,
+            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.PSMS_COUNT,
+                    required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize, WsContastants.MAX_PAGINATION_SIZE);
         page = pageParams.getKey();
@@ -59,7 +62,7 @@ public class PeptideSummaryController {
             direction = Sort.Direction.ASC;
         }
 
-        Page<PrideMongoPeptideSummary> mongoPeptides = moleculesMongoService.findPeptideSummaryByPeptideSequence(peptideSequence, PageRequest.of(page, pageSize, direction));
+        Page<PrideMongoPeptideSummary> mongoPeptides = moleculesMongoService.findPeptideSummaryByPeptideSequence(peptideSequence, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideSummaryAssembler assembler = new PeptideSummaryAssembler(PeptideSummaryController.class,
                 PeptideSummaryResource.class, sortDirection);
@@ -75,19 +78,19 @@ public class PeptideSummaryController {
         PagedResources<PeptideSummaryResource> pagedResources = new PagedResources<>(resources,
                 pageMetadata,
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
-                        .getPeptideSummaryByPeptideSequence(peptideSequence, pageSize, page, sortDirection)).withSelfRel(),
+                        .getPeptideSummaryByPeptideSequence(peptideSequence, pageSize, page, sortDirection, sortFields)).withSelfRel(),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
                         .getPeptideSummaryByPeptideSequence(peptideSequence,
-                                pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection)).withRel(WsContastants.HateoasEnum.next.name()),
+                                pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
                         .getPeptideSummaryByPeptideSequence(peptideSequence,
-                                pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection)).withRel(WsContastants.HateoasEnum.previous.name()),
+                                pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
                         .getPeptideSummaryByPeptideSequence(peptideSequence,
-                                pageSize, 0, sortDirection)).withRel(WsContastants.HateoasEnum.first.name()),
+                                pageSize, 0, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.first.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
                         .getPeptideSummaryByPeptideSequence(peptideSequence,
-                                pageSize, (int) totalPages, sortDirection)).withRel(WsContastants.HateoasEnum.last.name())
+                                pageSize, (int) totalPages, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.last.name())
         );
 
         return new HttpEntity<>(pagedResources);
