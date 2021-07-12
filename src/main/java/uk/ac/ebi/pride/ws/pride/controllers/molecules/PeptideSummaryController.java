@@ -42,9 +42,9 @@ public class PeptideSummaryController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
-    @RequestMapping(value = "/peptidesummary/peptide/{peptideSequence}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/peptidesummary/peptide", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> getPeptideSummaryByPeptideSequence(
-            @PathVariable(value = "peptideSequence") String peptideSequence,
+            @RequestParam(value = "keyword") String peptideSequence,
             @RequestParam(value = "pageSize", defaultValue = "100",
                     required = false) Integer pageSize,
             @RequestParam(value = "page", defaultValue = "0",
