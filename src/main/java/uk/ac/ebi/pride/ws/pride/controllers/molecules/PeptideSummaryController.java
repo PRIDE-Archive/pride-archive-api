@@ -12,7 +12,10 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideSummary;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
@@ -44,14 +47,14 @@ public class PeptideSummaryController {
     })
     @RequestMapping(value = "/peptidesummary/peptide", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> getPeptideSummaryByPeptideSequence(
-            @RequestParam(value = "keyword") String peptideSequence,
+            @RequestParam(value = "keyword", required = false) String peptideSequence,
             @RequestParam(value = "pageSize", defaultValue = "100",
                     required = false) Integer pageSize,
             @RequestParam(value = "page", defaultValue = "0",
                     required = false) Integer page,
             @RequestParam(value = "sortDirection", defaultValue = "DESC",
                     required = false) String sortDirection,
-            @RequestParam(value="sortConditions", defaultValue = PrideArchiveField.PSMS_COUNT,
+            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.PSMS_COUNT,
                     required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize, WsContastants.MAX_PAGINATION_SIZE);
@@ -61,7 +64,9 @@ public class PeptideSummaryController {
         if (sortDirection.equalsIgnoreCase("ASC")) {
             direction = Sort.Direction.ASC;
         }
-
+        if (peptideSequence == null) {
+            peptideSequence = ""; // this is needed to fix the sortConditions in Hateoas links. Without this "sortConditions=psms_count{&keyword}"
+        }
         Page<PrideMongoPeptideSummary> mongoPeptides = moleculesMongoService.findPeptideSummaryByPeptideSequence(peptideSequence, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideSummaryAssembler assembler = new PeptideSummaryAssembler(PeptideSummaryController.class,
