@@ -23,7 +23,7 @@ public class PeptideSummary {
     private String peptideSequence;
     private String proteinAccession;
     private String[] projectAccessions;
-    private String bestSearchEngineScore;
+    private Double bestSearchEngineScore;
     private Integer psmsCount;
     private String[] bestUsis;
     private Map<String, String[]> ptmsMap;
