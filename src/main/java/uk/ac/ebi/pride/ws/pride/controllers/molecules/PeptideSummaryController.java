@@ -48,6 +48,7 @@ public class PeptideSummaryController {
     @RequestMapping(value = "/peptidesummary/peptide", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> getPeptideSummaryByPeptideSequence(
             @RequestParam(value = "keyword", required = false) String peptideSequence,
+            @RequestParam(value = "proteinAccession", required = false) String proteinAccession,
             @RequestParam(value = "pageSize", defaultValue = "100",
                     required = false) Integer pageSize,
             @RequestParam(value = "page", defaultValue = "0",
@@ -67,7 +68,10 @@ public class PeptideSummaryController {
         if (peptideSequence == null) {
             peptideSequence = ""; // this is needed to fix the sortConditions in Hateoas links. Without this "sortConditions=psms_count{&keyword}"
         }
-        Page<PrideMongoPeptideSummary> mongoPeptides = moleculesMongoService.findPeptideSummaryByPeptideSequence(peptideSequence, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
+        if (proteinAccession == null) {
+            proteinAccession = ""; // this is needed to fix the sortConditions in Hateoas links. Without this "sortConditions=psms_count{&proteinAccession}"
+        }
+        Page<PrideMongoPeptideSummary> mongoPeptides = moleculesMongoService.findPeptideSummaryByPeptideSequence(peptideSequence, proteinAccession, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
 
         PeptideSummaryAssembler assembler = new PeptideSummaryAssembler(PeptideSummaryController.class,
                 PeptideSummaryResource.class, sortDirection);
@@ -83,18 +87,18 @@ public class PeptideSummaryController {
         PagedResources<PeptideSummaryResource> pagedResources = new PagedResources<>(resources,
                 pageMetadata,
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
-                        .getPeptideSummaryByPeptideSequence(peptideSequence, pageSize, page, sortDirection, sortFields)).withSelfRel(),
+                        .getPeptideSummaryByPeptideSequence(peptideSequence, proteinAccession, pageSize, page, sortDirection, sortFields)).withSelfRel(),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
-                        .getPeptideSummaryByPeptideSequence(peptideSequence,
+                        .getPeptideSummaryByPeptideSequence(peptideSequence, proteinAccession,
                                 pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
-                        .getPeptideSummaryByPeptideSequence(peptideSequence,
+                        .getPeptideSummaryByPeptideSequence(peptideSequence, proteinAccession,
                                 pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
-                        .getPeptideSummaryByPeptideSequence(peptideSequence,
+                        .getPeptideSummaryByPeptideSequence(peptideSequence, proteinAccession,
                                 pageSize, 0, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.first.name()),
                 ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
-                        .getPeptideSummaryByPeptideSequence(peptideSequence,
+                        .getPeptideSummaryByPeptideSequence(peptideSequence, proteinAccession,
                                 pageSize, (int) totalPages, sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.last.name())
         );
 
