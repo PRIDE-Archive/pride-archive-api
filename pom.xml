@@ -68,7 +68,6 @@
         </dependency>
 
         <dependency>
-            <!-- this should download from nexus-ebi-intact-repo -->
             <groupId>uk.ac.ebi.pride.utilities</groupId>
             <artifactId>cpdetector</artifactId>
             <version>${cpdetector}</version>
@@ -220,6 +219,12 @@
             <groupId>uk.ac.ebi.pride.utilities</groupId>
             <artifactId>pride-mod</artifactId>
             <version>2.1.12</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.sourceforge.cpdetector</groupId>
+                    <artifactId>cpdetector</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

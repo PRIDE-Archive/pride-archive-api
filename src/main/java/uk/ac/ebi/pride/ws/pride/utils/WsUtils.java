@@ -2,15 +2,15 @@ package uk.ac.ebi.pride.ws.pride.utils;
 
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideSummary;
 import uk.ac.ebi.pride.solr.commons.Utils.StringUtils;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -114,5 +114,26 @@ public class WsUtils {
                 .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
                 .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new CvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
         return resultTerms;
+    }
+
+    public static Map<String, String[]> peptideSummaryEnhancePtmsMap(PrideMongoPeptideSummary mongoPeptideSummary) {
+        Map<String, String[]> ptmsMap = mongoPeptideSummary.getPtmsMap();
+        ModReader modReader = ModReader.getInstance();
+        Map<String, String[]> ptmsMapModified = ptmsMap.entrySet().stream()
+                .filter(e -> !e.getKey().contains(":,")) //to filter out cases where key has invalid PTM i.e., "UNIMOD:, 4"
+                .collect(Collectors.toMap(e -> {
+                    String[] split = e.getKey().split(",");
+                    String mod = split[0];
+                    String position = split[1];
+                    String name;
+                    try {
+                        name = modReader.getPTMbyAccession(mod).getName();
+                    } catch (Exception ex) { //to handle cases where PTM is not found
+                        return e.getKey();
+                    }
+                    return mod + "(" + name + ")," + position;
+                }, Map.Entry::getValue));
+
+        return ptmsMapModified;
     }
 }

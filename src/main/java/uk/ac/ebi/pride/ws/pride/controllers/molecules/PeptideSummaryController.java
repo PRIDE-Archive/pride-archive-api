@@ -134,23 +134,6 @@ public class PeptideSummaryController {
         List<PrideProjectForPeptideSummary> prideProjectsForPeptideSummary = mongoPrideProjects.stream()
                 .map(PrideProjectForPeptideSummary::fromMongoPrideProject).collect(Collectors.toList());
 
-        Map<String, String[]> ptmsMap = mongoPeptideSummary.getPtmsMap();
-        ModReader modReader = ModReader.getInstance();
-        Map<String, String[]> ptmsMapModified = ptmsMap.entrySet().stream()
-                .filter(e -> !e.getKey().contains(":,")) //to filter out cases where key has invalid PTM i.e., "UNIMOD:, 4"
-                .collect(Collectors.toMap(e -> {
-                    String[] split = e.getKey().split(",");
-                    String mod = split[0];
-                    String position = split[1];
-                    String name;
-                    try {
-                        name = modReader.getPTMbyAccession(mod).getName();
-                    } catch (Exception ex) { //to handle cases where PTM is not found
-                        return e.getKey();
-                    }
-                    return mod + "(" + name + ")," + position;
-                }, Map.Entry::getValue));
-
         PeptideDetails peptideDetails = PeptideDetails.builder()
                 .peptideSequence(mongoPeptideSummary.getPeptideSequence())
                 .bestSearchEngineScore(mongoPeptideSummary.getBestSearchEngineScore())
@@ -158,7 +141,7 @@ public class PeptideSummaryController {
                 .psmsCount(mongoPeptideSummary.getPsmsCount())
                 .proteinAccession(mongoPeptideSummary.getProteinAccession())
                 .projects(prideProjectsForPeptideSummary)
-                .ptmsMap(ptmsMapModified)
+                .ptmsMap(WsUtils.peptideSummaryEnhancePtmsMap(mongoPeptideSummary))
                 .build();
 
         return new HttpEntity<>(peptideDetails);
