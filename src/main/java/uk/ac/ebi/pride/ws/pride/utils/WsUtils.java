@@ -1,7 +1,16 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
+import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
+import uk.ac.ebi.pride.solr.commons.Utils.StringUtils;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.utilities.util.Tuple;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -99,5 +108,11 @@ public class WsUtils {
         return value.replace(";", "|");
     }
 
-
+    public static Collection<CvParamProvider> getCvTermsValues(List<uk.ac.ebi.pride.archive.dataprovider.common.Tuple<CvParam, Set<CvParam>>> samplesDescription, CvTermReference efoTerm) {
+        Set<CvParamProvider> resultTerms = new HashSet<>();
+        samplesDescription.stream()
+                .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
+                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new CvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
+        return resultTerms;
+    }
 }
