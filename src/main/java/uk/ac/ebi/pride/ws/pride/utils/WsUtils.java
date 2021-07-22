@@ -129,9 +129,9 @@ public class WsUtils {
                     try {
                         name = modReader.getPTMbyAccession(mod).getName();
                     } catch (Exception ex) { //to handle cases where PTM is not found
-                        return e.getKey();
+                        name = "unknown_modification";
                     }
-                    return mod + "(" + name + ")," + position;
+                    return mod + "," + name + "," + position;
                 }, Map.Entry::getValue));
 
         return ptmsMapModified;
