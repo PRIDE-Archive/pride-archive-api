@@ -21,7 +21,6 @@ import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideSummary;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
-import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.molecules.PeptideSummaryAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProjectForPeptideSummary;
@@ -33,7 +32,6 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,6 +46,76 @@ public class PeptideSummaryController {
     public PeptideSummaryController(PrideMoleculesMongoService moleculesMongoService, PrideProjectMongoService mongoProjectService) {
         this.moleculesMongoService = moleculesMongoService;
         this.mongoProjectService = mongoProjectService;
+    }
+
+    @ApiOperation(notes = "Get all the peptide summary records",
+            value = "peptide_summary", nickname = "getPeptideSummary", tags = {"peptide_summary"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/peptidesummary", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public HttpEntity<Object> getPeptideSummary(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "pageSize", defaultValue = "100",
+                    required = false) Integer pageSize,
+            @RequestParam(value = "page", defaultValue = "0",
+                    required = false) Integer page,
+            @RequestParam(value = "sortDirection", defaultValue = "DESC",
+                    required = false) String sortDirection,
+            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.PSMS_COUNT,
+                    required = false) String sortFields) {
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize, WsContastants.MAX_PAGINATION_SIZE);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
+        Sort.Direction direction = Sort.Direction.DESC;
+        if (sortDirection.equalsIgnoreCase("ASC")) {
+            direction = Sort.Direction.ASC;
+        }
+        if (keyword == null) {
+            keyword = ""; // this is needed to fix the sortConditions in Hateoas links. Without this "sortConditions=psms_count{&keyword}"
+        }
+        PageRequest pageRequest = PageRequest.of(page, pageSize, direction, sortFields.split(","));
+
+        Page<PrideMongoPeptideSummary> mongoPeptides;
+        if (keyword == null || keyword.trim().isEmpty()) {
+            mongoPeptides = moleculesMongoService.findAllPeptideSummary(pageRequest);
+        } else {
+            mongoPeptides = moleculesMongoService.findPeptideSummaryBypeptideSequenceOrProteinAccession(keyword, keyword,
+                    pageRequest);
+        }
+
+        PeptideSummaryAssembler assembler = new PeptideSummaryAssembler(PeptideSummaryController.class,
+                PeptideSummaryResource.class);
+
+        List<PeptideSummaryResource> resources = assembler.toResources(mongoPeptides);
+
+        long totalElements = mongoPeptides.getTotalElements();
+        long totalPages = mongoPeptides.getTotalPages();
+
+        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize,
+                page, totalElements, totalPages);
+
+        PagedResources<PeptideSummaryResource> pagedResources = new PagedResources<>(resources,
+                pageMetadata,
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
+                        .getPeptideSummary(keyword, pageSize, page, sortDirection, sortFields)).withSelfRel(),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
+                        .getPeptideSummary(keyword, pageSize, (int) WsUtils.validatePage(page + 1, totalPages),
+                                sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.next.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
+                        .getPeptideSummary(keyword, pageSize, (int) WsUtils.validatePage(page - 1, totalPages),
+                                sortDirection, sortFields)).withRel(WsContastants.HateoasEnum.previous.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
+                        .getPeptideSummary(keyword, pageSize, 0, sortDirection, sortFields))
+                        .withRel(WsContastants.HateoasEnum.first.name()),
+                ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(PeptideSummaryController.class)
+                        .getPeptideSummary(keyword, pageSize, (int) totalPages, sortDirection, sortFields))
+                        .withRel(WsContastants.HateoasEnum.last.name())
+        );
+
+        return new HttpEntity<>(pagedResources);
     }
 
     @ApiOperation(notes = "Get all the peptide summary records for an specific peptideSequence",
