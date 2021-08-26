@@ -122,9 +122,9 @@ public class WsUtils {
         Map<String, String[]> ptmsMapModified = ptmsMap.entrySet().stream()
                 .filter(e -> !e.getKey().contains(":,")) //to filter out cases where key has invalid PTM i.e., "UNIMOD:, 4"
                 .collect(Collectors.toMap(e -> {
-                    String[] split = e.getKey().split(",");
-                    String mod = split[0];
-                    String position = split[1];
+                    String[] split = e.getKey().replaceAll("[\\[\\]]","").split(",");
+                    String mod = split[0].trim();
+                    String position = split[1].trim();
                     String name;
                     try {
                         name = modReader.getPTMbyAccession(mod).getName();
