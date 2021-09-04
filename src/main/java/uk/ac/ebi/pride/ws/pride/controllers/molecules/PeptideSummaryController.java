@@ -66,7 +66,8 @@ public class PeptideSummaryController {
             @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.PSMS_COUNT,
                     required = false) String sortFields) {
 
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize, WsContastants.MAX_PAGINATION_SIZE);
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize,
+                WsContastants.MAX_PAGINATION_SIZE);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
         Sort.Direction direction = Sort.Direction.DESC;
@@ -80,9 +81,11 @@ public class PeptideSummaryController {
 
         Page<PrideMongoPeptideSummary> mongoPeptides;
         if (keyword == null || keyword.trim().isEmpty()) {
-            mongoPeptides = moleculesMongoService.findAllPeptideSummary(pageRequest);
+            mongoPeptides = moleculesMongoService.
+                    findAllUniprotPeptideSumamry(pageRequest);
         } else {
-            mongoPeptides = moleculesMongoService.findPeptideSummaryBypeptideSequenceOrProteinAccession(keyword, keyword,
+            mongoPeptides = moleculesMongoService.
+                    findUniprotPeptideSummaryByProperties(keyword, keyword,keyword,keyword,
                     pageRequest);
         }
 
