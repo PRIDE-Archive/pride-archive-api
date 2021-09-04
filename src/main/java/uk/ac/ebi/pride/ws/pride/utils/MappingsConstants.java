@@ -1,6 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.utils;
 
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectField;
+import uk.ac.ebi.pride.solr.commons.PrideProjectField;
 import uk.ac.ebi.pride.ws.pride.models.PrideArchiveAPIField;
 
 /**

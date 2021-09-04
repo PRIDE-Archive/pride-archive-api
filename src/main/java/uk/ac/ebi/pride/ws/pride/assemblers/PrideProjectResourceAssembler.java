@@ -6,16 +6,14 @@ import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
-import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
-import uk.ac.ebi.pride.solr.indexes.pride.utils.StringUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
+import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -109,6 +107,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .countries(mongoPrideProject.getCountries() != null ? new HashSet<>(mongoPrideProject.getCountries()) : Collections.EMPTY_SET)
                 .keywords(mongoPrideProject.getKeywords())
                 .doi(mongoPrideProject.getDoi().isPresent()?mongoPrideProject.getDoi().get():null)
+                .submissionType(mongoPrideProject.getSubmissionType())
                 .publicationDate(mongoPrideProject.getPublicationDate())
                 .submissionDate(mongoPrideProject.getSubmissionDate())
                 .instruments(new ArrayList<>(mongoPrideProject.getInstrumentsCvParams()))
@@ -116,24 +115,11 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .softwares(new ArrayList<>(mongoPrideProject.getSoftwareParams()))
                 .submitters(new ArrayList<>(mongoPrideProject.getSubmittersContacts()))
                 .labPIs(new ArrayList<>(mongoPrideProject.getLabHeadContacts()))
-                .organisms(getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM))
-                .diseases(getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_DISEASE))
-                .organismParts(getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM_PART))
+                .organisms(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM))
+                .diseases(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_DISEASE))
+                .organismParts(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM_PART))
                 .sampleAttributes(mongoPrideProject.getSampleAttributes() !=null? new ArrayList(mongoPrideProject.getSampleAttributes()): Collections.emptyList())
                 .build();
     }
-
-    private Collection<CvParamProvider> getCvTermsValues(List<Tuple<CvParam, Set<CvParam>>> samplesDescription, CvTermReference efoTerm) {
-        Set<CvParamProvider> resultTerms = new HashSet<>();
-        samplesDescription.stream()
-                .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
-                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new CvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
-        return resultTerms;
-    }
-
-
-
-
-
 
 }

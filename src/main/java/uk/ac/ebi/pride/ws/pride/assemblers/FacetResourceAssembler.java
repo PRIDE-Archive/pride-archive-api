@@ -2,18 +2,27 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.solr.core.query.result.*;
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
+import org.springframework.data.solr.core.query.result.FacetEntry;
+import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideProjectFieldEnum;
-import uk.ac.ebi.pride.solr.indexes.pride.model.PrideSolrProject;
-import uk.ac.ebi.pride.solr.indexes.pride.utils.PrideSolrConstants;
+import uk.ac.ebi.pride.solr.commons.PrideProjectFieldEnum;
+import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
+import uk.ac.ebi.pride.solr.commons.Utils.PrideSolrConstants;
 import uk.ac.ebi.pride.ws.pride.hateoas.Facet;
 import uk.ac.ebi.pride.ws.pride.hateoas.Facets;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

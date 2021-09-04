@@ -16,11 +16,11 @@ cache:
     - .m2/repository/
     - target/
 
-build:
-  image: maven:3.3.9-jdk-8-alpine
-  stage: build
-  script:
-    - mvn $MAVEN_CLI_OPTS compile
+#build:
+#  image: maven:3.3.9-jdk-8-alpine
+#  stage: build
+#  script:
+#    - mvn $MAVEN_CLI_OPTS compile
 
 docker_build:
   image: docker:18.09
@@ -32,7 +32,7 @@ docker_build:
     - update-ca-certificates
     - wget -O ${APM_AGENT_JAR} ${APM_AGENT_URL}
     - ls
-    - envsubst '${JAR_FILE_NAME} ${APM_AGENT_JAR}' < .Dockerfile > Dockerfile
+    - envsubst '${JAR_FILE_NAME} ${APM_AGENT_JAR} ${NFS_UID} ${NFS_GID} ${NFS_GID2}' < .Dockerfile > Dockerfile
     - cat Dockerfile
     - docker info
     - docker build -t $IMAGE .
@@ -40,9 +40,9 @@ docker_build:
     - docker push $IMAGE
   when: manual
 
-#kube_deploy_prod_hh:
-#  environment: prod-k8s-hh
-#  extends: .kube_deploy_script
+kube_deploy_prod_hh:
+  environment: prod-k8s-hh
+  extends: .kube_deploy_script
 
 kube_deploy_prod_hx:
   environment: prod-k8s-hx

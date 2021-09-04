@@ -13,7 +13,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
@@ -30,6 +34,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -206,4 +211,49 @@ public class FileController {
         ) ;
         return new HttpEntity<>(pagedResources);
     }
+
+
+    @ApiOperation(notes = "Get an SDRF file from project accession", value = "files", nickname = "sdrfByProjectAccession", tags = {"files"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/files/sdrfByProjectAccession", method = RequestMethod.GET,
+            produces = {MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity getSDRFFilesByProjectAccession(@RequestParam(value = "accession") String accession) {
+
+        List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
+        List<MongoPrideFile> sdrfFiles = files.stream()
+                .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584"))
+                .collect(Collectors.toList());
+
+        if (sdrfFiles == null || sdrfFiles.size() == 0) {
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+        }
+
+        if (sdrfFiles.size() > 1) {
+            return new ResponseEntity("Contains more than one SDRF file", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<CvParam> ftpURL = sdrfFiles.get(0).getPublicFileLocations()
+                .stream()
+                .filter(url -> url.getAccession().equalsIgnoreCase("PRIDE:0000469"))
+                .findFirst();
+
+        if (!ftpURL.isPresent()) {
+            return new ResponseEntity(null, HttpStatus.NO_CONTENT);
+        }
+
+        String url = ftpURL.get().getValue();
+        String resource = null;
+        try {
+            resource = FileUtils.readFileURL(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity(resource, HttpStatus.OK);
+    }
+
 }
