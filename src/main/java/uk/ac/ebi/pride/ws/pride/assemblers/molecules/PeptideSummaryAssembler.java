@@ -30,6 +30,13 @@ public class PeptideSummaryAssembler extends ResourceAssemblerSupport<PrideMongo
                 .psmsCount(mongoPeptideSummary.getPsmsCount())
                 .bestUsis(mongoPeptideSummary.getBestUsis())
                 .ptmsMap(WsUtils.peptideSummaryEnhancePtmsMap(mongoPeptideSummary))
+                .isUniprot(mongoPeptideSummary.getIsUniprot())
+                .isMultiOrganism(mongoPeptideSummary.getIsMultiOrganism())
+                .isUnique(mongoPeptideSummary.getIsUnique())
+                .gene(mongoPeptideSummary.getGene())
+                .proteinName(mongoPeptideSummary.getProteinName())
+                .taxId(mongoPeptideSummary.getTaxId())
+                .organism(mongoPeptideSummary.getOrganism())
                 .build();
     }
 
