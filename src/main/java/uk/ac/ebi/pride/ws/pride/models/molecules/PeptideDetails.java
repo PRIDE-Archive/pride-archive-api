@@ -23,5 +23,12 @@ public class PeptideDetails {
     private Integer psmsCount;
     private String[] bestUsis;
     private Map<String, String[]> ptmsMap;
+    private String proteinName;
+    private String gene;
+    private String organism;
+    private String taxId;
+    private boolean isUnique;
+    private boolean isMultiOrganism;
+
 
 }
