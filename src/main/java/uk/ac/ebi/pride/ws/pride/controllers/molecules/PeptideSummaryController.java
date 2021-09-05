@@ -213,6 +213,12 @@ public class PeptideSummaryController {
                 .proteinAccession(mongoPeptideSummary.getProteinAccession())
                 .projects(prideProjectsForPeptideSummary)
                 .ptmsMap(WsUtils.peptideSummaryEnhancePtmsMap(mongoPeptideSummary))
+                .proteinName(mongoPeptideSummary.getProteinName())
+                .isUnique(mongoPeptideSummary.getIsUnique())
+                .isMultiOrganism(mongoPeptideSummary.getIsMultiOrganism())
+                .gene(mongoPeptideSummary.getGene())
+                .organism(mongoPeptideSummary.getOrganism())
+                .taxId(mongoPeptideSummary.getTaxId())
                 .build();
 
         return new HttpEntity<>(peptideDetails);
