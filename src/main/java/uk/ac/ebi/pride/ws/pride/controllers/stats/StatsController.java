@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
+import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPeptidomeStats;
 import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPrideStats;
+import uk.ac.ebi.pride.mongodb.archive.service.stats.PeptidomeStatsMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.stats.PrideStatsMongoService;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
@@ -38,14 +40,16 @@ import java.util.List;
 public class StatsController {
 
     final PrideStatsMongoService mongoStatsService;
+    final PeptidomeStatsMongoService peptidomeStatsMongoService;
 
     final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
     final ProjectRepoClient projectRepoClient;
 
     @Autowired
-    public StatsController(PrideStatsMongoService mongoStatsService, CustomPagedResourcesAssembler customPagedResourcesAssembler,ProjectRepoClient projectRepoClient) {
+    public StatsController(PrideStatsMongoService mongoStatsService, PeptidomeStatsMongoService peptidomeStatsMongoService, CustomPagedResourcesAssembler customPagedResourcesAssembler, ProjectRepoClient projectRepoClient) {
         this.mongoStatsService = mongoStatsService;
+        this.peptidomeStatsMongoService = peptidomeStatsMongoService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.projectRepoClient = projectRepoClient;
     }
@@ -100,4 +104,16 @@ public class StatsController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
+    @ApiOperation(notes = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"} )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+    })
+    @RequestMapping(value = "/stats/peptidome-stats", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Object> peptidomeStats() throws IOException {
+
+        List<MongoPeptidomeStats> results = peptidomeStatsMongoService.findall();
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
+    }
 }
