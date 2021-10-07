@@ -31,8 +31,8 @@ public class PeptideSummary {
     private String gene;
     private String organism;
     private String taxId;
-    private boolean isUniprot;
-    private boolean isUnique;
-    private boolean isMultiOrganism;
+    private Boolean isUniprot;
+    private Boolean isUnique;
+    private Boolean isMultiOrganism;
 
 }
