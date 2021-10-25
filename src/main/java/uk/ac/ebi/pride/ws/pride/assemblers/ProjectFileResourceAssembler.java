@@ -30,19 +30,32 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
     @Override
     public PrideFileResource toResource(MongoPrideFile mongoFile) {
 
-        Set<CvParamProvider> additionalAttributes = mongoFile.getAdditionalAttributes()!=null?mongoFile.getAdditionalAttributes().stream()
-                .map( x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toSet()) : Collections.emptySet();
-        Set<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null? mongoFile.getPublicFileLocations().stream()
-                .map( x -> {
+        Set<CvParamProvider> additionalAttributes = mongoFile.getAdditionalAttributes() != null ? mongoFile.getAdditionalAttributes().stream()
+                .map(x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toSet()) : Collections.emptySet();
+        Set<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null ? mongoFile.getPublicFileLocations().stream()
+                .map(x -> {
                     String value = x.getValue();
-                    value = value.startsWith("ftp://")? value.replaceAll("#", "%23"): value;
+                    value = value.startsWith("ftp://") ? value.replaceAll("#", "%23") : value;
+                    if (value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2005/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2006/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2007/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2008/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2009/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2010/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2011/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2012/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/")
+                    ) {
+                        value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
+                    }
                     return new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), value);
                 }).collect(Collectors.toSet()) : Collections.emptySet();
 
         log.debug(mongoFile.toString());
 
-        CvParamProvider category = mongoFile.getFileCategory() != null? new CvParam(mongoFile.getFileCategory().getCvLabel(),
-                mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()): null;
+        CvParamProvider category = mongoFile.getFileCategory() != null ? new CvParam(mongoFile.getFileCategory().getCvLabel(),
+                mongoFile.getFileCategory().getAccession(), mongoFile.getFileCategory().getName(), mongoFile.getFileCategory().getValue()) : null;
 
         PrideFile file = PrideFile.builder()
                 .accession(mongoFile.getAccession())
@@ -70,7 +83,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
 
         List<PrideFileResource> datasets = new ArrayList<>();
 
-        for(MongoPrideFile mongoFile: entities){
+        for (MongoPrideFile mongoFile : entities) {
             datasets.add(toResource(mongoFile));
         }
 
