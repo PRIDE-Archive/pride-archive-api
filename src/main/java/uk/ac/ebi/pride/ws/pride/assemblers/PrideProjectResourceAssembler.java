@@ -90,8 +90,14 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
             additionalAttributes = new ArrayList<>();
 
         Date publicationDate = mongoPrideProject.getPublicationDate();
-        additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase()
-                + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession()));
+        String yr = year.format(publicationDate).toUpperCase();
+        if(Integer.parseInt(yr)<=2014) {
+            additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", "ftp://ftp.ebi.ac.uk/pride-archive/" + yr
+                    + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession()));
+        } else {
+            additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + yr
+                    + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession()));
+        }
 
         return PrideProject.builder()
                 .accession(mongoPrideProject.getAccession())
