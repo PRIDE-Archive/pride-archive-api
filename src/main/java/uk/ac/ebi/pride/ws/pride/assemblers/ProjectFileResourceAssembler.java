@@ -45,7 +45,9 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
                             value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2011/") ||
                             value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2012/") ||
                             value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/")
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2015/") ||
+                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2016/")
                     ) {
                         value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
                     }
