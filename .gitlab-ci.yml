@@ -67,11 +67,11 @@ kube_deploy_prod_hx:
     # create configmap for first time
     - kubectl -n $k8s_namespace create configmap $SPRING_CONFIG_MAP --from-file=config/application.yml || true
     # replace configmap if it already exists
-    - kubectl -n $k8s_namespace create configmap $SPRING_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run | kubectl replace -f -
+    - kubectl -n $k8s_namespace create configmap $SPRING_CONFIG_MAP --from-file=config/application.yml -o yaml --dry-run=client | kubectl replace -f -
     # create configmap for first time
     - kubectl -n $k8s_namespace create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml || true
     # replace configmap if it already exists
-    - kubectl -n $k8s_namespace create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml -o yaml --dry-run | kubectl replace -f -
+    - kubectl -n $k8s_namespace create configmap $FILEBEAT_CONFIG_MAP --from-file=filebeat.yml -o yaml --dry-run=client | kubectl replace -f -
     - envsubst < .kubernetes.yml > kubernetes.yml
     - cat kubernetes.yml
     - kubectl -n $k8s_namespace apply -f kubernetes.yml
