@@ -68,12 +68,14 @@ spec:
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10
+            timeoutSeconds: 60
           readinessProbe:
             httpGet:
               path: $contextPath/actuator/health
               port: $port
             initialDelaySeconds: 60
             periodSeconds: 10
+            timeoutSeconds: 60
 ---
 apiVersion: v1
 kind: Service
