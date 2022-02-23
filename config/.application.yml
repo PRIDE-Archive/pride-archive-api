@@ -55,12 +55,6 @@ spring:
     solr:
       host: $solr_pridedb_urls
 
-#email properties
-spring.mail.host: $smtp_host
-pride.support:
-  smtp.server: $smtp_host
-  email.address: pride-support@ebi.ac.uk
-
   # PRIDE urls for email sender
 pride:
   url: https://www.ebi.ac.uk/pride
