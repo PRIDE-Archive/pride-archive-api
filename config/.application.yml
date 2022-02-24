@@ -55,24 +55,6 @@ spring:
     solr:
       host: $solr_pridedb_urls
 
-  # PRIDE urls for email sender
-pride:
-  url: https://www.ebi.ac.uk/pride
-  archive:
-    url: https://www.ebi.ac.uk/pride/archive
-    help.url: https://www.ebi.ac.uk/pride/help/archive
-    submission.url: https://www.ebi.ac.uk/pride/help/archive/submission
-    login.url: https://www.ebi.ac.uk/pride/archive/login
-
-twitter:
-  account: https://twitter.com/pride_ebi
-  num.tweets.to.show:  4
-  pride:
-    consumer: $NOT_USED
-    consumer.secret: $NOT_USED
-    token: $NOT_USED
-    token.secret: $NOT_USED
-
 
 #tomcat access logs
 server.tomcat.accesslog:
