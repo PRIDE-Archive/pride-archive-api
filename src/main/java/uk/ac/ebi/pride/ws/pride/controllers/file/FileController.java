@@ -92,9 +92,7 @@ public class FileController {
     })
     @RequestMapping(value = "/files/sdrfByAccession", method = RequestMethod.GET,
             produces = {MediaType.TEXT_PLAIN_VALUE})
-    public ResponseEntity getSDRFFile(@RequestParam(value="accession", required = true) String accession
-
-    ) {
+    public ResponseEntity getSDRFFile(@RequestParam(value="accession", required = true) String accession) {
         Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(accession);
 
         if(!file.isPresent())
@@ -109,6 +107,7 @@ public class FileController {
             return new ResponseEntity(null, HttpStatus.NO_CONTENT);
 
         String url = ftpURL.get().getValue();
+        url = ProjectFileResourceAssembler.getFTPUrl(url);
         String resource = null;
         try {
             resource = FileUtils.readFileURL(url);
