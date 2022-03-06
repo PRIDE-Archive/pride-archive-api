@@ -34,27 +34,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
                 .map(x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toSet()) : Collections.emptySet();
         Set<CvParamProvider> publicFileLocations = mongoFile.getPublicFileLocations() != null ? mongoFile.getPublicFileLocations().stream()
                 .map(x -> {
-                    String value = x.getValue();
-                    value = value.startsWith("ftp://") ? value.replaceAll("#", "%23") : value;
-                    if (value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2005/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2006/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2007/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2008/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2009/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2010/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2011/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2012/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2015/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2016/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2017/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2018/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/") ||
-                            value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2020/")
-                    ) {
-                        value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
-                    }
+                    String value = getFTPUrl(x.getValue());
                     return new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), value);
                 }).collect(Collectors.toSet()) : Collections.emptySet();
 
@@ -81,6 +61,30 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
         List<Link> links = new ArrayList<>();
         links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
         return new PrideFileResource(file, links);
+    }
+
+    public static String getFTPUrl(String value) {
+        value = value.startsWith("ftp://") ? value.replaceAll("#", "%23") : value;
+        if (value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2005/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2006/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2007/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2008/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2009/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2010/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2011/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2012/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2015/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2016/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2017/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2018/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/") ||
+                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2020/")
+        ) {
+            value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
+        }
+        return value;
     }
 
     @SuppressWarnings("unchecked")

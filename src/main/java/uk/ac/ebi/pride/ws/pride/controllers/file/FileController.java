@@ -246,6 +246,7 @@ public class FileController {
         }
 
         String url = ftpURL.get().getValue();
+        url = ProjectFileResourceAssembler.getFTPUrl(url);
         String resource = null;
         try {
             resource = FileUtils.readFileURL(url);
