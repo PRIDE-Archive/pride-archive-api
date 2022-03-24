@@ -26,7 +26,7 @@ output.logstash:
 monitoring.enabled: true
 monitoring.elasticsearch:
   hosts: $elasticsearch_hosts
-  proxy_url: http://$http_proxy_host:$http_proxy_port
+#  proxy_url: http://$http_proxy_host:$http_proxy_port
 
 #output.elasticsearch:
 #  hosts: $elasticsearch_hosts

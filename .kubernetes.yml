@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: $log_volume_pvc
+spec:
+  storageClassName: $k8s_storageclass
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: $log_volume_size
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,9 +40,8 @@ spec:
         - name: $DOCKER_PULL_SECRET
       volumes:
         - name: logvolume
-          nfs:
-            server: $LOGS_NFS_SERVER
-            path: $LOGS_NFS_PATH
+          persistentVolumeClaim:
+            claimName: $log_volume_pvc
         - name: application-config
           configMap:
             name: $SPRING_CONFIG_MAP
@@ -61,7 +72,7 @@ spec:
               mountPath: "/app/config/"
               readOnly: true
             - name: logvolume
-              mountPath: $logs_vol_path
+              mountPath: $logspath
           livenessProbe:
             httpGet:
               path: $contextPath/actuator/health
@@ -114,9 +125,8 @@ spec:
     spec:
       volumes:
         - name: logvolume
-          nfs:
-            server: $LOGS_NFS_SERVER
-            path: $LOGS_NFS_PATH
+          persistentVolumeClaim:
+            claimName: $log_volume_pvc
         - name: filebeat-config
           configMap:
             name: $FILEBEAT_CONFIG_MAP
@@ -139,7 +149,7 @@ spec:
                   fieldPath: spec.nodeName
           volumeMounts:
             - name: logvolume
-              mountPath: $logs_vol_path
+              mountPath: $logspath
             - name: filebeat-config
               mountPath: /usr/share/filebeat/filebeat.yml
               subPath: filebeat.yml
