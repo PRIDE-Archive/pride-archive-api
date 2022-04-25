@@ -16,6 +16,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -86,6 +87,13 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
         SimpleDateFormat year = new SimpleDateFormat("YYYY");
         SimpleDateFormat month = new SimpleDateFormat("MM");
 
+        String license = null;
+        try {
+            license = getLicenseFromDate(mongoPrideProject.getSubmissionDate());
+        } catch (ParseException e) {
+            log.info("Error generating the license for dataset -- " + mongoPrideProject.getAccession());
+        }
+
         if(additionalAttributes == null)
             additionalAttributes = new ArrayList<>();
 
@@ -125,7 +133,14 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .diseases(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_DISEASE))
                 .organismParts(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM_PART))
                 .sampleAttributes(mongoPrideProject.getSampleAttributes() !=null? new ArrayList(mongoPrideProject.getSampleAttributes()): Collections.emptyList())
+                .license(license)
                 .build();
+    }
+
+    private String getLicenseFromDate(Date submissionDate) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        Date licenseDate = formatter.parse("01-07-2018");
+        return submissionDate.after(licenseDate)? "Creative Commons Public Domain (CC0)":"EBI terms of use";
     }
 
 }
