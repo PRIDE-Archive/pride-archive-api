@@ -64,6 +64,9 @@ public class CompactProject implements Serializable, PrideArchiveAPIField {
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date publicationDate;
 
+    @JsonProperty(PRIDE_PROJECT_LICENSE)
+    private String license;
+
     @JsonProperty(PRIDE_PROJECT_UPDATED_DATE)
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date updatedDate;

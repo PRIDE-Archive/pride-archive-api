@@ -25,6 +25,8 @@ public interface PrideArchiveAPIField {
     String PRIDE_PROJECT_DOI = "doi";
     String PRIDE_PROJECT_SUBMISSION_DATE = "submissionDate";
     String PRIDE_PROJECT_PUBLICATION_DATE = "publicationDate";
+
+    String PRIDE_PROJECT_LICENSE = "license";
     String PRIDE_PROJECT_UPDATED_DATE = "updatedDate";
     String PRIDE_PROJECT_SUBMITTERS = "submitters";
     String PRIDE_PROJECT_LAB_HEADS = "labPIs";

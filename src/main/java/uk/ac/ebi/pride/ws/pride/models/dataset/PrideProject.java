@@ -45,6 +45,7 @@ public class PrideProject {
     private Collection<String> keywords;
     private String doi;
     private String submissionType;
+    private String license;
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date submissionDate;
     @JsonFormat(pattern="yyyy-MM-dd")
