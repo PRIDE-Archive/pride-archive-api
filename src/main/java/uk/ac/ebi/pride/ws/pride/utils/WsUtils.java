@@ -9,6 +9,8 @@ import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -135,5 +137,11 @@ public class WsUtils {
                 }, Map.Entry::getValue));
 
         return ptmsMapModified;
+    }
+
+    public static String getLicenseFromDate(Date submissionDate) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        Date licenseDate = formatter.parse("01-07-2018");
+        return submissionDate.after(licenseDate)? "Creative Commons Public Domain (CC0)":"EBI terms of use";
     }
 }

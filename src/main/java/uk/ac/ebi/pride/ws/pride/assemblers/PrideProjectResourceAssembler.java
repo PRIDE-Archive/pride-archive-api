@@ -89,7 +89,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
 
         String license = null;
         try {
-            license = getLicenseFromDate(mongoPrideProject.getSubmissionDate());
+            license = WsUtils.getLicenseFromDate(mongoPrideProject.getSubmissionDate());
         } catch (ParseException e) {
             log.info("Error generating the license for dataset -- " + mongoPrideProject.getAccession());
         }
@@ -136,11 +136,4 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .license(license)
                 .build();
     }
-
-    private String getLicenseFromDate(Date submissionDate) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        Date licenseDate = formatter.parse("01-07-2018");
-        return submissionDate.after(licenseDate)? "Creative Commons Public Domain (CC0)":"EBI terms of use";
-    }
-
 }

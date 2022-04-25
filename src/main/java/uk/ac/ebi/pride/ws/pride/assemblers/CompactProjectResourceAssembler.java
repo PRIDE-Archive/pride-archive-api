@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.hateoas.Link;
@@ -10,7 +11,9 @@ import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
+import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
  *
  * @author ypriverol
  */
+@Slf4j
 public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<PrideSolrProject, CompactProjectResource> {
 
     public CompactProjectResourceAssembler(Class<?> controller, Class<CompactProjectResource> resourceType) {
@@ -67,6 +71,14 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
      * @return CompactProject
      */
     private CompactProject transform(PrideSolrProject prideSolrDataset){
+
+        String license = null;
+        try {
+            license = WsUtils.getLicenseFromDate(prideSolrDataset.getSubmissionDate());
+        } catch (ParseException e) {
+            log.info("Error generating the license for dataset -- " + prideSolrDataset.getAccession());
+        }
+
         return  CompactProject.builder()
                 .accession(prideSolrDataset.getAccession())
                 .title(prideSolrDataset.getTitle())
@@ -90,6 +102,7 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
                 .softwares(prideSolrDataset.getSoftwares())
                 .submissionDate(prideSolrDataset.getSubmissionDate())
                 .updatedDate(prideSolrDataset.getUpdatedDate())
+                .license(license)
                 .queryScore((prideSolrDataset.getScore()!=null)?prideSolrDataset.getScore().doubleValue():null)
                 .build();
     }
