@@ -99,7 +99,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
 
         Date publicationDate = mongoPrideProject.getPublicationDate();
         String yr = year.format(publicationDate).toUpperCase();
-        if(Integer.parseInt(yr)<=2020 ) {
+        if(Integer.parseInt(yr)<=2021 ) {
             additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", "ftp://ftp.ebi.ac.uk/pride-archive/" + yr
                     + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession()));
         } else {
