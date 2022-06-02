@@ -65,26 +65,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
 
     public static String getFTPUrl(String value) {
         value = value.startsWith("ftp://") ? value.replaceAll("#", "%23") : value;
-        if (value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2005/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2006/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2007/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2008/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2009/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2010/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2011/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2012/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2015/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2016/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2017/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2018/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2020/") ||
-                value.startsWith("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2021/")
-        ) {
-            value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
-        }
+        value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
         return value;
     }
 
