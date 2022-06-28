@@ -65,7 +65,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
 
     public static String getFTPUrl(String value) {
         value = value.startsWith("ftp://") ? value.replaceAll("#", "%23") : value;
-        value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
+//        value = value.replace("ftp://ftp.pride.ebi.ac.uk/pride/data/archive/", "ftp://ftp.ebi.ac.uk/pride-archive/");
         return value;
     }
 
