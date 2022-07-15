@@ -41,8 +41,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 @Slf4j
 public class SpectraEvidenceController {
-
-
     S3SpectralArchive spectralArchive;
     PrideMoleculesMongoService moleculesMongoService;
 
