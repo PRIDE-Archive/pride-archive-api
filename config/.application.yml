@@ -67,14 +67,3 @@ server.tomcat.accesslog:
   rotate: true
   suffix: .log
 
-
-# S3 keys.
-spectra.archive.s3:
-  url: $s3_url
-  accesskey: $s3_accesskey
-  secretkey: $s3_secretkey
-  bucketname: $s3_bucketname
-  region: eu-west-2
-
-cloud.aws.region.static: eu-west-2
-

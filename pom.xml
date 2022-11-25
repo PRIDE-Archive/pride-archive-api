@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>uk.ac.ebi.pride.architectural</groupId>
-        <artifactId>pride-spring</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.1.RELEASE</version>
     </parent>
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
@@ -18,7 +18,6 @@
         mongodb-pridedb-prod-machine-rw
         oracle-pridedb-prod-machine
         oracle-pridedb-prod-rw-user
-        pride-spectra-archive-s3
         solr-cloud-prod-machine
     -->
 
@@ -32,8 +31,6 @@
         </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
         <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.6-SNAPSHOT
         </uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
-        <uk.ac.ebi.pride.archive.spectra-archive.version>0.0.2-SNAPSHOT
-        </uk.ac.ebi.pride.archive.spectra-archive.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
@@ -51,26 +48,14 @@
         </dependency>
 
         <dependency>
-            <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>pride-spectra-archive</artifactId>
-            <version>${uk.ac.ebi.pride.archive.spectra-archive.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>uk.ac.ebi.pride.archive</groupId>
-                    <artifactId>data-provider-api</artifactId>
-                </exclusion>
-                <!--  exclude this as this fails to download from maven a lot. Instead include it separately -->
-                <exclusion>
-                    <groupId>net.sourceforge.cpdetector</groupId>
-                    <artifactId>cpdetector</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>uk.ac.ebi.pride.utilities</groupId>
             <artifactId>cpdetector</artifactId>
             <version>${cpdetector}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
 
         <!--Spring dependencies-->
@@ -117,15 +102,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- TDD -->
-        <dependency>
-            <groupId>uk.ac.ebi.pride.architectural</groupId>
-            <artifactId>pride-tdd</artifactId>
-            <version>${uk.ac.ebi.pride.architectural-pride-tdd.version}</version>
-            <type>pom</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -245,6 +221,12 @@
                     <artifactId>cpdetector</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

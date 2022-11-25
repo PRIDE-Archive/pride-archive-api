@@ -8,7 +8,6 @@ import uk.ac.ebi.pride.archive.dataprovider.data.peptide.PeptideSpectrumOverview
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.controllers.molecules.PeptideEvidenceController;
-import uk.ac.ebi.pride.ws.pride.controllers.molecules.SpectraEvidenceController;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidence;
 import uk.ac.ebi.pride.ws.pride.models.molecules.PeptideEvidenceResource;
 import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
@@ -47,10 +46,10 @@ public class PeptideEvidenceAssembler extends ResourceAssemblerSupport<PrideMong
                 usis.add(peptideSpectrumOverview.getUsi());
         }
 
-        links.add(ControllerLinkBuilder.linkTo(
-                ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
-                        .getSpectrumBy(usis,peptideEvidence.getProjectAccession(),peptideEvidence.getAssayAccession(),peptideEvidence.getPeptideSequence(),"",  WsContastants.ResultType.FULL, 0, 10, sortDirection, sortFields))
-                .withRel(WsContastants.HateoasEnum.psms.name()));
+//        links.add(ControllerLinkBuilder.linkTo(
+//                ControllerLinkBuilder.methodOn(SpectraEvidenceController.class)
+//                        .getSpectrumBy(usis,peptideEvidence.getProjectAccession(),peptideEvidence.getAssayAccession(),peptideEvidence.getPeptideSequence(),"",  WsContastants.ResultType.FULL, 0, 10, sortDirection, sortFields))
+//                .withRel(WsContastants.HateoasEnum.psms.name()));
 
 
         return new PeptideEvidenceResource(transform(peptideEvidence), links);

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.ac.ebi.pride.archive.spectra.services.S3SpectralArchive;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideEvidence;
 import uk.ac.ebi.pride.mongodb.molecules.service.molecules.PrideMoleculesMongoService;
@@ -34,11 +33,9 @@ import java.util.List;
 public class PeptideEvidenceController {
 
     final PrideMoleculesMongoService moleculesMongoService;
-    final S3SpectralArchive spectralArchive;
 
     @Autowired
-    public PeptideEvidenceController(PrideMoleculesMongoService moleculesMongoService, S3SpectralArchive spectralArchive) {
-        this.spectralArchive = spectralArchive;
+    public PeptideEvidenceController(PrideMoleculesMongoService moleculesMongoService) {
         this.moleculesMongoService = moleculesMongoService;
     }
 
