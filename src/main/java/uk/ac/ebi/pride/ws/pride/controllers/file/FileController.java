@@ -33,6 +33,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -256,22 +257,22 @@ public class FileController {
         return new ResponseEntity(resource, HttpStatus.OK);
     }
 
-    @ApiOperation(notes = "Get count of RAW files in a project by accession", value = "files", nickname = "getCountOfRawFiles", tags = {"files"})
+    @ApiOperation(notes = "Get count of each file types in a project by accession", value = "files", nickname = "getCountOfFilesByType", tags = {"files"})
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
-    @RequestMapping(value = "/files/countOfRawFiles", method = RequestMethod.GET)
-    public ResponseEntity getCountOfRawFiles(@RequestParam(value = "accession") String accession) {
+    @RequestMapping(value = "/files/getCountOfFilesByType", method = RequestMethod.GET ,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getCountOfFilesByType(@RequestParam(value = "accession") String accession) {
 
         List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
 
         if(files!=null && files.size()>0) {
-            long rawFilesCount = files.stream()
-                    .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000404"))
-                    .count();
-            return new ResponseEntity(rawFilesCount, HttpStatus.OK);
+            Map<String,Long> fileTypeCount =  files.stream().collect(Collectors.groupingBy(
+                    file -> file.getFileCategory().getValue(),Collectors.counting()
+            ));
+            return new ResponseEntity(fileTypeCount, HttpStatus.OK);
         }
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
