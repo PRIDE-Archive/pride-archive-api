@@ -262,8 +262,7 @@ public class FileController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
             @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
     })
-    @RequestMapping(value = "/files/countOfRawFiles", method = RequestMethod.GET,
-            produces = {MediaType.TEXT_PLAIN_VALUE})
+    @RequestMapping(value = "/files/countOfRawFiles", method = RequestMethod.GET)
     public ResponseEntity getCountOfRawFiles(@RequestParam(value = "accession") String accession) {
 
         List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
