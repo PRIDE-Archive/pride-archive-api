@@ -256,4 +256,26 @@ public class FileController {
         return new ResponseEntity(resource, HttpStatus.OK);
     }
 
+    @ApiOperation(notes = "Get count of RAW files in a project by accession", value = "files", nickname = "getCountOfRawFiles", tags = {"files"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
+            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
+    })
+    @RequestMapping(value = "/files/countOfRawFiles", method = RequestMethod.GET,
+            produces = {MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity getCountOfRawFiles(@RequestParam(value = "accession") String accession) {
+
+        List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
+
+        if(files!=null && files.size()>0) {
+            long rawFilesCount = files.stream()
+                    .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000404"))
+                    .count();
+            return new ResponseEntity(rawFilesCount, HttpStatus.OK);
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
 }
