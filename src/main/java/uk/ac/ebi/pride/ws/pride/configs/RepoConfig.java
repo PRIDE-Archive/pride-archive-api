@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.ac.ebi.pride.archive.repo.client.PrideRepoClientFactory;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
+import uk.ac.ebi.pride.archive.repo.client.StatRepoClient;
 
 @Configuration
 public class RepoConfig {
@@ -20,5 +21,10 @@ public class RepoConfig {
     @Bean
     public ProjectRepoClient getProjectRepoClient() {
         return prideRepoClientFactory.getProjectRepoClient();
+    }
+
+    @Bean
+    public StatRepoClient getStatsRepoClient() {
+        return prideRepoClientFactory.getStatRepoClient();
     }
 }

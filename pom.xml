@@ -34,7 +34,7 @@
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
-        <pride-repo-client>0.0.1-SNAPSHOT</pride-repo-client>
+        <pride-repo-client>1.1.1-SNAPSHOT</pride-repo-client>
         <cpdetector>1.0.7</cpdetector>
         <pride.mod.version>2.1.12</pride.mod.version>
     </properties>
