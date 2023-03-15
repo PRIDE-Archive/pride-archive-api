@@ -113,7 +113,7 @@ public class StatsController {
     public ResponseEntity<Object> submissionsMonthlyTsv() throws IOException {
 
         List<List<String>> results = projectRepoClient.findMonthlySubmissions();
-        StringBuilder statsBuilder = new StringBuilder("Date\tNumber of submissions");
+        StringBuilder statsBuilder = new StringBuilder("Month\tNumber of submissions");
         for (List<String> row : results) {
             statsBuilder.append("\n").append(row.get(0)).append("\t").append(row.get(1));
         }
