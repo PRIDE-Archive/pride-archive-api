@@ -117,8 +117,7 @@ public class StatsController {
         for (List<String> row : results) {
             statsBuilder.append("\n").append(row.get(0)).append("\t").append(row.get(1));
         }
-
-        return new ResponseEntity<>(results, HttpStatus.OK);
+        return new ResponseEntity<>(statsBuilder.toString(), HttpStatus.OK);
     }
 
     @ApiOperation(notes = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"})
