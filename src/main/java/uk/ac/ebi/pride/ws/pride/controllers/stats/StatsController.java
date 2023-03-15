@@ -108,6 +108,19 @@ public class StatsController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
+    @ApiOperation(notes = "Retrieve month wise submissions count", value = "submissions-monthly-tsv", nickname = "submissions-monthly-tsv", tags = {"stats"})
+    @RequestMapping(value = "/stats/submissions-monthly-tsv", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity<Object> submissionsMonthlyTsv() throws IOException {
+
+        List<List<String>> results = projectRepoClient.findMonthlySubmissions();
+        StringBuilder statsBuilder = new StringBuilder("Date\tNumber of submissions");
+        for (List<String> row : results) {
+            statsBuilder.append("\n").append(row.get(0)).append("\t").append(row.get(1));
+        }
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
+    }
+
     @ApiOperation(notes = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"})
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
@@ -121,6 +134,7 @@ public class StatsController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
+    @ApiOperation(notes = "Retrieve month wise submissions data size", value = "submissions-data-size-monthly", nickname = "submissions-data-size-monthly", tags = {"stats"})
     @RequestMapping(value = "/stats/submitted-data", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity<Object> getSubmittedDataStats() throws IOException {
         String submittedDataStats = statRepoClient.getSubmittedDataStats();
