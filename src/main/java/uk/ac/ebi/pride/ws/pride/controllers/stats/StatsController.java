@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.client.StatRepoClient;
 import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPeptidomeStats;
@@ -72,6 +73,17 @@ public class StatsController {
             stats = mongoStatsService.findLastGeneratedStats().getComplexStats().get(name);
 
         return new ResponseEntity<>(stats, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity<Object> submissionsPerCountry() {
+        String name = "SUBMISSIONS_PER_COUNTRY";
+        List<Tuple<String, Integer>> stats = mongoStatsService.findLastGeneratedStats().getSubmissionsCount().get(name);
+        StringBuilder statsBuilder = new StringBuilder("Country\tNumber of submissions");
+        for (Tuple<String, Integer> tuple : stats) {
+            statsBuilder.append("\n").append(tuple.getKey()).append("\t").append(tuple.getValue());
+        }
+        return new ResponseEntity<>(statsBuilder.toString(), HttpStatus.OK);
     }
 
 
