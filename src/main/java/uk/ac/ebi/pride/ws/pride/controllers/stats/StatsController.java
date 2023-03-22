@@ -75,6 +75,7 @@ public class StatsController {
         return new ResponseEntity<>(stats, HttpStatus.OK);
     }
 
+    @ApiOperation(notes = "Retrieve submissions count per country as TSV", value = "submissions-per-country", nickname = "submissions-per-country", tags = {"stats"})
     @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity<Object> submissionsPerCountry() {
         String name = "SUBMISSIONS_PER_COUNTRY";
