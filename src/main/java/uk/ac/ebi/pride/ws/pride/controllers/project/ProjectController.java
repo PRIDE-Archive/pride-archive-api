@@ -10,16 +10,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
+import uk.ac.ebi.pride.archive.repo.util.ProjectStatus;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
@@ -31,11 +25,7 @@ import uk.ac.ebi.pride.solr.commons.PrideProjectField;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.services.SolrProjectService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
-import uk.ac.ebi.pride.ws.pride.assemblers.CompactProjectResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.PrideReanalysisProjectResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.*;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
@@ -47,6 +37,8 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,17 +64,20 @@ public class ProjectController {
 
     final PrideReanalysisMongoService prideReanalysisMongoService;
 
+    final ProjectRepoClient projectRepoClient;
+
     @Autowired
     public ProjectController(SolrProjectService solrProjectService,
                              CustomPagedResourcesAssembler customPagedResourcesAssembler,
                              PrideFileMongoService mongoFileService,
                              PrideProjectMongoService mongoProjectService,
-                             PrideReanalysisMongoService prideReanalysisMongoService) {
+                             PrideReanalysisMongoService prideReanalysisMongoService, ProjectRepoClient projectRepoClient) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
         this.prideReanalysisMongoService = prideReanalysisMongoService;
+        this.projectRepoClient = projectRepoClient;
     }
 
 
@@ -389,5 +384,9 @@ public class ProjectController {
         return new HttpEntity<>(terms);
     }
 
-
+    @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
+    public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
+        ProjectStatus status = projectRepoClient.getProjectStatus(accession);
+        return status.name();
+    }
 }
