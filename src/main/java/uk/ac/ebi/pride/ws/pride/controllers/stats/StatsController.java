@@ -79,7 +79,7 @@ public class StatsController {
     public ResponseEntity<Object> submissionsPerCountry() {
         String name = "SUBMISSIONS_PER_COUNTRY";
         List<Tuple<String, Integer>> stats = mongoStatsService.findLastGeneratedStats().getSubmissionsCount().get(name);
-        StringBuilder statsBuilder = new StringBuilder("Country\tNumber of submissions");
+        StringBuilder statsBuilder = new StringBuilder("Country\tNumber_of_submissions");
         for (Tuple<String, Integer> tuple : stats) {
             statsBuilder.append("\n").append(tuple.getKey()).append("\t").append(tuple.getValue());
         }
@@ -125,7 +125,7 @@ public class StatsController {
     public ResponseEntity<Object> submissionsMonthlyTsv() throws IOException {
 
         List<List<String>> results = projectRepoClient.findMonthlySubmissions();
-        StringBuilder statsBuilder = new StringBuilder("Month\tNumber of submissions");
+        StringBuilder statsBuilder = new StringBuilder("Month\tNumber_of_submissions");
         for (List<String> row : results) {
             statsBuilder.append("\n").append(row.get(0)).append("\t").append(row.get(1));
         }
