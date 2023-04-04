@@ -43,9 +43,6 @@ mongodb:
       ports: $NOT_USED
     single.machine.host: $NOT_USED
     machine.uri: $mongodb_machine_uri
-  molecules:
-    database: $mongodb_molecules_db
-    machine.uri: $mongodb_molecules_machine_uri
 
 mongo.single.machine: $NOT_USED
 
