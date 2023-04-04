@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.ws.pride.utils;
 
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.mongodb.molecules.model.peptide.PrideMongoPeptideSummary;
 import uk.ac.ebi.pride.solr.commons.Utils.StringUtils;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
@@ -118,26 +117,26 @@ public class WsUtils {
         return resultTerms;
     }
 
-    public static Map<String, String[]> peptideSummaryEnhancePtmsMap(PrideMongoPeptideSummary mongoPeptideSummary) {
-        Map<String, String[]> ptmsMap = mongoPeptideSummary.getPtmsMap();
-        ModReader modReader = ModReader.getInstance();
-        Map<String, String[]> ptmsMapModified = ptmsMap.entrySet().stream()
-                .filter(e -> !e.getKey().contains(":,")) //to filter out cases where key has invalid PTM i.e., "UNIMOD:, 4"
-                .collect(Collectors.toMap(e -> {
-                    String[] split = e.getKey().replaceAll("[\\[\\]]","").split(",");
-                    String mod = split[0].trim();
-                    String position = split[1].trim();
-                    String name;
-                    try {
-                        name = modReader.getPTMbyAccession(mod).getName();
-                    } catch (Exception ex) { //to handle cases where PTM is not found
-                        name = "unknown_modification";
-                    }
-                    return mod + "," + name + "," + position;
-                }, Map.Entry::getValue));
-
-        return ptmsMapModified;
-    }
+//    public static Map<String, String[]> peptideSummaryEnhancePtmsMap(PrideMongoPeptideSummary mongoPeptideSummary) {
+//        Map<String, String[]> ptmsMap = mongoPeptideSummary.getPtmsMap();
+//        ModReader modReader = ModReader.getInstance();
+//        Map<String, String[]> ptmsMapModified = ptmsMap.entrySet().stream()
+//                .filter(e -> !e.getKey().contains(":,")) //to filter out cases where key has invalid PTM i.e., "UNIMOD:, 4"
+//                .collect(Collectors.toMap(e -> {
+//                    String[] split = e.getKey().replaceAll("[\\[\\]]","").split(",");
+//                    String mod = split[0].trim();
+//                    String position = split[1].trim();
+//                    String name;
+//                    try {
+//                        name = modReader.getPTMbyAccession(mod).getName();
+//                    } catch (Exception ex) { //to handle cases where PTM is not found
+//                        name = "unknown_modification";
+//                    }
+//                    return mod + "," + name + "," + position;
+//                }, Map.Entry::getValue));
+//
+//        return ptmsMapModified;
+//    }
 
     public static String getLicenseFromDate(Date submissionDate) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
