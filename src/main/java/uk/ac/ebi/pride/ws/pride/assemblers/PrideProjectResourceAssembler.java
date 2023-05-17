@@ -124,6 +124,7 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
                 .instruments(new ArrayList<>(mongoPrideProject.getInstrumentsCvParams()))
                 .quantificationMethods(new ArrayList<>(mongoPrideProject.getQuantificationParams()))
                 .softwares(new ArrayList<>(mongoPrideProject.getSoftwareParams()))
+                .experimentTypes(new ArrayList<>(mongoPrideProject.getExperimentTypes()))
                 .submitters(new ArrayList<>(mongoPrideProject.getSubmittersContacts()))
                 .labPIs(new ArrayList<>(mongoPrideProject.getLabHeadContacts()))
                 .organisms(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM))

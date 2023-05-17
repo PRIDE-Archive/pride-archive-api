@@ -57,6 +57,7 @@ public class PrideProject {
     private Collection<String> affiliations = new ArrayList<>();
     private Collection<CvParamProvider> instruments = new ArrayList<>();
     private Collection<CvParamProvider> softwares = new ArrayList<>();
+    private Collection<CvParamProvider> experimentTypes = new ArrayList<>();
     private Collection<CvParamProvider> quantificationMethods = new ArrayList<>();
     private Set<String> countries;
     private Collection<CvParamProvider> sampleAttributes = new ArrayList<>();
