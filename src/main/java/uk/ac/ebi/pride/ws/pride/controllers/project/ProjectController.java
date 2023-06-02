@@ -16,9 +16,11 @@ import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.util.ProjectStatus;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
+import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoImportedProject;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
+import uk.ac.ebi.pride.mongodb.archive.service.projects.ImportedProjectMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideReanalysisMongoService;
 import uk.ac.ebi.pride.solr.commons.PrideProjectField;
@@ -62,6 +64,8 @@ public class ProjectController {
 
     final PrideProjectMongoService mongoProjectService;
 
+    final ImportedProjectMongoService importedProjectMongoService;
+
     final PrideReanalysisMongoService prideReanalysisMongoService;
 
     final ProjectRepoClient projectRepoClient;
@@ -71,11 +75,12 @@ public class ProjectController {
                              CustomPagedResourcesAssembler customPagedResourcesAssembler,
                              PrideFileMongoService mongoFileService,
                              PrideProjectMongoService mongoProjectService,
-                             PrideReanalysisMongoService prideReanalysisMongoService, ProjectRepoClient projectRepoClient) {
+                             ImportedProjectMongoService importedProjectMongoService, PrideReanalysisMongoService prideReanalysisMongoService, ProjectRepoClient projectRepoClient) {
         this.solrProjectService = solrProjectService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
+        this.importedProjectMongoService = importedProjectMongoService;
         this.prideReanalysisMongoService = prideReanalysisMongoService;
         this.projectRepoClient = projectRepoClient;
     }
@@ -195,6 +200,13 @@ public class ProjectController {
             @PathVariable(value = "accession", name = "accession") String accession) {
 
         Optional<MongoPrideProject> project = mongoProjectService.findByAccession(accession);
+        if (!project.isPresent()) {
+            Optional<MongoImportedProject> mongoImportedProjectOptional = importedProjectMongoService.findByAccession(accession);
+            if (mongoImportedProjectOptional.isPresent()) {
+                MongoPrideProject mongoImportedProject = mongoImportedProjectOptional.get();
+                project = Optional.of(mongoImportedProject);
+            }
+        }
         PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(ProjectController.class,
                 ProjectResource.class);
         return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
