@@ -4,7 +4,7 @@ variables:
   SPRING_CONFIG_MAP: spring-configmap
   FILEBEAT_CONFIG_MAP: filebeat-config
   DOCKER_PULL_SECRET: pride-gitlab-docker-secret
-  IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
+  IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:${CI_PIPELINE_ID}-${CI_COMMIT_SHA}
 
 #include:
 #  - template: Container-Scanning.gitlab-ci.yml
