@@ -43,4 +43,6 @@ public interface PrideArchiveAPIField {
     String PRIDE_PROJECT_PTMS = "identifiedPTMS";
     String QUERY_SCORE = "queryScore";
 
+    String PRIDE_PROJECT_SDRF = "sdrf";
+
 }

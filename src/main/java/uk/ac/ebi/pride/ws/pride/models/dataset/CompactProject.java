@@ -101,6 +101,9 @@ public class CompactProject implements Serializable, PrideArchiveAPIField {
     @JsonProperty(PRIDE_PROJECT_ORGANISM_PART)
     private Collection<String> organismParts = new ArrayList<>();
 
+    @JsonProperty(PRIDE_PROJECT_SDRF)
+    private String sdrf;
+
     @JsonProperty(PRIDE_PROJECT_DISEASES)
     private Collection<String> diseases = new ArrayList<>();
 
