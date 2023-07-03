@@ -90,7 +90,7 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
                 .diseases(prideSolrDataset.getDiseases())
                 .organisms(prideSolrDataset.getOrganisms())
                 .organismParts(prideSolrDataset.getOrganismPart())
-                .instruments(new ArrayList<>(prideSolrDataset.getInstruments()))
+                .instruments(prideSolrDataset.getInstruments())
                 .submitters(prideSolrDataset.getSubmitters())
                 .keywords(prideSolrDataset.getKeywords())
                 .projectTags(prideSolrDataset.getProjectTags())
