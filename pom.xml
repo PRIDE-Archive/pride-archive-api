@@ -23,7 +23,7 @@
 
     <properties>
         <jarFinalName>pride-api</jarFinalName>
-        <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.0-SNAPSHOT
+        <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.2
         </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
         <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.9-SNAPSHOT
         </uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
