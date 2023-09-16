@@ -52,6 +52,9 @@ spring:
     solr:
       host: $solr_pridedb_urls
 
+chat-api.base-url: $chat_api_base_url
+proxy-host: $http_proxy_host
+proxy-port: $http_proxy_port
 
 #tomcat access logs
 server.tomcat.accesslog:
