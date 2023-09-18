@@ -13,7 +13,7 @@ import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
-import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
+import uk.ac.ebi.pride.ws.pride.controllers.project.MassSpecProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
@@ -43,11 +43,11 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
     @Override
     public ProjectResource toResource(MongoPrideProject mongoPrideProject) {
         List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
 
         Method method = null;
         try {
-            method = ProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class, String.class, String.class);
+            method = MassSpecProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class, String.class, String.class);
             Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
             links.add(link);
             links.add(new Link(new UriTemplate(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
@@ -91,8 +91,15 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
         for (MongoPrideProject mongoPrideProject : entities) {
             PrideProject project = transform(mongoPrideProject);
             List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0,"DESC",PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
+            Date publicationDate = mongoPrideProject.getPublicationDate();
+            SimpleDateFormat year = new SimpleDateFormat("YYYY");
+            SimpleDateFormat month = new SimpleDateFormat("MM");
+            String ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
+            links.add(new Link(new UriTemplate(ftpPath), "datasetFtpUrl"));
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
             links.add(new Link(new UriTemplate(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
             projects.add(new ProjectResource(project, links));
         }

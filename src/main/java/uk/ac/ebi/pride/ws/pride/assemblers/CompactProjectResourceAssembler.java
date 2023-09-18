@@ -8,7 +8,7 @@ import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
-import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
+import uk.ac.ebi.pride.ws.pride.controllers.project.MassSpecProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
@@ -35,7 +35,7 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
     @Override
     public CompactProjectResource toResource(PrideSolrProject prideSolrDataset) {
         List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
+        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
         return new CompactProjectResource(transform(prideSolrDataset), links);
     }
 
@@ -52,7 +52,7 @@ public class CompactProjectResourceAssembler extends ResourceAssemblerSupport<Pr
                 dataset.setHighlights(facetPages.getHighlights(prideSolrDataset).stream().collect(Collectors.toMap(x -> x.getField().getName(), HighlightEntry.Highlight::getSnipplets)));
             }
             List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(prideSolrDataset.getAccession())).withSelfRel());
             Date publicationDate = dataset.getPublicationDate();
             SimpleDateFormat year = new SimpleDateFormat("YYYY");
             SimpleDateFormat month = new SimpleDateFormat("MM");

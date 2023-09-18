@@ -5,7 +5,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
-import uk.ac.ebi.pride.ws.pride.controllers.project.ProjectController;
+import uk.ac.ebi.pride.ws.pride.controllers.project.MassSpecProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
 
 import java.util.*;
@@ -24,7 +24,7 @@ public class PrideReanalysisProjectResourceAssembler extends ResourceAssemblerSu
     @Override
     public ProjectReanalysisResource toResource(MongoPrideReanalysisProject reanalysisProject) {
         List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getReanalysisProject(reanalysisProject.getAccession())).withSelfRel());
+        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getReanalysisProject(reanalysisProject.getAccession())).withSelfRel());
 
         return new ProjectReanalysisResource(reanalysisProject, links);
     }
@@ -37,7 +37,7 @@ public class PrideReanalysisProjectResourceAssembler extends ResourceAssemblerSu
 
         for(MongoPrideReanalysisProject reanalysisProject: entities){
             List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(ProjectController.class).getReanalysisProject(reanalysisProject.getAccession())).withSelfRel());
+            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getReanalysisProject(reanalysisProject.getAccession())).withSelfRel());
             projects.add(new ProjectReanalysisResource(reanalysisProject, links));
         }
         return projects;
