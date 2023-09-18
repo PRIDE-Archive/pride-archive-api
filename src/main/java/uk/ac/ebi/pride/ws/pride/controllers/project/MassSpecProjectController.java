@@ -229,7 +229,7 @@ public class MassSpecProjectController {
             }
         }
         PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class,
-                ProjectResource.class);
+                ProjectResource.class,mongoFileService);
         return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
 
@@ -280,7 +280,7 @@ public class MassSpecProjectController {
         Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
         List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("COMPLETE") || project.getSubmissionType().equals("PARTIAL")).collect(Collectors.toList());
         mongoProjects = new PageImpl<>(filteredList,PageRequest.of(page, pageSize, direction, sortFields.split(",")),filteredList.size());
-        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class);
+        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class,mongoFileService);
 
         List<ProjectResource> resources = assembler.toResources(mongoProjects);
 
