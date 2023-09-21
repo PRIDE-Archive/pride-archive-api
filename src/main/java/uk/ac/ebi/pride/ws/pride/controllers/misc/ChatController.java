@@ -15,10 +15,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.pride.ws.pride.configs.ChatApiConfig;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.List;
 
 @Controller
 @Slf4j
@@ -54,7 +51,7 @@ public class ChatController {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             // build the request
-            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity("{\"query\": \"" + query + "\" }", headers);
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(query, headers);
 
             log.info("Post Request to chat-api: " + query);
             response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
