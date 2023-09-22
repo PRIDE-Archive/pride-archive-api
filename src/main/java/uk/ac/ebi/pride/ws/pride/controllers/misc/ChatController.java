@@ -1,12 +1,14 @@
 package uk.ac.ebi.pride.ws.pride.controllers.misc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,16 +35,17 @@ public class ChatController {
         this.objectMapper = new ObjectMapper();
     }
 
-    @PostMapping(path = "/chat", consumes = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(path = "/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String chat(@RequestBody @NotNull String query) throws HttpClientErrorException {
+    @CrossOrigin(origins = "*")
+    public String chat(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
 
-        String url = chatApiBaseUrl + "post-file";
+        String url = chatApiBaseUrl + "chat";
 
         ResponseEntity<String> response;
         try {
@@ -71,4 +74,19 @@ public class ChatController {
         return body;
     }
 
+    @Data
+    public static class Chat {
+
+        String prompt;
+
+        String model_name;
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "prompt='" + prompt + '\'' +
+                    ", model_name='" + model_name + '\'' +
+                    '}';
+        }
+    }
 }
