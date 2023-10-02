@@ -29,7 +29,7 @@ public class ChatApiConfig {
         if (proxyHost != null && proxyPort != null) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
             requestFactory.setProxy(proxy);
-            requestFactory.setReadTimeout(10000);
+            requestFactory.setReadTimeout(1000000);
         }
         return new RestTemplate(requestFactory);
     }
