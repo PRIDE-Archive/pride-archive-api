@@ -23,6 +23,7 @@ import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.util.ProjectStatus;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
+import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
 import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.solr.commons.PrideProjectField;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
@@ -68,10 +69,16 @@ public class AffinityProjectController {
 
     final ProjectRepoClient projectRepoClient;
 
+    final PrideFileMongoService mongoFileService;
+
 
     @Autowired
-    public AffinityProjectController(SolrProjectService solrProjectService, PrideProjectMongoService mongoProjectService, CustomPagedResourcesAssembler customPagedResourcesAssembler, ProjectRepoClient projectRepoClient) {
+    public AffinityProjectController(SolrProjectService solrProjectService, PrideProjectMongoService mongoProjectService,
+                                     CustomPagedResourcesAssembler customPagedResourcesAssembler,
+                                     ProjectRepoClient projectRepoClient,
+                                     PrideFileMongoService mongoFileService) {
         this.solrProjectService = solrProjectService;
+        this.mongoFileService = mongoFileService;
         this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoProjectService = mongoProjectService;
         this.projectRepoClient = projectRepoClient;
@@ -218,7 +225,7 @@ public class AffinityProjectController {
         List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY")).collect(Collectors.toList());
         mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
 
-        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(AffinityProjectController.class, ProjectResource.class);
+        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(AffinityProjectController.class, ProjectResource.class,mongoFileService);
 
         List<ProjectResource> resources = assembler.toResources(mongoProjects);
 
