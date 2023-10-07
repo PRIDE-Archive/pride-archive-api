@@ -28,6 +28,7 @@ import uk.ac.ebi.pride.ws.pride.configs.ChatApiConfig;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @Controller
 @Slf4j
@@ -121,7 +122,7 @@ public class ChatController {
                             ));
 
                         }
-                ).bodyToMono(String.class);
+                ).bodyToMono(String.class).timeout(Duration.ofMinutes(2));
         return response;
     }
 
