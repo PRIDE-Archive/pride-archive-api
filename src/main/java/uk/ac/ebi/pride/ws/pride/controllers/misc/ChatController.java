@@ -92,8 +92,8 @@ public class ChatController {
     @PostMapping(path = "/asyncchat", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
-    public Mono<String> chatAsync(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
-        Mono<String> response = webClient.post().uri("/chat").body(BodyInserters.fromObject(query))
+    public String chatAsync(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
+        return webClient.post().uri("/chat").body(BodyInserters.fromObject(query))
                 .retrieve()
                 .onStatus(
                         httpStatus -> httpStatus.is4xxClientError(),
@@ -122,8 +122,7 @@ public class ChatController {
                             ));
 
                         }
-                ).bodyToMono(String.class).timeout(Duration.ofMinutes(2));
-        return response;
+                ).bodyToMono(String.class).timeout(Duration.ofMinutes(2)).block(Duration.ofMinutes(2));
     }
 
 
