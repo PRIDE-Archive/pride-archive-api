@@ -4,10 +4,8 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -35,15 +33,15 @@ public class ChatApiConfig {
         return new RestTemplate(requestFactory);
     }
 
-    @Bean("proxyWebClient")
-    public WebClient getProxyWebClient() {
-        ReactorClientHttpConnector conn = new ReactorClientHttpConnector(httpClient -> httpClient.build());
-        if (proxyHost != null && proxyPort != null) {
-            conn = new ReactorClientHttpConnector(httpClient -> httpClient.httpProxy(proxyOptions -> proxyOptions.address(new InetSocketAddress(proxyHost, proxyPort))));
-        }
-        WebClient webClient = WebClient.builder().baseUrl(chatApiBaseUrl).clientConnector(conn).build();
-        return webClient;
-    }
+//    @Bean("proxyWebClient")
+//    public WebClient getProxyWebClient() {
+//        ReactorClientHttpConnector conn = new ReactorClientHttpConnector(httpClient -> httpClient.sslCloseNotifyReadTimeout(Duration.ofMinutes(3)).build());
+//        if (proxyHost != null && proxyPort != null) {
+//            conn = new ReactorClientHttpConnector(httpClient -> httpClient.httpProxy(proxyOptions -> proxyOptions.address(new InetSocketAddress(proxyHost, proxyPort))).sslCloseNotifyReadTimeout(Duration.ofMinutes(3)));
+//        }
+//        WebClient webClient = WebClient.builder().baseUrl(chatApiBaseUrl).clientConnector(conn).build();
+//        return webClient;
+//    }
 
 
 }
