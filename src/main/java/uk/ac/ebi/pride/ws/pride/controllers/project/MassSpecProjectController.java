@@ -33,6 +33,7 @@ import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
+import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProjectMetadata;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
@@ -416,7 +417,6 @@ public class MassSpecProjectController {
             @RequestParam(name = "keyword") String keyword) {
 
         List<String> terms = solrProjectService.findAutoComplete(keyword);
-
         return new HttpEntity<>(terms);
     }
 
@@ -424,5 +424,21 @@ public class MassSpecProjectController {
     public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
         ProjectStatus status = projectRepoClient.getProjectStatus(accession);
         return status.name();
+    }
+
+    @ApiOperation(notes = "List of PRIDE Archive Projects with metadata", value = "projects", nickname = "getProjectsMetadata", tags = {"projects"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public List<PrideProjectMetadata> getProjectsMetadata(@ApiParam(value = "Identifies which page of results to fetch")
+                                                                  @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                              @ApiParam(value = "Number of results to fetch in a page")
+                                                                  @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+
+        return mongoProjectService.findAll(PageRequest.of(page,pageSize)).stream().map(
+                project -> new PrideProjectMetadata(project.getAccession(),project.getTitle(),project.getSubmissionType(),project.getDescription(),project.getSampleProcessingProtocol(),project.getDataProcessingProtocol())
+        ).collect(Collectors.toList());
+
     }
 }
