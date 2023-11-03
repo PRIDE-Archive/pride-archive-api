@@ -426,7 +426,7 @@ public class MassSpecProjectController {
         return status.name();
     }
 
-    @ApiOperation(notes = "List of PRIDE Archive Projects with metadata", value = "projects", nickname = "getProjectsMetadata", tags = {"projects"})
+    @ApiOperation(notes = "List of paged PRIDE Archive Projects with metadata", value = "projects", nickname = "getProjectsMetadata", tags = {"projects"})
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
@@ -435,7 +435,6 @@ public class MassSpecProjectController {
                                                                   @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                               @ApiParam(value = "Number of results to fetch in a page")
                                                                   @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
-
         return mongoProjectService.findAll(PageRequest.of(page,pageSize)).stream().map(
                 project -> new PrideProjectMetadata(project.getAccession(),project.getTitle(),project.getSubmissionType(),project.getDescription(),project.getSampleProcessingProtocol(),project.getDataProcessingProtocol())
         ).collect(Collectors.toList());
