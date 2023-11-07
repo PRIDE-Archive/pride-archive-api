@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY src ./src
 COPY pom.xml ./
-RUN mvn clean package -DjarFinalName=${JAR_FILE_NAME} -DskipTests
+RUN mvn clean package -DjarFinalName=${JAR_FILE_NAME}
 
 # Package stage
 FROM openjdk:8-alpine3.9
