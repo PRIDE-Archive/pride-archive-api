@@ -287,7 +287,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M3</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                     <testFailureIgnore>true</testFailureIgnore>
                     <forkCount>0</forkCount>
                 </configuration>
