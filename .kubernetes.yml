@@ -32,10 +32,6 @@ spec:
       labels:
         app: $app_name
     spec:
-      securityContext:
-        runAsUser: $NFS_UID
-        runAsGroup: $NFS_GID
-        fsGroup: $NFS_GID2
       imagePullSecrets:
         - name: $DOCKER_PULL_SECRET
       volumes:
