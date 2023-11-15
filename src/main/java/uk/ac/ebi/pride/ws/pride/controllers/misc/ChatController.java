@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,19 +12,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.pride.ws.pride.configs.ChatApiConfig;
 
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 @Controller
 @Slf4j
@@ -65,14 +73,7 @@ public class ChatController {
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(query, headers);
 
             log.info("Post Request to chat-api: " + query);
-            response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-
-            HttpStatus statusCode = response.getStatusCode();
-            if (statusCode != HttpStatus.OK && statusCode != HttpStatus.CREATED && statusCode != HttpStatus.ACCEPTED) {
-                String errorMessage = "[POST] Received invalid response for : " + url + " : " + response;
-                log.error(errorMessage);
-                throw new IllegalStateException(errorMessage);
-            }
+            response = getPostStringResponseEntity(url, requestEntity);
         } catch (RestClientException e) {
             log.error(e.getMessage(), e);
             throw e;
@@ -104,14 +105,7 @@ public class ChatController {
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(benchmark, headers);
 
             log.info("Post Request to benchmark-api: " + benchmark);
-            response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-
-            HttpStatus statusCode = response.getStatusCode();
-            if (statusCode != HttpStatus.OK && statusCode != HttpStatus.CREATED && statusCode != HttpStatus.ACCEPTED) {
-                String errorMessage = "[POST] Received invalid response for : " + url + " : " + response;
-                log.error(errorMessage);
-                throw new IllegalStateException(errorMessage);
-            }
+            response = getPostStringResponseEntity(url, requestEntity);
         } catch (RestClientException e) {
             log.error(e.getMessage(), e);
             throw e;
@@ -139,12 +133,12 @@ public class ChatController {
             // build the request
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
 
-            log.info("Post Request to get benchmark-api ");
+            log.info("GET Request to get benchmark-api ");
             response = proxyRestTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
 
             HttpStatus statusCode = response.getStatusCode();
             if (statusCode != HttpStatus.OK && statusCode != HttpStatus.CREATED && statusCode != HttpStatus.ACCEPTED) {
-                String errorMessage = "[POST] Received invalid response for : " + url + " : " + response;
+                String errorMessage = "[GET] Received invalid response for : " + url + " : " + response;
                 log.error(errorMessage);
                 throw new IllegalStateException(errorMessage);
             }
@@ -155,6 +149,203 @@ public class ChatController {
         String body = response.getBody();
         return body;
     }
+
+    @GetMapping(path = "/load")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String load() {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "load";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
+
+            log.info("GET Request to load api ");
+            response = getStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+    @GetMapping(path = "/delete_all")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String deleteAll() {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "delete_all";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
+
+            log.info("GET Request to delete_all api ");
+            response = getStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+    @GetMapping(path = "/get_tree")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String get_tree() {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "get_tree";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
+
+            log.info("GET Request to get_tree api ");
+            response = getStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+    @PostMapping(path = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String delete(@RequestBody @NotNull FileN fileN) throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "delete";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(fileN, headers);
+
+            log.info("Post Request to delete-api: " + fileN);
+            response = getPostStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+    @PostMapping(path = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String upload(@RequestPart("files") List<MultipartFile> files) throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "upload";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+
+            // Prepare the request body (multipart form data)
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            files.forEach(file -> {
+                body.add("files", new FileSystemResource(convert(file)));
+            });
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(body, headers);
+
+            log.info("Post Request to upload-api: ");
+            response = getPostStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+
+    public static File convert(MultipartFile file) {
+        File convFile = new File(file.getOriginalFilename());
+        try {
+            convFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(convFile);
+            fos.write(file.getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return convFile;
+    }
+
+    private ResponseEntity<String> getPostStringResponseEntity(String url, HttpEntity<MultiValueMap<String, String>> requestEntity) {
+        ResponseEntity<String> response;
+        response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+        HttpStatus statusCode = response.getStatusCode();
+        if (statusCode != HttpStatus.OK && statusCode != HttpStatus.CREATED && statusCode != HttpStatus.ACCEPTED) {
+            String errorMessage = "[POST] Received invalid response for : " + url + " : " + response;
+            log.error(errorMessage);
+            throw new IllegalStateException(errorMessage);
+        }
+        return response;
+    }
+
+    private ResponseEntity<String> getStringResponseEntity(String url, HttpEntity<MultiValueMap<String, String>> requestEntity) {
+        ResponseEntity<String> response;
+        response = proxyRestTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+
+        HttpStatus statusCode = response.getStatusCode();
+        if (statusCode != HttpStatus.OK) {
+            String errorMessage = "[GET] Received invalid response for : " + url + " : " + response;
+            log.error(errorMessage);
+            throw new IllegalStateException(errorMessage);
+        }
+        return response;
+    }
+
 
     @Data
     public static class Chat {
@@ -168,6 +359,19 @@ public class ChatController {
             return "{" +
                     "prompt='" + prompt + '\'' +
                     ", model_name='" + model_name + '\'' +
+                    '}';
+        }
+    }
+
+    @Data
+    public static class FileN {
+
+        String filename;
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "filename='" + filename + '\'' +
                     '}';
         }
     }
