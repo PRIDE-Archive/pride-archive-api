@@ -63,6 +63,25 @@ public class ChatController {
 
         String url = chatApiBaseUrl + "chat";
 
+        return getResponse(query, url);
+    }
+
+    @PostMapping(path = "/chat_px", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String pride_search(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "pride";
+
+        return getResponse(query, url);
+    }
+
+    private String getResponse(@RequestBody @NotNull Chat query, String url) {
         ResponseEntity<String> response;
         try {
             //  create headers
