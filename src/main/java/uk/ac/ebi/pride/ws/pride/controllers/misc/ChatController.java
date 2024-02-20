@@ -153,14 +153,7 @@ public class ChatController {
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
 
             log.info("GET Request to get benchmark-api ");
-            response = proxyRestTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-
-            HttpStatus statusCode = response.getStatusCode();
-            if (statusCode != HttpStatus.OK && statusCode != HttpStatus.CREATED && statusCode != HttpStatus.ACCEPTED) {
-                String errorMessage = "[GET] Received invalid response for : " + url + " : " + response;
-                log.error(errorMessage);
-                throw new IllegalStateException(errorMessage);
-            }
+            response = getStringResponseEntity(url, requestEntity);
         } catch (RestClientException e) {
             log.error(e.getMessage(), e);
             throw e;
@@ -168,6 +161,68 @@ public class ChatController {
         String body = response.getBody();
         return body;
     }
+
+
+    @PostMapping(path = "/saveProjectsQueryFeedback", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String saveProjectsQueryFeedback(@RequestBody @NotNull Feedback feedback) throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "saveProjectsQueryFeedback";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(feedback, headers);
+
+            log.info("Post Request to saveProjectsQueryFeedback: " + feedback);
+            response = getPostStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+    @GetMapping(path = "/getProjectsQueryFeedback")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String getProjectsQueryFeedback(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page) throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "getProjectsQueryFeedback?page_num=" + page_num + "&items_per_page=" + items_per_page;
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
+
+            log.info("GET Request to getProjectsQueryFeedback-api ");
+            response = getStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
 
     @GetMapping(path = "/load")
     @ResponseBody
@@ -420,6 +475,23 @@ public class ChatController {
                     ", time_b=" + time_b +
                     ", winner='" + winner + '\'' +
                     ", judge='" + judge + '\'' +
+                    '}';
+        }
+    }
+
+    @Data
+    public static class Feedback {
+
+        String query;
+        String answer;
+        String feedback;
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "query='" + query + '\'' +
+                    ", answer='" + answer + '\'' +
+                    ", feedback='" + feedback + '\'' +
                     '}';
         }
     }
