@@ -163,29 +163,28 @@ public class ChatController {
     }
 
 
-    @PostMapping(path = "/similarProjects", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/similarProjects")
     @ResponseBody
     @CrossOrigin(origins = "*")
-    public String similarProjects(@RequestBody @NotNull String accessions) throws HttpClientErrorException {
+    public String similarProjects(String accessions) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
 
-        String url = chatApiBaseUrl + "similar_projects";
+        String url = chatApiBaseUrl + "similar_projects?accessions=" + accessions;
 
         ResponseEntity<String> response;
         try {
             //  create headers
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
 
             // build the request
-            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(accessions, headers);
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
 
-            log.info("Post Request to similarProjects: " + accessions);
-            response = getPostStringResponseEntity(url, requestEntity);
+            log.info("Get Request to similarProjects: " + accessions);
+            response = getStringResponseEntity(url, requestEntity);
         } catch (RestClientException e) {
             log.error(e.getMessage(), e);
             throw e;
@@ -428,6 +427,8 @@ public class ChatController {
 
     private ResponseEntity<String> getPostStringResponseEntity(String url, HttpEntity<MultiValueMap<String, String>> requestEntity) {
         ResponseEntity<String> response;
+        System.out.println(url);
+        System.out.println(requestEntity);
         response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
         HttpStatus statusCode = response.getStatusCode();
