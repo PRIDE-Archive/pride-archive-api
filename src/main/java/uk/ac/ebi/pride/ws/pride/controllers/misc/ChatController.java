@@ -166,7 +166,7 @@ public class ChatController {
     @PostMapping(path = "/similarProjects", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
-    public String similarProjects(@RequestBody @NotNull List<String> accessions) throws HttpClientErrorException {
+    public String similarProjects(@RequestBody @NotNull String accessions) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
