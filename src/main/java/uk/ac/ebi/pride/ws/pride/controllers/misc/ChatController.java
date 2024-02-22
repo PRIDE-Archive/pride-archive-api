@@ -163,6 +163,38 @@ public class ChatController {
     }
 
 
+    @PostMapping(path = "/similarProjects", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public String similarProjects(@RequestBody @NotNull List<String> accessions) throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "similar_projects";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(accessions, headers);
+
+            log.info("Post Request to similarProjects: " + accessions);
+            response = getPostStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
+
+
     @PostMapping(path = "/saveProjectsQueryFeedback", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
