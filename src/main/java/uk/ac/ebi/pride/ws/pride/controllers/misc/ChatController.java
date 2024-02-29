@@ -136,14 +136,19 @@ public class ChatController {
     @GetMapping(path = "/getBenchmark")
     @ResponseBody
     @CrossOrigin(origins = "*")
-    public String getBenchmark(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page) throws HttpClientErrorException {
+    public String getBenchmark(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page,
+                               @RequestParam(defaultValue = "4", name = "iteration") @NotNull int iteration) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
+        
+        if(iteration > 4){
+            throw new RestClientException("Please provide iterations less than or equal to 4");
+        }
 
-        String url = chatApiBaseUrl + "getBenchmark?page_num=" + page_num + "&items_per_page=" + items_per_page;
+        String url = chatApiBaseUrl + "getBenchmark?page_num=" + page_num + "&items_per_page=" + items_per_page + "&iteration=" + iteration ;
 
         ResponseEntity<String> response;
         try {
