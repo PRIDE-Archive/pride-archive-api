@@ -137,15 +137,15 @@ public class ChatController {
     @ResponseBody
     @CrossOrigin(origins = "*")
     public String getBenchmark(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page,
-                               @RequestParam(defaultValue = "4", name = "iteration") @NotNull int iteration) throws HttpClientErrorException {
+                               @RequestParam(defaultValue = "5", name = "iteration") @NotNull int iteration) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
-        
-        if(iteration > 4){
-            throw new RestClientException("Please provide iterations less than or equal to 4");
+
+        if(iteration > 5){
+            throw new RestClientException("Please provide iterations less than or equal to 5");
         }
 
         String url = chatApiBaseUrl + "getBenchmark?page_num=" + page_num + "&items_per_page=" + items_per_page + "&iteration=" + iteration ;
@@ -199,17 +199,17 @@ public class ChatController {
     }
 
 
-    @PostMapping(path = "/saveProjectsQueryFeedback", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/saveQueryFeedback", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
-    public String saveProjectsQueryFeedback(@RequestBody @NotNull Feedback feedback) throws HttpClientErrorException {
+    public String saveQueryFeedback(@RequestBody @NotNull Feedback feedback) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
 
-        String url = chatApiBaseUrl + "saveProjectsQueryFeedback";
+        String url = chatApiBaseUrl + "saveQueryFeedback";
 
         ResponseEntity<String> response;
         try {
@@ -230,17 +230,17 @@ public class ChatController {
         return body;
     }
 
-    @GetMapping(path = "/getProjectsQueryFeedback")
+    @GetMapping(path = "/getQueryFeedback")
     @ResponseBody
     @CrossOrigin(origins = "*")
-    public String getProjectsQueryFeedback(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page) throws HttpClientErrorException {
+    public String getQueryFeedback(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
 
-        String url = chatApiBaseUrl + "getProjectsQueryFeedback?page_num=" + page_num + "&items_per_page=" + items_per_page;
+        String url = chatApiBaseUrl + "getQueryFeedback?page_num=" + page_num + "&items_per_page=" + items_per_page;
 
         ResponseEntity<String> response;
         try {
@@ -249,7 +249,7 @@ public class ChatController {
             // build the request
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
 
-            log.info("GET Request to getProjectsQueryFeedback-api ");
+            log.info("GET Request to getQueryFeedback-api ");
             response = getStringResponseEntity(url, requestEntity);
         } catch (RestClientException e) {
             log.error(e.getMessage(), e);
@@ -524,12 +524,21 @@ public class ChatController {
         String answer;
         String feedback;
 
+        String model;
+
+        String source;
+
+        Integer time_ms;
+
         @Override
         public String toString() {
             return "{" +
                     "query='" + query + '\'' +
                     ", answer='" + answer + '\'' +
                     ", feedback='" + feedback + '\'' +
+                    ", model='" + model + '\'' +
+                    ", source='" + source + '\'' +
+                    ", time_ms=" + time_ms +
                     '}';
         }
     }
