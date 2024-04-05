@@ -17,6 +17,10 @@ public class ChatApiConfig {
     @Getter
     private String chatApiBaseUrl;
 
+    @Value(("${slack.app.token}"))
+    @Getter
+    private String slackAppToken;
+
     @Value("${proxy-host}")
     private String proxyHost;
 
