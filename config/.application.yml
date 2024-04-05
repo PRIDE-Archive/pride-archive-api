@@ -67,3 +67,5 @@ server.tomcat.accesslog:
   rotate: true
   suffix: .log
 
+slack.app.token: $slack_app_token
+

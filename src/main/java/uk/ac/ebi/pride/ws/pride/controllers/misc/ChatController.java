@@ -1,5 +1,8 @@
 package uk.ac.ebi.pride.ws.pride.controllers.misc;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -83,6 +87,7 @@ public class ChatController {
 
     private String getResponse(@RequestBody @NotNull Chat query, String url) {
         ResponseEntity<String> response;
+        String slackUrl = "https://slack.com/api/chat.postMessage";
         try {
             //  create headers
             HttpHeaders headers = new HttpHeaders();
@@ -93,9 +98,29 @@ public class ChatController {
 
             log.info("Post Request to chat-api: " + query);
             response = getPostStringResponseEntity(url, requestEntity);
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, String> resultMap = objectMapper.readValue(response.getBody(), Map.class);
+            String result = resultMap.get("result");
+
+            headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + chatApiConfig.getSlackAppToken());
+            String slackPayload = "{\"text\": \"Question: " + query.getPrompt() + "\nAnswer: "+
+                    result + "\", \"channel\": \"pride-chatbot\"}";
+            requestEntity = new HttpEntity(slackPayload, headers);
+            log.info("Posting to slack " + query);
+            getPostStringResponseEntity(slackUrl, requestEntity);
+
+
         } catch (RestClientException e) {
             log.error(e.getMessage(), e);
             throw e;
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonParseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         String body = response.getBody();
         return body;
