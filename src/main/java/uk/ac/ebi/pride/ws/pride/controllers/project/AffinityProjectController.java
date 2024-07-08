@@ -10,17 +10,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.query.result.FacetPage;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
-import uk.ac.ebi.pride.archive.repo.util.ProjectStatus;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
@@ -33,23 +28,22 @@ import uk.ac.ebi.pride.ws.pride.assemblers.CompactProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
+import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectModel;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import javax.validation.Valid;
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
- * The Dataset/Project Controller enables to retrieve the information for each PRIDE Project/CompactProjectResource through a RestFull API.
+ * The Dataset/Project Controller enables to retrieve the information for each PRIDE Project/CompactProjectModel through a RestFull API.
  *
  * @author ypriverol
  */
@@ -63,8 +57,6 @@ public class AffinityProjectController {
 
     private final SolrProjectService solrProjectService;
 
-    final CustomPagedResourcesAssembler customPagedResourcesAssembler;
-
     final PrideProjectMongoService mongoProjectService;
 
     final ProjectRepoClient projectRepoClient;
@@ -74,12 +66,10 @@ public class AffinityProjectController {
 
     @Autowired
     public AffinityProjectController(SolrProjectService solrProjectService, PrideProjectMongoService mongoProjectService,
-                                     CustomPagedResourcesAssembler customPagedResourcesAssembler,
                                      ProjectRepoClient projectRepoClient,
                                      PrideFileMongoService mongoFileService) {
         this.solrProjectService = solrProjectService;
         this.mongoFileService = mongoFileService;
-        this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoProjectService = mongoProjectService;
         this.projectRepoClient = projectRepoClient;
     }
@@ -92,7 +82,7 @@ public class AffinityProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<CompactProjectResource>> projects(
+    public HttpEntity<PagedModel<CompactProjectModel>> projects(
             @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
             @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
@@ -121,15 +111,15 @@ public class AffinityProjectController {
 
         Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(page, pageSize, direction, sortFields.split(",")), dateGap);
         solrProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY"));
-        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(AffinityProjectController.class, CompactProjectResource.class);
+        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(AffinityProjectController.class, CompactProjectModel.class);
 
-        List<CompactProjectResource> resources = assembler.toResources(solrProjects);
+        CollectionModel<CompactProjectModel> resources = assembler.toCollectionModel(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
         long totalPages = solrProjects.getTotalPages();
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<CompactProjectModel> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, page, dateGap, sortDirection, sortFields))
                         .withSelfRel(),
                 linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), dateGap, sortDirection, sortFields))
@@ -160,7 +150,7 @@ public class AffinityProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<FacetResource>> facets(
+    public HttpEntity<PagedModel<FacetResource>> facets(
             @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(value = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
             @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
@@ -180,10 +170,10 @@ public class AffinityProjectController {
 
         FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize), dateGap);
         FacetResourceAssembler assembler = new FacetResourceAssembler(AffinityProjectController.class, FacetResource.class, dateGap);
-        List<FacetResource> resources = assembler.toResources(solrProjects);
+        CollectionModel<FacetResource> resources = assembler.toCollectionModel(solrProjects);
 
 
-        PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, null,
+        PagedModel<FacetResource> pagedResources = PagedModel.of(resources.getContent(), null, Arrays.asList(
                 linkTo(methodOn(AffinityProjectController.class).facets(keyword, filter, facetPageSize, facetPage, dateGap))
                         .withSelfRel(),
                 linkTo(methodOn(AffinityProjectController.class).facets(keyword, filter, facetPageSize, facetPage + 1, dateGap))
@@ -192,7 +182,7 @@ public class AffinityProjectController {
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(AffinityProjectController.class).facets(keyword, filter, facetPageSize, 0, dateGap))
                         .withRel(WsContastants.HateoasEnum.first.name())
-        );
+        ));
 
         return new HttpEntity<>(pagedResources);
     }
@@ -203,7 +193,7 @@ public class AffinityProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources> getProjects(
+    public HttpEntity<PagedModel> getProjects(
             @ApiParam(value = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
             @ApiParam(value = "Identifies which page of results to fetch")
@@ -225,15 +215,15 @@ public class AffinityProjectController {
         List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY")).collect(Collectors.toList());
         mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
 
-        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(AffinityProjectController.class, ProjectResource.class,mongoFileService);
+        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(AffinityProjectController.class, ProjectResource.class, mongoFileService);
 
-        List<ProjectResource> resources = assembler.toResources(mongoProjects);
+        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
 
         long totalElements = mongoProjects.getTotalElements();
         long totalPages = mongoProjects.getTotalPages();
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
                 linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
@@ -255,7 +245,7 @@ public class AffinityProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<CompactProjectResource>> getSimilarProjects(
+    public HttpEntity<PagedModel<CompactProjectModel>> getSimilarProjects(
             @ApiParam(value = "The Accession id associated with this project")
             @PathVariable(value = "accession") String projectAccession,
             @ApiParam(value = "Identifies which page of results to fetch")
@@ -269,17 +259,17 @@ public class AffinityProjectController {
 
         List<PrideSolrProject> solrProjects = solrProjectService.findSimilarProjects(projectAccession, pageSize, page);
         solrProjects = solrProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY")).collect(Collectors.toList());
-        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(AffinityProjectController.class, CompactProjectResource.class);
+        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(AffinityProjectController.class, CompactProjectModel.class);
 
-        List<CompactProjectResource> resources = assembler.toResources(solrProjects);
+        CollectionModel<CompactProjectModel> resources = assembler.toCollectionModel(solrProjects);
 
         long totalElements = solrProjects.size();
         long totalPages = totalElements / pageSize;
         if (totalElements % pageSize > 0)
             totalPages++;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<CompactProjectModel> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, page))
                         .withSelfRel(),
                 linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))

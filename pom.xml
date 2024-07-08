@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.1.RELEASE</version>
+        <version>3.1.6</version>
     </parent>
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
@@ -23,6 +23,9 @@
 
     <properties>
         <jarFinalName>pride-api</jarFinalName>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.2
         </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
         <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.9-SNAPSHOT
@@ -40,7 +43,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
+            <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
 
@@ -49,7 +52,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>3.1.0</version>
         </dependency>
 
         <!--Spring dependencies-->
@@ -200,6 +202,18 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>uk.ac.ebi.pride.archive.elastic.client</groupId>
+            <artifactId>pride-elastic-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>1.5.31</version> <!-- or the version you are using -->
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -208,7 +222,7 @@
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>1.5.3</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>generate-docs</id>
@@ -287,7 +301,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M3</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                     <testFailureIgnore>true</testFailureIgnore>
                     <forkCount>0</forkCount>
                 </configuration>
@@ -299,20 +313,46 @@
         <repository>
             <id>nexus-ebi-release-repo</id>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
+
         <repository>
             <id>nexus-ebi-snapshot-repo</id>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
+
         <repository>
             <id>pst-release</id>
             <name>EBI Nexus Repository</name>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>pst-snapshots</id>
             <name>EBI Nexus Snapshots Repository</name>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

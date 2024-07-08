@@ -1,28 +1,24 @@
 package uk.ac.ebi.pride.ws.pride.security.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-    @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf().disable()
-                // don't create session
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.GET,"/**").permitAll()
-                .antMatchers(HttpMethod.POST,"/getAAPToken","/user/register","/user/update-profile","/user/change-password").permitAll()
-                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll();
-    }
+                .csrf(csrfCustomizer -> csrfCustomizer.disable())
+                .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable())
+                .authorizeHttpRequests((authz) -> authz
+                        .anyRequest().authenticated()
+                );
 
+        return httpSecurity.build();
+    }
 }

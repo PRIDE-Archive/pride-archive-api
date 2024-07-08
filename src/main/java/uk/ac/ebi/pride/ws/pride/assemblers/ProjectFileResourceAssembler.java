@@ -1,9 +1,9 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
@@ -17,18 +17,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 /**
  * @author ypriverol
  */
 @Slf4j
-public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<MongoPrideFile, PrideFileResource> {
+public class ProjectFileResourceAssembler extends RepresentationModelAssemblerSupport<MongoPrideFile, PrideFileResource> {
 
     public ProjectFileResourceAssembler(Class<?> controller, Class<PrideFileResource> resourceType) {
         super(controller, resourceType);
     }
 
     @Override
-    public PrideFileResource toResource(MongoPrideFile mongoFile) {
+    public PrideFileResource toModel(MongoPrideFile mongoFile) {
 
         Set<CvParamProvider> additionalAttributes = mongoFile.getAdditionalAttributes() != null ? mongoFile.getAdditionalAttributes().stream()
                 .map(x -> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue())).collect(Collectors.toSet()) : Collections.emptySet();
@@ -59,7 +62,7 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
                 .submissionDate(mongoFile.getSubmissionDate())
                 .build();
         List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
+        links.add(linkTo(methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
         return new PrideFileResource(file, links);
     }
 
@@ -71,14 +74,14 @@ public class ProjectFileResourceAssembler extends ResourceAssemblerSupport<Mongo
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<PrideFileResource> toResources(Iterable<? extends MongoPrideFile> entities) {
+    public CollectionModel<PrideFileResource> toCollectionModel(Iterable<? extends MongoPrideFile> entities) {
 
         List<PrideFileResource> datasets = new ArrayList<>();
 
         for (MongoPrideFile mongoFile : entities) {
-            datasets.add(toResource(mongoFile));
+            datasets.add(toModel(mongoFile));
         }
 
-        return datasets;
+        return CollectionModel.of(datasets);
     }
 }

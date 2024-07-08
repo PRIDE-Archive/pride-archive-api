@@ -4,15 +4,21 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.query.result.FacetPage;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import uk.ac.ebi.pride.archive.elastic.client.service.ElasticQueryClientService;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.util.ProjectStatus;
 import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
@@ -30,46 +36,40 @@ import uk.ac.ebi.pride.solr.indexes.services.SolrProjectService;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.*;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
-import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectResource;
-import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
-import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProjectMetadata;
-import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
-import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
+import uk.ac.ebi.pride.ws.pride.models.dataset.*;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
 import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
- * The Dataset/Project Controller enables to retrieve the information for each PRIDE Project/CompactProjectResource through a RestFull API.
+ * The Dataset/Project Controller enables to retrieve the information for each PRIDE Project/CompactProjectModel through a RestFull API.
  *
  * @author ypriverol
  */
 
 @RestController("/")
-public class MassSpecProjectController {
+@Slf4j
+public class MassSpecProjectController extends PagedModel {
 
 
-    private final String PARTIAL_SUBMISSION_TYPE_FILTER= "project_submission_type==PARTIAL";
+    private final String PARTIAL_SUBMISSION_TYPE_FILTER = "project_submission_type==PARTIAL";
 
-    private final String COMPLETE_SUBMISSION_TYPE_FILTER= "project_submission_type==COMPLETE";
+    private final String COMPLETE_SUBMISSION_TYPE_FILTER = "project_submission_type==COMPLETE";
 
-    private final String DEFAULT_MASS_SPEC_PROJECT_TYPE_FILTER = PARTIAL_SUBMISSION_TYPE_FILTER+","
+    private final String DEFAULT_MASS_SPEC_PROJECT_TYPE_FILTER = PARTIAL_SUBMISSION_TYPE_FILTER + ","
             + COMPLETE_SUBMISSION_TYPE_FILTER;
 
     private final SolrProjectService solrProjectService;
-
-    final CustomPagedResourcesAssembler customPagedResourcesAssembler;
 
     final PrideFileMongoService mongoFileService;
 
@@ -81,19 +81,22 @@ public class MassSpecProjectController {
 
     final ProjectRepoClient projectRepoClient;
 
+    final ElasticQueryClientService elasticQueryClientService;
+
     @Autowired
     public MassSpecProjectController(SolrProjectService solrProjectService,
-                                     CustomPagedResourcesAssembler customPagedResourcesAssembler,
                                      PrideFileMongoService mongoFileService,
                                      PrideProjectMongoService mongoProjectService,
-                                     ImportedProjectMongoService importedProjectMongoService, PrideReanalysisMongoService prideReanalysisMongoService, ProjectRepoClient projectRepoClient) {
+                                     ImportedProjectMongoService importedProjectMongoService,
+                                     PrideReanalysisMongoService prideReanalysisMongoService, ProjectRepoClient projectRepoClient,
+                                     ElasticQueryClientService elasticQueryClientService) {
         this.solrProjectService = solrProjectService;
-        this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.mongoFileService = mongoFileService;
         this.mongoProjectService = mongoProjectService;
         this.importedProjectMongoService = importedProjectMongoService;
         this.prideReanalysisMongoService = prideReanalysisMongoService;
         this.projectRepoClient = projectRepoClient;
+        this.elasticQueryClientService = elasticQueryClientService;
     }
 
 
@@ -105,7 +108,7 @@ public class MassSpecProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<CompactProjectResource>> projects(
+    public HttpEntity<PagedModel<CompactProjectModel>> projects(
             @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
             @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
@@ -133,15 +136,15 @@ public class MassSpecProjectController {
         filter = getDefaultMassSpecFilter(filter);
 
         Page<PrideSolrProject> solrProjects = solrProjectService.findByKeyword(keyword, filter, PageRequest.of(page, pageSize, direction, sortFields.split(",")), dateGap);
-        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(MassSpecProjectController.class, CompactProjectResource.class);
+        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(MassSpecProjectController.class, CompactProjectModel.class);
 
-        List<CompactProjectResource> resources = assembler.toResources(solrProjects);
+        CollectionModel<CompactProjectModel> resources = assembler.toCollectionModel(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
         long totalPages = solrProjects.getTotalPages();
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<CompactProjectModel> pagedResources = PagedModel.of(resources.getContent(), pageMetadata, Arrays.asList(
                 linkTo(methodOn(MassSpecProjectController.class).projects(keyword, filter, pageSize, page, dateGap, sortDirection, sortFields))
                         .withSelfRel(),
                 linkTo(methodOn(MassSpecProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), dateGap, sortDirection, sortFields))
@@ -153,13 +156,13 @@ public class MassSpecProjectController {
                 linkTo(methodOn(MassSpecProjectController.class).projects(keyword, filter, pageSize, (int) totalPages, dateGap, sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.last.name()),
                 linkTo(methodOn(MassSpecProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0, "")).withRel(WsContastants.HateoasEnum.facets.name())
-        );
+        ));
 
         return new HttpEntity<>(pagedResources);
     }
 
     private String getDefaultMassSpecFilter(String filter) {
-        if (!filter.contains(COMPLETE_SUBMISSION_TYPE_FILTER) && !filter.contains(PARTIAL_SUBMISSION_TYPE_FILTER) ) {
+        if (!filter.contains(COMPLETE_SUBMISSION_TYPE_FILTER) && !filter.contains(PARTIAL_SUBMISSION_TYPE_FILTER)) {
             filter = filter.concat("," + DEFAULT_MASS_SPEC_PROJECT_TYPE_FILTER);
         }
         return filter;
@@ -172,7 +175,7 @@ public class MassSpecProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<FacetResource>> facets(
+    public HttpEntity<PagedModel<FacetResource>> facets(
             @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(value = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
             @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
@@ -192,10 +195,10 @@ public class MassSpecProjectController {
 
         FacetPage<PrideSolrProject> solrProjects = solrProjectService.findFacetByKeyword(keyword, filter, PageRequest.of(0, 10), PageRequest.of(facetPage, facetPageSize), dateGap);
         FacetResourceAssembler assembler = new FacetResourceAssembler(MassSpecProjectController.class, FacetResource.class, dateGap);
-        List<FacetResource> resources = assembler.toResources(solrProjects);
+        CollectionModel<FacetResource> resources = assembler.toCollectionModel(solrProjects);
 
 
-        PagedResources<FacetResource> pagedResources = new PagedResources<>(resources, null,
+        PagedModel<FacetResource> pagedResources = PagedModel.of(resources.getContent(), null, Arrays.asList(
                 linkTo(methodOn(MassSpecProjectController.class).facets(keyword, filter, facetPageSize, facetPage, dateGap))
                         .withSelfRel(),
                 linkTo(methodOn(MassSpecProjectController.class).facets(keyword, filter, facetPageSize, facetPage + 1, dateGap))
@@ -203,7 +206,7 @@ public class MassSpecProjectController {
                 linkTo(methodOn(MassSpecProjectController.class).facets(keyword, filter, facetPageSize, (facetPage > 0) ? facetPage - 1 : 0, dateGap))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(MassSpecProjectController.class).facets(keyword, filter, facetPageSize, 0, dateGap))
-                        .withRel(WsContastants.HateoasEnum.first.name())
+                        .withRel(WsContastants.HateoasEnum.first.name()))
         );
 
         return new HttpEntity<>(pagedResources);
@@ -230,8 +233,8 @@ public class MassSpecProjectController {
             }
         }
         PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class,
-                ProjectResource.class,mongoFileService);
-        return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toResource(mongoPrideProject), HttpStatus.OK))
+                ProjectResource.class, mongoFileService);
+        return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toModel(mongoPrideProject), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
 
     }
@@ -249,7 +252,7 @@ public class MassSpecProjectController {
 
         Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
         PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(MassSpecProjectController.class, ProjectReanalysisResource.class);
-        ResponseEntity<Object> responseEntity = project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toResource(reanalysisProject), HttpStatus.OK))
+        ResponseEntity<Object> responseEntity = project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toModel(reanalysisProject), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
         return responseEntity;
 
@@ -261,7 +264,7 @@ public class MassSpecProjectController {
             @ApiResponse(code = 200, message = "OK", response = APIError.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources> getProjects(
+    public HttpEntity<PagedModel> getProjects(
             @ApiParam(value = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
             @ApiParam(value = "Identifies which page of results to fetch")
@@ -280,16 +283,16 @@ public class MassSpecProjectController {
 
         Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
         List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("COMPLETE") || project.getSubmissionType().equals("PARTIAL")).collect(Collectors.toList());
-        mongoProjects = new PageImpl<>(filteredList,PageRequest.of(page, pageSize, direction, sortFields.split(",")),filteredList.size());
-        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class,mongoFileService);
+        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
+        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class, mongoFileService);
 
-        List<ProjectResource> resources = assembler.toResources(mongoProjects);
+        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
 
         long totalElements = mongoProjects.getTotalElements();
         long totalPages = mongoProjects.getTotalPages();
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<ProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
                 linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
@@ -310,7 +313,7 @@ public class MassSpecProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<PrideFileResource>> getFilesByProject(
+    public HttpEntity<PagedModel<PrideFileResource>> getFilesByProject(
             @ApiParam(value = "The Accession id associated with this project")
             @PathVariable(value = "accession") String projectAccession,
             @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
@@ -335,13 +338,13 @@ public class MassSpecProjectController {
         Page<MongoPrideFile> projectFiles = mongoFileService.findFilesByProjectAccessionAndFiler(projectAccession, filter, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
         ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
 
-        List<PrideFileResource> resources = assembler.toResources(projectFiles);
+        CollectionModel<PrideFileResource> resources = assembler.toCollectionModel(projectFiles);
 
         long totalElements = projectFiles.getTotalElements();
         long totalPages = projectFiles.getTotalPages();
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<PrideFileResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<PrideFileResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, page, sortDirection, sortFields)).withSelfRel(),
                 linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
@@ -363,7 +366,7 @@ public class MassSpecProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
     })
     @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedResources<CompactProjectResource>> getSimilarProjects(
+    public HttpEntity<PagedModel<CompactProjectModel>> getSimilarProjects(
             @ApiParam(value = "The Accession id associated with this project")
             @PathVariable(value = "accession") String projectAccession,
             @ApiParam(value = "Identifies which page of results to fetch")
@@ -377,17 +380,17 @@ public class MassSpecProjectController {
 
         List<PrideSolrProject> solrProjects = solrProjectService.findSimilarProjects(projectAccession, pageSize, page);
         solrProjects = solrProjects.stream().filter(project -> project.getSubmissionType().equals("COMPLETE") || project.getSubmissionType().equals("PARTIAL")).collect(Collectors.toList());
-        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(MassSpecProjectController.class, CompactProjectResource.class);
+        CompactProjectResourceAssembler assembler = new CompactProjectResourceAssembler(MassSpecProjectController.class, CompactProjectModel.class);
 
-        List<CompactProjectResource> resources = assembler.toResources(solrProjects);
+        CollectionModel<CompactProjectModel> resources = assembler.toCollectionModel(solrProjects);
 
         long totalElements = solrProjects.size();
         long totalPages = totalElements / pageSize;
         if (totalElements % pageSize > 0)
             totalPages++;
-        PagedResources.PageMetadata pageMetadata = new PagedResources.PageMetadata(pageSize, page, totalElements, totalPages);
+        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
-        PagedResources<CompactProjectResource> pagedResources = new PagedResources<>(resources, pageMetadata,
+        PagedModel<CompactProjectModel> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(MassSpecProjectController.class).getSimilarProjects(projectAccession, pageSize, page))
                         .withSelfRel(),
                 linkTo(methodOn(MassSpecProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
@@ -432,12 +435,65 @@ public class MassSpecProjectController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
     @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public List<PrideProjectMetadata> getProjectsMetadata(@ApiParam(value = "Identifies which page of results to fetch")
-                                                                  @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                              @ApiParam(value = "Number of results to fetch in a page")
-                                                                  @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
-        return mongoProjectService.findAll(PageRequest.of(page,pageSize)).stream().map(
-                project -> new PrideProjectMetadata(project.getAccession(),project.getTitle(),project.getSubmissionType(),project.getDescription(),project.getSampleProcessingProtocol(),project.getDataProcessingProtocol())
+                                                          @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                          @ApiParam(value = "Number of results to fetch in a page")
+                                                          @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+        return mongoProjectService.findAll(PageRequest.of(page, pageSize)).stream().map(
+                project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessingProtocol(), project.getDataProcessingProtocol())
         ).collect(Collectors.toList());
 
+    }
+
+    @ApiOperation(notes = "List of all data", value = "projects", nickname = "getAllProjects", tags = {"projects"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @RequestMapping(value = "/projects/stream", method = RequestMethod.GET, produces = {MediaType.APPLICATION_STREAM_JSON_VALUE})
+    public Flux<Map<String,Object>> getProjectsStream(@RequestParam(name = "fieldsToReturn" ) String fieldsToReturn) {
+
+        int batchSize = 1;
+        List<String> fields = Arrays.asList(fieldsToReturn.split(","));
+
+        AtomicInteger offset = new AtomicInteger(0);
+
+        Map<String,Object> a = new HashMap<>();
+        a.put("Error","Error in fieldsToReturn");
+
+        return Flux.
+                defer(() -> elasticQueryClientService.findAllBy(batchSize, 0, fields)) // Initial call with offset 0
+                .expand(batch -> {
+                    if (batch.isEmpty()) {
+                        return Mono.empty(); // Stop expanding if the batch is empty
+                    }
+                    int nextOffset = offset.addAndGet(batchSize);
+                    return elasticQueryClientService.findAllBy(batchSize, nextOffset, fields); // Fetch the next batch
+                })
+                .flatMap(Flux::fromIterable)
+                .map(item -> getFieldValues(item, fields))
+                .onErrorReturn( a );
+    }
+
+    public static Map<String, Object> getFieldValues(Object obj, List<String> fields) {
+        Map<String, Object> fieldValues = new HashMap<>();
+
+        for (String field : fields) {
+            try {
+                // Construct the getter method name
+                String getterName = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
+
+                // Get the method from the class
+                Method getterMethod = obj.getClass().getMethod(getterName);
+
+                // Invoke the getter method on the object
+                Object value = getterMethod.invoke(obj);
+
+                // Add the field name and value to the map
+                fieldValues.put(field, value);
+            } catch (Exception e) {
+                log.error("Issue with fields passed",e.getMessage());
+            }
+        }
+
+        return fieldValues;
     }
 }

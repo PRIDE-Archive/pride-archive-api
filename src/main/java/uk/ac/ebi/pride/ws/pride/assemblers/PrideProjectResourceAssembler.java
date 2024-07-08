@@ -1,10 +1,10 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.UriTemplate;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
@@ -24,13 +24,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
  *
  * @author ypriverol
  */
 @Slf4j
-public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<MongoPrideProject, ProjectResource> {
+public class PrideProjectResourceAssembler extends RepresentationModelAssemblerSupport<MongoPrideProject, ProjectResource> {
 
     private PrideFileMongoService mongoFileService;
 
@@ -41,16 +44,16 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
     }
 
     @Override
-    public ProjectResource toResource(MongoPrideProject mongoPrideProject) {
+    public ProjectResource toModel(MongoPrideProject mongoPrideProject) {
         List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+        links.add(linkTo(methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
 
         Method method = null;
         try {
             method = MassSpecProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class, String.class, String.class);
-            Link link = ControllerLinkBuilder.linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
+            Link link = linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
             links.add(link);
-            links.add(new Link(new UriTemplate(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
+            links.add(Link.of(UriTemplate.of(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
         }
@@ -84,27 +87,27 @@ public class PrideProjectResourceAssembler extends ResourceAssemblerSupport<Mong
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ProjectResource> toResources(Iterable<? extends MongoPrideProject> entities) {
+    public CollectionModel<ProjectResource> toCollectionModel(Iterable<? extends MongoPrideProject> entities) {
 
         List<ProjectResource> projects = new ArrayList<>();
 
         for (MongoPrideProject mongoPrideProject : entities) {
             PrideProject project = transform(mongoPrideProject);
             List<Link> links = new ArrayList<>();
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0,"DESC",PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
+            links.add(linkTo(methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+            links.add(linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0,"DESC",PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
             Date publicationDate = mongoPrideProject.getPublicationDate();
             SimpleDateFormat year = new SimpleDateFormat("YYYY");
             SimpleDateFormat month = new SimpleDateFormat("MM");
             String ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
-            links.add(new Link(new UriTemplate(ftpPath), "datasetFtpUrl"));
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
-            links.add(new Link(new UriTemplate(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
+            links.add(Link.of(UriTemplate.of(ftpPath), "datasetFtpUrl"));
+            links.add(linkTo(methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
+            links.add(linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
+            links.add(Link.of(UriTemplate.of(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
             projects.add(new ProjectResource(project, links));
         }
 
-        return projects;
+        return CollectionModel.of(projects);
     }
 
     /**

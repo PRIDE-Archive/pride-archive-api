@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.models.file;
 
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -14,12 +14,13 @@ import org.springframework.hateoas.Resource;
  *
  * @author ypriverol on 24/10/2018.
  */
-public class PrideMSRunResource extends Resource<PrideMSRun> {
+public class PrideMSRunResource extends EntityModel<PrideMSRun> {
 
     /**
      * Default constructor for Pride File including hateoas links.
+     *
      * @param content Object that would be represented
-     * @param links links.
+     * @param links   links.
      */
     public PrideMSRunResource(PrideMSRun content, Iterable<Link> links) {
         super(content, links);

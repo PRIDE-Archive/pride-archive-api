@@ -69,3 +69,9 @@ server.tomcat.accesslog:
 
 slack.app.token: $slack_app_token
 
+elastic:
+  endpoint: $elastic_api_url
+  security:
+    header-name : x-api-key
+    api-key: reactive#elastic
+

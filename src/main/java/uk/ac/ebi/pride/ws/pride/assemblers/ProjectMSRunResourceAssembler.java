@@ -1,8 +1,8 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
@@ -11,6 +11,9 @@ import uk.ac.ebi.pride.ws.pride.transformers.Transformer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -23,31 +26,31 @@ import java.util.List;
  *
  * @author ypriverol on 24/10/2018.
  */
-public class ProjectMSRunResourceAssembler extends ResourceAssemblerSupport<MongoPrideMSRun, PrideMSRunResource> {
+public class ProjectMSRunResourceAssembler extends RepresentationModelAssemblerSupport<MongoPrideMSRun, PrideMSRunResource> {
 
     public ProjectMSRunResourceAssembler(Class<?> controller, Class<PrideMSRunResource> resourceType) {
         super(controller, resourceType);
     }
 
     @Override
-    public PrideMSRunResource toResource(MongoPrideMSRun mongoFile) {
+    public PrideMSRunResource toModel(MongoPrideMSRun mongoFile) {
 
         PrideMSRun msRun = Transformer.transformMSRun(mongoFile);
         List<Link> links = new ArrayList<>();
-        links.add(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
+        links.add(linkTo(methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
         return new PrideMSRunResource(msRun, links);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<PrideMSRunResource> toResources(Iterable<? extends MongoPrideMSRun> entities) {
+    public CollectionModel<PrideMSRunResource> toCollectionModel(Iterable<? extends MongoPrideMSRun> entities) {
 
         List<PrideMSRunResource> datasets = new ArrayList<>();
 
-        for(MongoPrideMSRun mongoFile: entities){
-            datasets.add(toResource(mongoFile));
+        for (MongoPrideMSRun mongoFile : entities) {
+            datasets.add(toModel(mongoFile));
         }
 
-        return datasets;
+        return CollectionModel.of(datasets);
     }
 }

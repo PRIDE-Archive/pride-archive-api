@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.models.dataset;
 
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -16,12 +16,13 @@ import org.springframework.hateoas.Resource;
  * <p>
  * Created by ypriverol (ypriverol@gmail.com) on 25/05/2018.
  */
-public class ProjectResource extends Resource<PrideProject> {
+public class ProjectResource extends EntityModel<PrideProject> {
 
     /**
      * Default constructor for Resource Dataset including hateoas links.
+     *
      * @param content Object that would be represented
-     * @param links links.
+     * @param links   links.
      */
     public ProjectResource(PrideProject content, Iterable<Link> links) {
         super(content, links);

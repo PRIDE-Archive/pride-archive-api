@@ -13,9 +13,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
-import org.springframework.hateoas.RelProvider;
-import org.springframework.hateoas.ResourceAssembler;
-import org.springframework.hateoas.core.EvoInflectorRelProvider;
+import org.springframework.hateoas.server.LinkRelationProvider;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
+import org.springframework.hateoas.server.core.EvoInflectorLinkRelationProvider;
 import org.springframework.stereotype.Component;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
@@ -26,11 +26,9 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
  * Retrieve the projects {@link uk.ac.ebi.pride.archive.dataprovider.project.ProjectProvider} from PRIDE Archive and the corresponding information.
  *
  * @author ypriverol
- *
  */
 
 @EnableSwagger2
-
 @SpringBootApplication
 @ComponentScan({"uk.ac.ebi.pride"})
 @Slf4j
@@ -54,12 +52,12 @@ public class Application {
     }
 
     @Bean
-    public RelProvider relProvider() {
-        return new EvoInflectorRelProvider();
+    public LinkRelationProvider relProvider() {
+        return new EvoInflectorLinkRelationProvider();
     }
 
     @Bean
-    public ResourceAssembler facetResourceAssembler(){
+    public RepresentationModelAssembler facetResourceAssembler() {
         return new FacetsResourceAssembler();
     }
 
@@ -75,7 +73,7 @@ public class Application {
 
     @SuppressWarnings("unchecked")
     @Bean
-    public CustomPagedResourcesAssembler<PrideSolrProject> customPagedResourcesAssembler(){
+    public CustomPagedResourcesAssembler<PrideSolrProject> customPagedModelAssembler() {
         return new CustomPagedResourcesAssembler<PrideSolrProject>(pageableResolver(), facetResourceAssembler());
     }
 }

@@ -1,9 +1,8 @@
 package uk.ac.ebi.pride.ws.test.integration;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -11,8 +10,9 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.JUnitRestDocumentation;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -36,16 +36,13 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @EnableAutoConfiguration
-@RunWith(SpringRunner.class)
+@ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @SpringBootTest(classes = {Application.class, ArchiveMongoConfig.class, SolrCloudConfig.class, SwaggerConfig.class/*,TestService.class*/})
 @PropertySource(value = {"classpath:application.properties", "classpath:application.yml"}, ignoreResourceNotFound = true)
 @AutoConfigureRestDocs
 public class ArchiveAPITest {
 
     private MockMvc mockMvc;
-
-    @Rule
-    public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
 
     @Autowired
     private WebApplicationContext context;
@@ -61,15 +58,15 @@ public class ArchiveAPITest {
 
     private Map<String, String> testValuesMap;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(RestDocumentationContextProvider restDocumentation) {
 
         String host = appVhost;
         host += contextPath;
 
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
                 .apply(springSecurity()) // this is the key
-                .apply(documentationConfiguration(this.restDocumentation).uris()
+                .apply(documentationConfiguration(restDocumentation).uris()
                         .withScheme("https")
                         .withHost(host)
                         .withPort(443)
@@ -106,7 +103,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/files?filter=accession==" + testValuesMap.get(TestConstants.FILE_ACCESSION) + "&pageSize=5&page=0&sortDirection=DESC&sortConditions=submissionDate").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-all-files", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), requestParameters(
+                        preprocessResponse(prettyPrint()), formParameters(
                                 parameterWithName("filter").description("Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==" + testValuesMap.get(TestConstants.FILE_ACCESSION) + ". This filter allows advance querying and more information can be found at link:#_advance_filter[Advance Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"),
@@ -121,7 +118,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/projects?pageSize=5&page=0&sortDirection=DESC&sortConditions=submissionDate").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-all-projects", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), requestParameters(
+                        preprocessResponse(prettyPrint()), formParameters(
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"),
                                 parameterWithName("sortDirection").description("Sorting direction: ASC or DESC"),
@@ -144,7 +141,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/projects/{accession}/files?filter=fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz&pageSize=5&page=0&sortDirection=DESC&sortConditions=submissionDate", testValuesMap.get(TestConstants.PROJECT_ACCESSION)).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-files", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), pathParameters(parameterWithName("accession").description("The Accession id associated with this project")), requestParameters(
+                        preprocessResponse(prettyPrint()), pathParameters(parameterWithName("accession").description("The Accession id associated with this project")), formParameters(
                                 parameterWithName("filter").description("Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example `fileName==PRIDE_Exp_Complete_Ac_1.pride.mgf.gz`. This filter allows advance querying and more information can be found at link:#_advance_filter[Advance Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"),
@@ -158,7 +155,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/projects/{accession}/similarProjects?pageSize=5&page=0", testValuesMap.get(TestConstants.PROJECT_ACCESSION)).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-similar-project", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), pathParameters(parameterWithName("accession").description("The Accession id associated with this project")), requestParameters(
+                        preprocessResponse(prettyPrint()), pathParameters(parameterWithName("accession").description("The Accession id associated with this project")), formParameters(
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
                                 parameterWithName("page").description("Identifies which page of results to fetch"))));
     }
@@ -169,7 +166,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/search/projects?keyword=*:*&filter=submission_date==2013-10-20&pageSize=5&page=0&dateGap=+1YEAR&sortDirection=DESC&sortConditions=submissionDate").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-search", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), requestParameters(
+                        preprocessResponse(prettyPrint()), formParameters(
                                 parameterWithName("keyword").description("The entered word will be searched among the fields to fetch matching projects."),
                                 parameterWithName("filter").description("Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==" + testValuesMap.get(TestConstants.PROJECT_ACCESSION) + ". More information on this can be found at link:#_filter[Filter]"),
                                 parameterWithName("pageSize").description("Number of results to fetch in a page"),
@@ -185,7 +182,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/facet/projects?keyword=*:*&filter=submission_date==2013-10-20&facetPageSize=5&facetPage=0&dateGap=+1YEAR").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-project-facet", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), requestParameters(
+                        preprocessResponse(prettyPrint()), formParameters(
                                 parameterWithName("keyword").description("The entered word will be searched among the fields to fetch matching projects."),
                                 parameterWithName("filter").description("Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==" + testValuesMap.get(TestConstants.PROJECT_ACCESSION) + ". More information on this can be found at link:#_filter[Filter]"),
                                 parameterWithName("facetPageSize").description("Number of results to fetch in a page"),
@@ -220,7 +217,7 @@ public class ArchiveAPITest {
         this.mockMvc.perform(get("/msruns/byProject?accession=" + testValuesMap.get(TestConstants.PROJECT_ACCESSION_WITH_MSRUN)).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("get-msrun-by-project", preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()), requestParameters(
+                        preprocessResponse(prettyPrint()), formParameters(
                                 parameterWithName("accession").description("The unique project identifier."))));
     }
 

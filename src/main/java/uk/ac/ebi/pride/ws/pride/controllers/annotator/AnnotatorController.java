@@ -58,7 +58,7 @@ public class AnnotatorController {
 //
 //    private final PrideFileMongoService mongoFileService;
 //    private final PrideSampleMongoService sampleMongoService;
-//    private final CustomPagedResourcesAssembler customPagedResourcesAssembler;
+//    private 
 //    private static OLSClient olsClient = new OLSClient(new OLSWsConfigProd());
 //
 //    private static ModReader modReader = ModReader.getInstance();
@@ -66,10 +66,10 @@ public class AnnotatorController {
 //
 //
 //    @Autowired
-//    public AnnotatorController(PrideFileMongoService mongoFileService, PrideSampleMongoService sampleMongoService, CustomPagedResourcesAssembler customPagedResourcesAssembler) {
+//    public AnnotatorController(PrideFileMongoService mongoFileService, PrideSampleMongoService sampleMongoService, CustomPagedResourcesAssembler customPagedModelAssembler) {
 //        this.mongoFileService = mongoFileService;
 //        this.sampleMongoService = sampleMongoService;
-//        this.customPagedResourcesAssembler = customPagedResourcesAssembler;
+//        
 //    }
 //
 //    @ApiOperation(notes = "Get Characteristics for Sample ", value = "annotator", nickname = "getSampleAttributes", tags = {"annotator"} )

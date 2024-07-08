@@ -1,6 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.hateoas;
 
-import org.springframework.hateoas.core.Relation;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.util.List;
 

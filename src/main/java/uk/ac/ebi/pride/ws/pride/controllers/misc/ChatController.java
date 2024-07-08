@@ -3,34 +3,23 @@ package uk.ac.ebi.pride.ws.pride.controllers.misc;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.pride.ws.pride.configs.ChatApiConfig;
 
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,7 +94,7 @@ public class ChatController {
             headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + chatApiConfig.getSlackAppToken());
-            String slackPayload = "{\"text\": \"Question: " + query.getPrompt() + "\nAnswer: "+
+            String slackPayload = "{\"text\": \"Question: " + query.getPrompt() + "\nAnswer: " +
                     result + "\", \"channel\": \"pride-chatbot\"}";
             requestEntity = new HttpEntity(slackPayload, headers);
             log.info("Posting to slack " + query);
@@ -169,11 +158,11 @@ public class ChatController {
             chatApiBaseUrl += "/";
         }
 
-        if(iteration > 5){
+        if (iteration > 5) {
             throw new RestClientException("Please provide iterations less than or equal to 5");
         }
 
-        String url = chatApiBaseUrl + "getBenchmark?page_num=" + page_num + "&items_per_page=" + items_per_page + "&iteration=" + iteration ;
+        String url = chatApiBaseUrl + "getBenchmark?page_num=" + page_num + "&items_per_page=" + items_per_page + "&iteration=" + iteration;
 
         ResponseEntity<String> response;
         try {
@@ -461,7 +450,7 @@ public class ChatController {
         System.out.println(requestEntity);
         response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
-        HttpStatus statusCode = response.getStatusCode();
+        HttpStatusCode statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK && statusCode != HttpStatus.CREATED && statusCode != HttpStatus.ACCEPTED) {
             String errorMessage = "[POST] Received invalid response for : " + url + " : " + response;
             log.error(errorMessage);
@@ -474,7 +463,7 @@ public class ChatController {
         ResponseEntity<String> response;
         response = proxyRestTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
 
-        HttpStatus statusCode = response.getStatusCode();
+        HttpStatusCode statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
             String errorMessage = "[GET] Received invalid response for : " + url + " : " + response;
             log.error(errorMessage);

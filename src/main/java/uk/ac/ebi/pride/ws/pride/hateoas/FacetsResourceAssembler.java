@@ -1,9 +1,10 @@
 package uk.ac.ebi.pride.ws.pride.hateoas;
 
 import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceAssembler;
+import org.springframework.hateoas.LinkRelation;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,11 +28,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author ypriverol
  */
 @Component
-public class FacetsResourceAssembler implements ResourceAssembler<SimpleFacetFieldEntry, Resource<Facet>> {
+public class FacetsResourceAssembler implements RepresentationModelAssembler<SimpleFacetFieldEntry, EntityModel<Facet>> {
+
 
     @Override
-    public Resource<Facet> toResource(SimpleFacetFieldEntry facetFieldEntry) {
-        return new Resource<>(new Facet(facetFieldEntry.getValue(), facetFieldEntry.getValueCount()), buildRelFacet(facetFieldEntry));
+    public EntityModel<Facet> toModel(SimpleFacetFieldEntry facetFieldEntry) {
+        return EntityModel.of(new Facet(facetFieldEntry.getValue(), facetFieldEntry.getValueCount()), buildRelFacet(facetFieldEntry));
     }
 
     private static Link buildRelFacet(SimpleFacetFieldEntry facetFieldEntry) {
@@ -52,7 +54,7 @@ public class FacetsResourceAssembler implements ResourceAssembler<SimpleFacetFie
             newQueryParams.add(WsContastants.HateoasEnum.facets.name(), facetConstraint);
         }
         uriComponentsBuilder.replaceQueryParams(newQueryParams);
-        return new Link(uriComponentsBuilder.build().toUriString(), WsContastants.HateoasEnum.facets.name());
+        return Link.of(uriComponentsBuilder.build().toUriString(), LinkRelation.of(WsContastants.HateoasEnum.facets.name()));
     }
 
     private static UriComponentsBuilder componentsBuilderFromCurrentRequest() {

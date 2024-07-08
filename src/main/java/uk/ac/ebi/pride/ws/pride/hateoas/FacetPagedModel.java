@@ -1,8 +1,8 @@
 package uk.ac.ebi.pride.ws.pride.hateoas;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.hateoas.PagedResources;
-import org.springframework.hateoas.ResourceSupport;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Collection;
 import java.util.Map;
@@ -13,17 +13,17 @@ import java.util.Objects;
  *
  * @author ypriverol
  */
-public class FacetPagedResource<T> extends PagedResources<T> {
+public class FacetPagedModel<T> extends PagedModel<T> {
 
-    private final Map<String, Collection<ResourceSupport>> facets;
+    private final Map<String, Collection<RepresentationModel>> facets;
 
-    public FacetPagedResource(PagedResources<T> pagedResources, Map<String, Collection<ResourceSupport>> facets) {
-        super(pagedResources.getContent(), pagedResources.getMetadata(), pagedResources.getLinks());
+    public FacetPagedModel(PagedModel<T> PagedModel, Map<String, Collection<RepresentationModel>> facets) {
+        super(PagedModel.getContent(), PagedModel.getMetadata(), PagedModel.getLinks());
         this.facets = facets;
     }
 
     @JsonProperty("_facets")
-    public Map<String, Collection<ResourceSupport>> getFacets() {
+    public Map<String, Collection<RepresentationModel>> getFacets() {
         return facets;
     }
 
@@ -32,7 +32,7 @@ public class FacetPagedResource<T> extends PagedResources<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        FacetPagedResource<?> that = (FacetPagedResource<?>) o;
+        FacetPagedModel<?> that = (FacetPagedModel<?>) o;
         return Objects.equals(facets, that.facets);
     }
 

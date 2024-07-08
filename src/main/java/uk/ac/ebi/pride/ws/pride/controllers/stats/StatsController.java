@@ -44,17 +44,14 @@ public class StatsController {
     final PrideStatsMongoService mongoStatsService;
     final PeptidomeStatsMongoService peptidomeStatsMongoService;
 
-    final CustomPagedResourcesAssembler customPagedResourcesAssembler;
-
     final ProjectRepoClient projectRepoClient;
 
     final StatRepoClient statRepoClient;
 
     @Autowired
-    public StatsController(PrideStatsMongoService mongoStatsService, PeptidomeStatsMongoService peptidomeStatsMongoService, CustomPagedResourcesAssembler customPagedResourcesAssembler, ProjectRepoClient projectRepoClient, StatRepoClient statRepoClient) {
+    public StatsController(PrideStatsMongoService mongoStatsService, PeptidomeStatsMongoService peptidomeStatsMongoService,  ProjectRepoClient projectRepoClient, StatRepoClient statRepoClient) {
         this.mongoStatsService = mongoStatsService;
         this.peptidomeStatsMongoService = peptidomeStatsMongoService;
-        this.customPagedResourcesAssembler = customPagedResourcesAssembler;
         this.projectRepoClient = projectRepoClient;
         this.statRepoClient = statRepoClient;
     }

@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.models.dataset;
 
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
 
 /**
@@ -17,12 +17,13 @@ import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProjec
  * <p>
  * Created by ypriverol (ypriverol@gmail.com) on 25/05/2018.
  */
-public class ProjectReanalysisResource extends Resource<MongoPrideReanalysisProject> {
+public class ProjectReanalysisResource extends EntityModel<MongoPrideReanalysisProject> {
 
     /**
      * Default constructor for Resource Dataset including hateoas links.
+     *
      * @param content Object that would be represented
-     * @param links links.
+     * @param links   links.
      */
     public ProjectReanalysisResource(MongoPrideReanalysisProject content, Iterable<Link> links) {
         super(content, links);
