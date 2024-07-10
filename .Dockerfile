@@ -1,5 +1,5 @@
 # Build stage
-FROM maven:3.3.9-jdk-8-alpine AS build-env
+FROM maven:3.9-eclipse-temurin-21-alpine AS build-env
 
 # Create app directory
 WORKDIR /app
@@ -9,7 +9,8 @@ COPY pom.xml ./
 RUN mvn clean package -DjarFinalName=${JAR_FILE_NAME}
 
 # Package stage
-FROM openjdk:8-alpine3.9
+FROM maven:3.9-eclipse-temurin-21-alpine
+
 WORKDIR /app
 COPY --from=build-env /app/target/${JAR_FILE_NAME}.jar ./
 COPY ${APM_AGENT_JAR} ./
