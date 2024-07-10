@@ -28,8 +28,8 @@
         <maven.compiler.target>21</maven.compiler.target>
         <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.2
         </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
-        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.9-SNAPSHOT
-        </uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
+        <uk.ac.ebi.pride.archive.pride-mongo-client.version>0.0.1-SNAPSHOT
+        </uk.ac.ebi.pride.archive.pride-mongo-client.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
@@ -120,8 +120,8 @@
 
         <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>pride-mongodb-repo</artifactId>
-            <version>${uk.ac.ebi.pride.archive.pride-mongodb-repo.version}</version>
+            <artifactId>pride-mongo-client</artifactId>
+            <version>${uk.ac.ebi.pride.archive.pride-mongo-client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>uk.ac.ebi.pride.archive</groupId>
