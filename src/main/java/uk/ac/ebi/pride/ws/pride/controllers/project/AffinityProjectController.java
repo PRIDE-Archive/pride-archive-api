@@ -16,10 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
-import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
-import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
-import uk.ac.ebi.pride.mongodb.archive.service.projects.PrideProjectMongoService;
 import uk.ac.ebi.pride.solr.commons.PrideProjectField;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
 import uk.ac.ebi.pride.solr.indexes.services.SolrProjectService;
@@ -187,56 +183,57 @@ public class AffinityProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
-    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
-            "list is Paginated using the _pageSize_ and _page_.", value = "affinity-projects", nickname = "getProjects", tags = {"affinity-projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
-    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedModel> getProjects(
-            @ApiParam(value = "Number of results to fetch in a page")
-            @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
-            @ApiParam(value = "Identifies which page of results to fetch")
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @ApiParam(value = "Sorting direction: ASC or DESC")
-            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
-            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
-            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
-        page = pageParams.getKey();
-        pageSize = pageParams.getValue();
-        Sort.Direction direction = Sort.Direction.DESC;
-        if (sortDirection.equalsIgnoreCase("ASC")) {
-            direction = Sort.Direction.ASC;
-        }
-
-        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
-
-        List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY")).collect(Collectors.toList());
-        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
-
-        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(AffinityProjectController.class, ProjectResource.class, mongoFileService);
-
-        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
-
-        long totalElements = mongoProjects.getTotalElements();
-        long totalPages = mongoProjects.getTotalPages();
-        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
-
-        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
-                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, 0, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) totalPages, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.last.name())
-        );
-
-        return new HttpEntity<>(pagedResources);
-    }
+    //TODO : delete?
+//    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
+//            "list is Paginated using the _pageSize_ and _page_.", value = "affinity-projects", nickname = "getProjects", tags = {"affinity-projects"})
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+//    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public HttpEntity<PagedModel> getProjects(
+//            @ApiParam(value = "Number of results to fetch in a page")
+//            @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
+//            @ApiParam(value = "Identifies which page of results to fetch")
+//            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+//            @ApiParam(value = "Sorting direction: ASC or DESC")
+//            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
+//            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
+//            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
+//        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+//        page = pageParams.getKey();
+//        pageSize = pageParams.getValue();
+//        Sort.Direction direction = Sort.Direction.DESC;
+//        if (sortDirection.equalsIgnoreCase("ASC")) {
+//            direction = Sort.Direction.ASC;
+//        }
+//
+//        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
+//
+//        List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY")).collect(Collectors.toList());
+//        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
+//
+//        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(AffinityProjectController.class, ProjectResource.class, mongoFileService);
+//
+//        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
+//
+//        long totalElements = mongoProjects.getTotalElements();
+//        long totalPages = mongoProjects.getTotalPages();
+//        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
+//
+//        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
+//                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
+//                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.next.name()),
+//                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.previous.name()),
+//                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, 0, sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.first.name()),
+//                linkTo(methodOn(AffinityProjectController.class).getProjects(pageSize, (int) totalPages, sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.last.name())
+//        );
+//
+//        return new HttpEntity<>(pagedResources);
+//    }
 
 
     @ApiOperation(notes = "Get Similar projects taking into account the metadata", value = "affinity-projects", nickname = "getSimilarProjects", tags = {"affinity-projects"})

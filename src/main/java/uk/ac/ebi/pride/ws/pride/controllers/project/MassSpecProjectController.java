@@ -239,73 +239,75 @@ public class MassSpecProjectController extends PagedModel {
 
     }
 
-    @ApiOperation(notes = "Return the list of publications that have re-used the specified dataset", value = "projects", nickname = "getReanalysedProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ApiResponse.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
-    })
+    //TODO : delete?
+//    @ApiOperation(notes = "Return the list of publications that have re-used the specified dataset", value = "projects", nickname = "getReanalysedProjects", tags = {"projects"})
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = ApiResponse.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
+//    })
+//
+//    @RequestMapping(value = "/projects/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public ResponseEntity<Object> getReanalysisProject(
+//            @ApiParam(value = "The Accession id associated with this project")
+//            @PathVariable(value = "accession", name = "accession") String accession) {
+//
+//        Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
+//        PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(MassSpecProjectController.class, ProjectReanalysisResource.class);
+//        ResponseEntity<Object> responseEntity = project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toModel(reanalysisProject), HttpStatus.OK))
+//                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
+//        return responseEntity;
+//
+//    }
 
-    @RequestMapping(value = "/projects/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> getReanalysisProject(
-            @ApiParam(value = "The Accession id associated with this project")
-            @PathVariable(value = "accession", name = "accession") String accession) {
-
-        Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
-        PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(MassSpecProjectController.class, ProjectReanalysisResource.class);
-        ResponseEntity<Object> responseEntity = project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toModel(reanalysisProject), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
-        return responseEntity;
-
-    }
-
-    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
-            "list is Paginated using the _pageSize_ and _page_.", value = "projects", nickname = "getProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
-    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public HttpEntity<PagedModel> getProjects(
-            @ApiParam(value = "Number of results to fetch in a page")
-            @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
-            @ApiParam(value = "Identifies which page of results to fetch")
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @ApiParam(value = "Sorting direction: ASC or DESC")
-            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
-            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
-            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
-        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
-        page = pageParams.getKey();
-        pageSize = pageParams.getValue();
-        Sort.Direction direction = Sort.Direction.DESC;
-        if (sortDirection.equalsIgnoreCase("ASC")) {
-            direction = Sort.Direction.ASC;
-        }
-
-        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
-        List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("COMPLETE") || project.getSubmissionType().equals("PARTIAL")).collect(Collectors.toList());
-        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
-        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class, mongoFileService);
-
-        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
-
-        long totalElements = mongoProjects.getTotalElements();
-        long totalPages = mongoProjects.getTotalPages();
-        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
-
-        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
-                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, 0, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) totalPages, sortDirection, sortFields))
-                        .withRel(WsContastants.HateoasEnum.last.name())
-        );
-
-        return new HttpEntity<>(pagedResources);
-    }
+    //TODO : delete?
+//    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
+//            "list is Paginated using the _pageSize_ and _page_.", value = "projects", nickname = "getProjects", tags = {"projects"})
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+//    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public HttpEntity<PagedModel> getProjects(
+//            @ApiParam(value = "Number of results to fetch in a page")
+//            @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
+//            @ApiParam(value = "Identifies which page of results to fetch")
+//            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+//            @ApiParam(value = "Sorting direction: ASC or DESC")
+//            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
+//            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
+//            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
+//        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+//        page = pageParams.getKey();
+//        pageSize = pageParams.getValue();
+//        Sort.Direction direction = Sort.Direction.DESC;
+//        if (sortDirection.equalsIgnoreCase("ASC")) {
+//            direction = Sort.Direction.ASC;
+//        }
+//
+//        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
+//        List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("COMPLETE") || project.getSubmissionType().equals("PARTIAL")).collect(Collectors.toList());
+//        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
+//        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class, mongoFileService);
+//
+//        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
+//
+//        long totalElements = mongoProjects.getTotalElements();
+//        long totalPages = mongoProjects.getTotalPages();
+//        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
+//
+//        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
+//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
+//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.next.name()),
+//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.previous.name()),
+//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, 0, sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.first.name()),
+//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) totalPages, sortDirection, sortFields))
+//                        .withRel(WsContastants.HateoasEnum.last.name())
+//        );
+//
+//        return new HttpEntity<>(pagedResources);
+//    }
 
     @ApiOperation(notes = "Get all the Files for an specific project in PRIDE.", value = "projects", nickname = "getFilesByProject", tags = {"projects"})
     @ApiResponses({
@@ -429,20 +431,21 @@ public class MassSpecProjectController extends PagedModel {
         return status.name();
     }
 
-    @ApiOperation(notes = "List of paged PRIDE Archive Projects with metadata", value = "projects", nickname = "getProjectsMetadata", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
-    @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public List<PrideProjectMetadata> getProjectsMetadata(@ApiParam(value = "Identifies which page of results to fetch")
-                                                          @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                          @ApiParam(value = "Number of results to fetch in a page")
-                                                          @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
-        return mongoProjectService.findAll(PageRequest.of(page, pageSize)).stream().map(
-                project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessingProtocol(), project.getDataProcessingProtocol())
-        ).collect(Collectors.toList());
-
-    }
+    //TODO : delete?
+//    @ApiOperation(notes = "List of paged PRIDE Archive Projects with metadata", value = "projects", nickname = "getProjectsMetadata", tags = {"projects"})
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+//    @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public List<PrideProjectMetadata> getProjectsMetadata(@ApiParam(value = "Identifies which page of results to fetch")
+//                                                          @RequestParam(value = "page", defaultValue = "0") Integer page,
+//                                                          @ApiParam(value = "Number of results to fetch in a page")
+//                                                          @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+//        return mongoProjectService.findAll(PageRequest.of(page, pageSize)).stream().map(
+//                project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessingProtocol(), project.getDataProcessingProtocol())
+//        ).collect(Collectors.toList());
+//
+//    }
 
     @ApiOperation(notes = "List of all data", value = "projects", nickname = "getAllProjects", tags = {"projects"})
     @ApiResponses({
