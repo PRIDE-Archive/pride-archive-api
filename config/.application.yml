@@ -28,6 +28,11 @@ pride-repo.api:
   keyName: $repo_api_key_name
   keyValue: $repo_api_key_value
 
+mongo-ws:
+  baseUrl: $mongo_ws_base_url
+  keyName: $mongo_ws_key_name
+  keyValue: $mongo_ws_key_value
+
 # Configuration for MongoDB
 mongodb:
   project:
