@@ -10,7 +10,8 @@ public class MongoConfig {
 
     private final PrideMongoClientFactory prideMongoClientFactory;
     private final ProjectMongoClient projectMongoClient;
-    private final FileMongoClient fileRepoClient;
+    private final ImportedProjectMongoClient importedProjectMongoClient;
+    private final FileMongoClient fileMongoClient;
     private final StatsMongoClient statsMongoClient;
     private final ReanalysisMongoClient reanalysisMongoClient;
 
@@ -21,7 +22,8 @@ public class MongoConfig {
         this.prideMongoClientFactory = new PrideMongoClientFactory(apiBaseUrl, apiKeyName, apiKeyValue, "pride-api");
 
         projectMongoClient = prideMongoClientFactory.getProjectMongoClient();
-        fileRepoClient = prideMongoClientFactory.getFileRepoClient();
+        importedProjectMongoClient = prideMongoClientFactory.getImportedProjectMongoClient();
+        fileMongoClient = prideMongoClientFactory.getFileRepoClient();
         statsMongoClient = prideMongoClientFactory.getStatsMongoClient();
         reanalysisMongoClient = prideMongoClientFactory.getReanalysisMongoClient();
     }
@@ -32,8 +34,13 @@ public class MongoConfig {
     }
 
     @Bean
-    public FileMongoClient getFileRepoClient() {
-        return fileRepoClient;
+    public ImportedProjectMongoClient getImportedProjectMongoClient() {
+        return importedProjectMongoClient;
+    }
+
+    @Bean
+    public FileMongoClient getFileMongoClient() {
+        return fileMongoClient;
     }
 
     @Bean
