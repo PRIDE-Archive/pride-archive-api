@@ -44,7 +44,7 @@ public class WsUtils {
         return new Tuple<>(start, size);
     }
 
-    public static long validatePage(int page, long totalPages) {
+    public static int validatePage(int page, int totalPages) {
         if(page < 0)
             return 0;
         if(page > totalPages)
