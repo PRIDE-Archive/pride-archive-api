@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.query.result.FacetPage;
@@ -15,6 +14,11 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
+import uk.ac.ebi.pride.archive.mongo.client.ProjectMongoClient;
+import uk.ac.ebi.pride.archive.mongo.commons.model.PrideArchiveField;
+import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.solr.commons.PrideProjectField;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
@@ -23,7 +27,6 @@ import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.CompactProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.FacetResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.CompactProjectModel;
 import uk.ac.ebi.pride.ws.pride.models.dataset.FacetResource;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
@@ -31,6 +34,7 @@ import uk.ac.ebi.pride.ws.pride.utils.APIError;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,25 +52,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/pride-ap")
 public class AffinityProjectController {
 
-
     private final String DEFAULT_AFFINITY_PROJECTS_FILTER = "project_submission_type==AFFINITY";
-
     private final SolrProjectService solrProjectService;
-
-    final PrideProjectMongoService mongoProjectService;
-
+    final ProjectMongoClient projectMongoClient;
     final ProjectRepoClient projectRepoClient;
-
-    final PrideFileMongoService mongoFileService;
-
+    final FileMongoClient fileMongoClient;
 
     @Autowired
-    public AffinityProjectController(SolrProjectService solrProjectService, PrideProjectMongoService mongoProjectService,
+    public AffinityProjectController(SolrProjectService solrProjectService, ProjectMongoClient projectMongoClient,
                                      ProjectRepoClient projectRepoClient,
-                                     PrideFileMongoService mongoFileService) {
+                                     FileMongoClient fileMongoClient) {
         this.solrProjectService = solrProjectService;
-        this.mongoFileService = mongoFileService;
-        this.mongoProjectService = mongoProjectService;
+        this.fileMongoClient = fileMongoClient;
+        this.projectMongoClient = projectMongoClient;
         this.projectRepoClient = projectRepoClient;
     }
 
@@ -112,19 +110,19 @@ public class AffinityProjectController {
         CollectionModel<CompactProjectModel> resources = assembler.toCollectionModel(solrProjects);
 
         long totalElements = solrProjects.getTotalElements();
-        long totalPages = solrProjects.getTotalPages();
+        int totalPages = solrProjects.getTotalPages();
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedModel<CompactProjectModel> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
                 linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, page, dateGap, sortDirection, sortFields))
                         .withSelfRel(),
-                linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), dateGap, sortDirection, sortFields))
+                linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, WsUtils.validatePage(page + 1, totalPages), dateGap, sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages), dateGap, sortDirection, sortFields))
+                linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, WsUtils.validatePage(page - 1, totalPages), dateGap, sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
                 linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, 0, dateGap, sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, (int) totalPages, dateGap, sortDirection, sortFields))
+                linkTo(methodOn(AffinityProjectController.class).projects(keyword, filter, pageSize, WsUtils.validatePage(totalPages - 1, totalPages), dateGap, sortDirection, sortFields))
                         .withRel(WsContastants.HateoasEnum.last.name()),
                 linkTo(methodOn(AffinityProjectController.class).facets(keyword, filter, WsContastants.MAX_PAGINATION_SIZE, 0, "")).withRel(WsContastants.HateoasEnum.facets.name())
         );
@@ -183,23 +181,60 @@ public class AffinityProjectController {
         return new HttpEntity<>(pagedResources);
     }
 
-    //TODO : delete?
-//    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
-//            "list is Paginated using the _pageSize_ and _page_.", value = "affinity-projects", nickname = "getProjects", tags = {"affinity-projects"})
-//    @ApiResponses({
-//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
-//    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-//    public HttpEntity<PagedModel> getProjects(
-//            @ApiParam(value = "Number of results to fetch in a page")
-//            @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
-//            @ApiParam(value = "Identifies which page of results to fetch")
-//            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-//            @ApiParam(value = "Sorting direction: ASC or DESC")
-//            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
-//            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
-//            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
-//        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
+            "list is Paginated using the _pageSize_ and _page_.", value = "affinity-projects", nickname = "getProjects", tags = {"affinity-projects"})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<HttpEntity<PagedModel<ProjectResource>>> getProjects(
+            @ApiParam(value = "Number of results to fetch in a page")
+            @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
+            @ApiParam(value = "Identifies which page of results to fetch")
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @ApiParam(value = "Sorting direction: ASC or DESC")
+            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
+            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
+            @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        int pageFinal = pageParams.getKey();
+        int pageSizeFinal = pageParams.getValue();
+        Sort.Direction direction = Sort.Direction.DESC;
+        if (sortDirection.equalsIgnoreCase("ASC")) {
+            direction = Sort.Direction.ASC;
+        }
+        final Sort.Direction sortDirectionFinal = direction;
+
+        List<String> submissionType = new ArrayList<>(2);
+        submissionType.add("AFFINITY");
+        Mono<Page<MongoPrideProject>> allProjectsPageMono = projectMongoClient.findAllBySubmissionTypeIn(submissionType, pageSizeFinal, pageFinal);
+        return allProjectsPageMono.map(mongoProjectsPage -> {
+            PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class, fileMongoClient);
+            CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjectsPage.getContent());
+
+            long totalElements = mongoProjectsPage.getTotalElements();
+            int totalPages = mongoProjectsPage.getTotalPages();
+            PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSizeFinal, pageFinal, totalElements, totalPages);
+
+            PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
+                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, pageFinal, sortDirectionFinal.name(), sortFields)).withSelfRel(),
+                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, WsUtils.validatePage(pageFinal + 1, totalPages), sortDirectionFinal.name(), sortFields))
+                            .withRel(WsContastants.HateoasEnum.next.name()),
+                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, WsUtils.validatePage(pageFinal - 1, totalPages), sortDirectionFinal.name(), sortFields))
+                            .withRel(WsContastants.HateoasEnum.previous.name()),
+                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, 0, sortDirectionFinal.name(), sortFields))
+                            .withRel(WsContastants.HateoasEnum.first.name()),
+                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, WsUtils.validatePage(totalPages - 1, totalPages), sortDirectionFinal.name(), sortFields))
+                            .withRel(WsContastants.HateoasEnum.last.name())
+            );
+
+            return new HttpEntity<>(pagedResources);
+
+        });
+    }
+
+    //        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
 //        page = pageParams.getKey();
 //        pageSize = pageParams.getValue();
 //        Sort.Direction direction = Sort.Direction.DESC;
@@ -208,7 +243,8 @@ public class AffinityProjectController {
 //        }
 //
 //        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
-//
+
+    //FIXME TODO fileter for AFFINITY SubmissionType should be done at the DB query .. Otherwise it will end up with lots of empty pages.
 //        List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("AFFINITY")).collect(Collectors.toList());
 //        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
 //
@@ -261,21 +297,21 @@ public class AffinityProjectController {
         CollectionModel<CompactProjectModel> resources = assembler.toCollectionModel(solrProjects);
 
         long totalElements = solrProjects.size();
-        long totalPages = totalElements / pageSize;
+        int totalPages = (int) (totalElements / pageSize);
         if (totalElements % pageSize > 0)
             totalPages++;
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
 
         PagedModel<CompactProjectModel> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, page))
+                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, page, pageSize))
                         .withSelfRel(),
-                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) WsUtils.validatePage(page + 1, totalPages)))
+                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, WsUtils.validatePage(page + 1, totalPages), pageSize))
                         .withRel(WsContastants.HateoasEnum.next.name()),
-                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) WsUtils.validatePage(page - 1, totalPages)))
+                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, WsUtils.validatePage(page - 1, totalPages), pageSize))
                         .withRel(WsContastants.HateoasEnum.previous.name()),
-                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, 0))
+                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, 0, pageSize))
                         .withRel(WsContastants.HateoasEnum.first.name()),
-                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, pageSize, (int) totalPages))
+                linkTo(methodOn(AffinityProjectController.class).getSimilarProjects(projectAccession, WsUtils.validatePage(totalPages - 1, totalPages), pageSize))
                         .withRel(WsContastants.HateoasEnum.last.name())
         );
 
