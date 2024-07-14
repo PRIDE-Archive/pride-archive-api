@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.ws.pride.assemblers;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
-import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRunResource;
@@ -26,31 +25,32 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  *
  * @author ypriverol on 24/10/2018.
  */
-public class ProjectMSRunResourceAssembler extends RepresentationModelAssemblerSupport<MongoPrideMSRun, PrideMSRunResource> {
-
-    public ProjectMSRunResourceAssembler(Class<?> controller, Class<PrideMSRunResource> resourceType) {
-        super(controller, resourceType);
-    }
-
-    @Override
-    public PrideMSRunResource toModel(MongoPrideMSRun mongoFile) {
-
-        PrideMSRun msRun = Transformer.transformMSRun(mongoFile);
-        List<Link> links = new ArrayList<>();
-        links.add(linkTo(methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
-        return new PrideMSRunResource(msRun, links);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public CollectionModel<PrideMSRunResource> toCollectionModel(Iterable<? extends MongoPrideMSRun> entities) {
-
-        List<PrideMSRunResource> datasets = new ArrayList<>();
-
-        for (MongoPrideMSRun mongoFile : entities) {
-            datasets.add(toModel(mongoFile));
-        }
-
-        return CollectionModel.of(datasets);
-    }
+public class ProjectMSRunResourceAssembler {
+//    extends RepresentationModelAssemblerSupport<MongoPrideMSRun, PrideMSRunResource> {
+//
+//    public ProjectMSRunResourceAssembler(Class<?> controller, Class<PrideMSRunResource> resourceType) {
+//        super(controller, resourceType);
+//    }
+//
+//    @Override
+//    public PrideMSRunResource toModel(MongoPrideMSRun mongoFile) {
+//
+//        PrideMSRun msRun = Transformer.transformMSRun(mongoFile);
+//        List<Link> links = new ArrayList<>();
+//        links.add(linkTo(methodOn(FileController.class).getFile(mongoFile.getAccession())).withSelfRel());
+//        return new PrideMSRunResource(msRun, links);
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    @Override
+//    public CollectionModel<PrideMSRunResource> toCollectionModel(Iterable<? extends MongoPrideMSRun> entities) {
+//
+//        List<PrideMSRunResource> datasets = new ArrayList<>();
+//
+//        for (MongoPrideMSRun mongoFile : entities) {
+//            datasets.add(toModel(mongoFile));
+//        }
+//
+//        return CollectionModel.of(datasets);
+//    }
 }
