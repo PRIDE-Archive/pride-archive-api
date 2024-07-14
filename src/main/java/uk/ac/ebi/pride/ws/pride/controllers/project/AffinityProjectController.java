@@ -198,8 +198,8 @@ public class AffinityProjectController {
             @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
-        int pageFinal = pageParams.getKey();
-        int pageSizeFinal = pageParams.getValue();
+        final int pageFinal = pageParams.getKey();
+        final int pageSizeFinal = pageParams.getValue();
         Sort.Direction direction = Sort.Direction.DESC;
         if (sortDirection.equalsIgnoreCase("ASC")) {
             direction = Sort.Direction.ASC;

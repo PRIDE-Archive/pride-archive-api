@@ -296,8 +296,8 @@ public class MassSpecProjectController extends PagedModel {
             @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
             @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
-        int pageFinal = pageParams.getKey();
-        int pageSizeFinal = pageParams.getValue();
+        final int pageFinal = pageParams.getKey();
+        final int pageSizeFinal = pageParams.getValue();
         Sort.Direction direction = Sort.Direction.DESC;
         if (sortDirection.equalsIgnoreCase("ASC")) {
             direction = Sort.Direction.ASC;
@@ -378,13 +378,13 @@ public class MassSpecProjectController extends PagedModel {
             @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.FILE_NAME, required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
-        int pageFinal = pageParams.getKey();
-        int pageSizeFinal = pageParams.getValue();
+        final int pageFinal = pageParams.getKey();
+        final int pageSizeFinal = pageParams.getValue();
         Sort.Direction direction = Sort.Direction.DESC;
         if (sortDirection.equalsIgnoreCase("ASC")) {
             direction = Sort.Direction.ASC;
         }
-        Sort.Direction sortDirectionFinal = direction;
+        final Sort.Direction sortDirectionFinal = direction;
 
         Mono<Page<MongoPrideFile>> mongoFilesPageMono = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter, pageSizeFinal, pageFinal);
         return mongoFilesPageMono.map(projectFilesPage -> {
