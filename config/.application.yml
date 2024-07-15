@@ -33,24 +33,6 @@ mongo-ws:
   keyName: $mongo_ws_key_name
   keyValue: $mongo_ws_key_value
 
-# Configuration for MongoDB
-mongodb:
-  project:
-    database: $mongodb_db
-    app:
-      user: $NOT_USED
-      password: $NOT_USED
-      authenticationDatabase: $NOT_USED
-      machine.port: $NOT_USED
-  projects:
-    replicate:
-      hosts: $NOT_USED
-      ports: $NOT_USED
-    single.machine.host: $NOT_USED
-    machine.uri: $mongodb_machine_uri
-
-mongo.single.machine: $NOT_USED
-
 ##### Solr CLoud #####
 spring:
   data:
