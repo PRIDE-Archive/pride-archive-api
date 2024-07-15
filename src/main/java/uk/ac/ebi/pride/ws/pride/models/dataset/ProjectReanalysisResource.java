@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.ws.pride.models.dataset;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
+import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideReanalysisProject;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the

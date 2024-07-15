@@ -6,7 +6,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
+import uk.ac.ebi.pride.archive.mongo.commons.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.ws.pride.controllers.file.FileController;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;

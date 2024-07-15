@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideReanalysisProject;
+import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideReanalysisProject;
 import uk.ac.ebi.pride.ws.pride.controllers.project.MassSpecProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectReanalysisResource;
 

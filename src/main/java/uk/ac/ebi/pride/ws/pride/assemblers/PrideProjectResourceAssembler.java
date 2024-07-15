@@ -1,17 +1,19 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
-import uk.ac.ebi.pride.mongodb.archive.model.PrideArchiveField;
-import uk.ac.ebi.pride.mongodb.archive.model.files.MongoPrideFile;
-import uk.ac.ebi.pride.mongodb.archive.model.projects.MongoPrideProject;
-import uk.ac.ebi.pride.mongodb.archive.service.files.PrideFileMongoService;
+import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
+import uk.ac.ebi.pride.archive.mongo.commons.model.PrideArchiveField;
+import uk.ac.ebi.pride.archive.mongo.commons.model.files.MongoPrideFile;
+import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.ws.pride.controllers.project.MassSpecProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
@@ -35,12 +37,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Slf4j
 public class PrideProjectResourceAssembler extends RepresentationModelAssemblerSupport<MongoPrideProject, ProjectResource> {
 
-    private PrideFileMongoService mongoFileService;
+    private FileMongoClient fileMongoClient;
 
     public PrideProjectResourceAssembler(Class<?> controllerClass, Class<ProjectResource> resourceType,
-                                         PrideFileMongoService mongoFileService) {
+                                         FileMongoClient fileMongoClient) {
         super(controllerClass, resourceType);
-        this.mongoFileService = mongoFileService;
+        this.fileMongoClient = fileMongoClient;
     }
 
     @Override
@@ -62,27 +64,47 @@ public class PrideProjectResourceAssembler extends RepresentationModelAssemblerS
     }
 
     private String getFtpPath(MongoPrideProject mongoPrideProject) {
-        String ftpPath = null;
         //Due to this issue : https://github.com/PRIDE-Archive/pride-archive-api/issues/108 (Datasets made public on 30-12-2021 gets wrong FTP path)
         //We have get FTP path from files ftp path stored in mongo
-        List<MongoPrideFile> mongoFiles = mongoFileService.findFilesByProjectAccession(mongoPrideProject.getAccession());
-        if (mongoFiles != null && !mongoFiles.isEmpty()) {
-            MongoPrideFile mongoPrideFile = mongoFiles.get(0);
-            Set<? extends CvParamProvider> publicFileLocations = mongoPrideFile.getPublicFileLocations();
-            Optional<String> ftpPathOptional = publicFileLocations.stream().filter(l -> l.getAccession().equals("PRIDE:0000469")).map(ParamProvider::getValue).findFirst();
-            if (ftpPathOptional.isPresent()) {
-                ftpPath = ftpPathOptional.get();
+        Mono<Page<MongoPrideFile>> filePageMono = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(mongoPrideProject.getAccession(), "", 1, 0);
+        return filePageMono.map(page -> {
+            String ftpPath = null;
+            List<MongoPrideFile> mongoFiles = page.getContent();
+            if (mongoFiles != null && !mongoFiles.isEmpty()) {
+                MongoPrideFile mongoPrideFile = mongoFiles.get(0);
+                Set<? extends CvParamProvider> publicFileLocations = mongoPrideFile.getPublicFileLocations();
+                Optional<String> ftpPathOptional = publicFileLocations.stream().filter(l -> l.getAccession().equals("PRIDE:0000469")).map(ParamProvider::getValue).findFirst();
+                if (ftpPathOptional.isPresent()) {
+                    ftpPath = ftpPathOptional.get();
+                }
+                ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
             }
-            ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
-        }
-
-        if (ftpPath == null) {
-            Date publicationDate = mongoPrideProject.getPublicationDate();
-            SimpleDateFormat year = new SimpleDateFormat("YYYY");
-            SimpleDateFormat month = new SimpleDateFormat("MM");
-            ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
-        }
-        return ftpPath;
+            if (ftpPath == null) {
+                Date publicationDate = mongoPrideProject.getPublicationDate();
+                SimpleDateFormat year = new SimpleDateFormat("YYYY");
+                SimpleDateFormat month = new SimpleDateFormat("MM");
+                ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
+            }
+            return ftpPath;
+        }).block();
+//        List<MongoPrideFile> mongoFiles = mongoFileService.findFilesByProjectAccession(mongoPrideProject.getAccession());
+//        if (mongoFiles != null && !mongoFiles.isEmpty()) {
+//            MongoPrideFile mongoPrideFile = mongoFiles.get(0);
+//            Set<? extends CvParamProvider> publicFileLocations = mongoPrideFile.getPublicFileLocations();
+//            Optional<String> ftpPathOptional = publicFileLocations.stream().filter(l -> l.getAccession().equals("PRIDE:0000469")).map(ParamProvider::getValue).findFirst();
+//            if (ftpPathOptional.isPresent()) {
+//                ftpPath = ftpPathOptional.get();
+//            }
+//            ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
+//        }
+//
+//        if (ftpPath == null) {
+//            Date publicationDate = mongoPrideProject.getPublicationDate();
+//            SimpleDateFormat year = new SimpleDateFormat("YYYY");
+//            SimpleDateFormat month = new SimpleDateFormat("MM");
+//            ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
+//        }
+//        return ftpPath;
     }
 
     @SuppressWarnings("unchecked")
@@ -133,30 +155,29 @@ public class PrideProjectResourceAssembler extends RepresentationModelAssemblerS
         return PrideProject.builder()
                 .accession(mongoPrideProject.getAccession())
                 .title(mongoPrideProject.getTitle())
-                .references(new HashSet<>(mongoPrideProject.getCompleteReferences()))
+                .references(new HashSet<>(mongoPrideProject.getReferences()))
                 .projectDescription(mongoPrideProject.getDescription())
                 .projectTags(mongoPrideProject.getProjectTags())
                 .additionalAttributes(additionalAttributes)
-                .affiliations(mongoPrideProject.getAllAffiliations())
                 .identifiedPTMStrings(new HashSet<>(mongoPrideProject.getPtmList()))
-                .sampleProcessingProtocol(mongoPrideProject.getSampleProcessingProtocol())
-                .dataProcessingProtocol(mongoPrideProject.getDataProcessingProtocol())
+                .sampleProcessingProtocol(mongoPrideProject.getSampleProcessing())
+                .dataProcessingProtocol(mongoPrideProject.getDataProcessing())
                 .countries(mongoPrideProject.getCountries() != null ? new HashSet<>(mongoPrideProject.getCountries()) : Collections.EMPTY_SET)
                 .keywords(mongoPrideProject.getKeywords())
-                .doi(mongoPrideProject.getDoi().isPresent() ? mongoPrideProject.getDoi().get() : null)
+                .doi(mongoPrideProject.getDoi())
                 .submissionType(mongoPrideProject.getSubmissionType())
                 .publicationDate(mongoPrideProject.getPublicationDate())
                 .submissionDate(mongoPrideProject.getSubmissionDate())
-                .instruments(new ArrayList<>(mongoPrideProject.getInstrumentsCvParams()))
-                .quantificationMethods(new ArrayList<>(mongoPrideProject.getQuantificationParams()))
-                .softwares(new ArrayList<>(mongoPrideProject.getSoftwareParams()))
+                .instruments(new ArrayList<>(mongoPrideProject.getInstruments()))
+                .quantificationMethods(new ArrayList<>(mongoPrideProject.getQuantificationMethods()))
+                .softwares(new ArrayList<>(mongoPrideProject.getSoftwareList()))
                 .experimentTypes(new ArrayList<>(mongoPrideProject.getExperimentTypes()))
-                .submitters(new ArrayList<>(mongoPrideProject.getSubmittersContacts()))
-                .labPIs(new ArrayList<>(mongoPrideProject.getLabHeadContacts()))
+                .submitters(new ArrayList<>(mongoPrideProject.getSubmitters()))
+                .labPIs(new ArrayList<>(mongoPrideProject.getHeadLab()))
                 .organisms(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM))
                 .diseases(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_DISEASE))
                 .organismParts(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM_PART))
-                .sampleAttributes(mongoPrideProject.getSampleAttributes() != null ? new ArrayList(mongoPrideProject.getSampleAttributes()) : Collections.emptyList())
+                .sampleAttributes(mongoPrideProject.getSamplesDescription() != null ? new ArrayList(mongoPrideProject.getSamplesDescription()) : Collections.emptyList())
                 .license(license)
                 .build();
     }
