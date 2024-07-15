@@ -1,18 +1,18 @@
 package uk.ac.ebi.pride.ws.pride.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import springfox.documentation.annotations.ApiIgnore;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@ApiIgnore
 @Controller
 @Slf4j
 public class IndexController {
 
+    @Operation(hidden = true)
     @RequestMapping(method = RequestMethod.GET, path = {"/"})
     public String getSwaggerUI(HttpServletRequest request){
         String url = request.getRequestURL().toString();

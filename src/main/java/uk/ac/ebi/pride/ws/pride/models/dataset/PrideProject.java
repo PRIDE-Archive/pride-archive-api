@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.hateoas.server.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.reference.ReferenceProvider;
+import uk.ac.ebi.pride.archive.dataprovider.reference.Reference;
 import uk.ac.ebi.pride.archive.dataprovider.user.ContactProvider;
 
 import jakarta.xml.bind.annotation.XmlElement;
@@ -64,6 +64,6 @@ public class PrideProject {
     private Collection<CvParamProvider> organisms = new ArrayList<>();
     private Collection<CvParamProvider> organismParts = new ArrayList<>();
     private Collection<CvParamProvider> diseases = new ArrayList<>();
-    private Set<ReferenceProvider> references = new HashSet<>();
+    private Set<Reference> references = new HashSet<>();
     private Set<CvParamProvider> identifiedPTMStrings = new HashSet<>();
 }

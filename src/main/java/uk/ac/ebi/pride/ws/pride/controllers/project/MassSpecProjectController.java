@@ -2,10 +2,8 @@ package uk.ac.ebi.pride.ws.pride.controllers.project;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,28 +95,24 @@ public class MassSpecProjectController extends PagedModel {
     }
 
 
-    @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
+    @Operation(description = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
-            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedModel<CompactProjectModel>> projects(
-            @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
+            @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(name = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
-            @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
+            @Parameter(name = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
             @RequestParam(name = "filter", defaultValue = DEFAULT_MASS_SPEC_PROJECT_TYPE_FILTER) String filter,
-            @ApiParam(value = "Number of results to fetch in a page")
+            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(name = "pageSize", defaultValue = "100") int pageSize,
-            @ApiParam(value = "Identifies which page of results to fetch")
+            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @ApiParam(value = "A date range field with possible values of +1MONTH, +1YEAR")
+            @Parameter(name = "A date range field with possible values of +1MONTH, +1YEAR")
             @RequestParam(name = "dateGap", defaultValue = "") String dateGap,
-            @ApiParam(value = "Sorting direction: ASC or DESC")
+            @Parameter(name = "Sorting direction: ASC or DESC")
             @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
-            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
+            @Parameter(name = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
             @RequestParam(value = "sortFields", defaultValue = PrideProjectField.PROJECT_SUBMISSION_DATE, required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -165,23 +159,19 @@ public class MassSpecProjectController extends PagedModel {
         return filter;
     }
 
-    @ApiOperation(notes = "Return the facets for an specific search query. This method is " +
-            "fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _pageSize_, _page_. ", value = "projects", nickname = "getProjectFacets", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
-    })
+    @Operation(description = "Return the facets for an specific search query. This method is " +
+            "fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _pageSize_, _page_. ", tags = {"projects"})
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedModel<FacetResource>> facets(
-            @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
+            @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(value = "keyword", defaultValue = "*:*", required = false) List<String> keyword,
-            @ApiParam(value = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
+            @Parameter(name = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
             @RequestParam(value = "filter", required = false, defaultValue = DEFAULT_MASS_SPEC_PROJECT_TYPE_FILTER) String filter,
-            @ApiParam(value = "Number of results to fetch in a page")
+            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "facetPageSize", defaultValue = "100", required = false) int facetPageSize,
-            @ApiParam(value = "Identifies which page of results to fetch")
+            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "facetPage", defaultValue = "0", required = false) int facetPage,
-            @ApiParam(value = "A date range field with possible values of +1MONTH, +1YEAR")
+            @Parameter(name = "A date range field with possible values of +1MONTH, +1YEAR")
             @RequestParam(value = "dateGap", defaultValue = "", required = false) String dateGap) {
 
         Tuple<Integer, Integer> facetPageParams = WsUtils.validatePageLimit(facetPage, facetPageSize);
@@ -210,15 +200,10 @@ public class MassSpecProjectController extends PagedModel {
     }
 
 
-    @ApiOperation(notes = "Return the dataset for a given accession", value = "projects", nickname = "getProject", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ApiResponse.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
-    })
-
+    @Operation(description = "Return the dataset for a given accession", tags = {"projects"})
     @RequestMapping(value = "/projects/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseEntity<String>> getProject(
-            @ApiParam(value = "The Accession id associated with this project")
+            @Parameter(name = "The Accession id associated with this project")
             @PathVariable(value = "accession", name = "accession") String accession) {
 
         Mono<MongoPrideProject> byAccession = projectMongoClient.findByAccession(accession);
@@ -250,15 +235,10 @@ public class MassSpecProjectController extends PagedModel {
 
     }
 
-    @ApiOperation(notes = "Return the list of publications that have re-used the specified dataset", value = "projects", nickname = "getReanalysedProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ApiResponse.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ApiResponse.class)
-    })
-
+    @Operation(description = "Return the list of publications that have re-used the specified dataset", tags = {"projects"})
     @RequestMapping(value = "/projects/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseEntity<String>> getReanalysisProject(
-            @ApiParam(value = "The Accession id associated with this project")
+            @Parameter(name = "The Accession id associated with this project")
             @PathVariable(value = "accession", name = "accession") String accession) {
 
         Mono<MongoPrideReanalysisProject> byAccession = reanalysisMongoClient.findByAccession(accession);
@@ -280,20 +260,17 @@ public class MassSpecProjectController extends PagedModel {
 
     }
 
-    @ApiOperation(notes = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
-            "list is Paginated using the _pageSize_ and _page_.", value = "projects", nickname = "getProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @Operation(description = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
+            "list is Paginated using the _pageSize_ and _page_.", tags = {"projects"})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<HttpEntity<PagedModel<ProjectResource>>> getProjects(
-            @ApiParam(value = "Number of results to fetch in a page")
+            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
-            @ApiParam(value = "Identifies which page of results to fetch")
+            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @ApiParam(value = "Sorting direction: ASC or DESC")
+            @Parameter(name = "Sorting direction: ASC or DESC")
             @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
-            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
+            @Parameter(name = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
             @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.SUBMISSION_DATE, required = false) String sortFields) {
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         final int pageFinal = pageParams.getKey();
@@ -358,23 +335,19 @@ public class MassSpecProjectController extends PagedModel {
 //        return new HttpEntity<>(pagedResources);
     }
 
-    @ApiOperation(notes = "Get all the Files for an specific project in PRIDE.", value = "projects", nickname = "getFilesByProject", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
     @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<HttpEntity<PagedModel<PrideFileResource>>> getFilesByProject(
-            @ApiParam(value = "The Accession id associated with this project")
+            @Parameter(name = "The Accession id associated with this project")
             @PathVariable(value = "accession") String projectAccession,
             @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter,
-            @ApiParam(value = "Number of results to fetch in a page")
+            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) Integer pageSize,
-            @ApiParam(value = "Identifies which page of results to fetch")
+            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
-            @ApiParam(value = "Sorting direction: ASC or DESC")
+            @Parameter(name = "Sorting direction: ASC or DESC")
             @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
-            @ApiParam(value = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
+            @Parameter(name = "Field(s) for sorting the results on. Default for this request is submission_date. More fields can be separated by comma and passed. Example: submission_date,project_title")
             @RequestParam(value = "sortConditions", defaultValue = PrideArchiveField.FILE_NAME, required = false) String sortFields) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -435,18 +408,14 @@ public class MassSpecProjectController extends PagedModel {
     }
 
 
-    @ApiOperation(notes = "Get Similar projects taking into account the metadata", value = "projects", nickname = "getSimilarProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Get Similar projects taking into account the metadata", tags = {"projects"})
     @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<PagedModel<CompactProjectModel>> getSimilarProjects(
-            @ApiParam(value = "The Accession id associated with this project")
+            @Parameter(name = "The Accession id associated with this project")
             @PathVariable(value = "accession") String projectAccession,
-            @ApiParam(value = "Identifies which page of results to fetch")
+            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @ApiParam(value = "Number of results to fetch in a page")
+            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -482,16 +451,12 @@ public class MassSpecProjectController extends PagedModel {
     }
 
 
-    @ApiOperation(notes = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
+    @Operation(description = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains both keywords. The _filter_ parameter provides allows the method " +
-            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", value = "projects", nickname = "searchProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
     @RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public HttpEntity<Object> projects(
-            @ApiParam(value = "The entered word will be searched among the fields to fetch matching projects")
+            @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(name = "keyword") String keyword) {
 
         List<String> terms = solrProjectService.findAutoComplete(keyword);
@@ -504,14 +469,11 @@ public class MassSpecProjectController extends PagedModel {
         return status.name();
     }
 
-    @ApiOperation(notes = "List of paged PRIDE Archive Projects with metadata", value = "projects", nickname = "getProjectsMetadata", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @Operation(description = "List of paged PRIDE Archive Projects with metadata", tags = {"projects"})
     @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<List<PrideProjectMetadata>> getProjectsMetadata(@ApiParam(value = "Identifies which page of results to fetch")
+    public Mono<List<PrideProjectMetadata>> getProjectsMetadata(@Parameter(name = "Identifies which page of results to fetch")
                                                           @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                                @ApiParam(value = "Number of results to fetch in a page")
+                                                                @Parameter(name = "Number of results to fetch in a page")
                                                           @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -533,10 +495,7 @@ public class MassSpecProjectController extends PagedModel {
 
     }
 
-    @ApiOperation(notes = "List of all data", value = "projects", nickname = "getAllProjects", tags = {"projects"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)})
+    @Operation(description = "List of all data", tags = {"projects"})
     @RequestMapping(value = "/projects/stream", method = RequestMethod.GET, produces = {MediaType.APPLICATION_STREAM_JSON_VALUE})
     public Flux<Map<String, Object>> getProjectsStream(@RequestParam(name = "fieldsToReturn") String fieldsToReturn) {
 

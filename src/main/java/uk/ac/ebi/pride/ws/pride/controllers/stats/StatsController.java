@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.controllers.stats;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -53,11 +51,7 @@ public class StatsController {
         this.statRepoClient = statRepoClient;
     }
 
-    @ApiOperation(notes = "Retrieve statistics by Name", value = "statistics", nickname = "getStatsByName", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Retrieve statistics by Name", tags = {"stats"})
     @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<Object> statistics(@PathVariable(value = "name", name = "name") String name) {
 
@@ -71,7 +65,7 @@ public class StatsController {
         });
     }
 
-    @ApiOperation(notes = "Retrieve submissions count per country as TSV", value = "submissions-per-country", nickname = "submissions-per-country", tags = {"stats"})
+    @Operation(description = "Retrieve submissions count per country as TSV", tags = {"stats"})
     @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public Mono<String> submissionsPerCountry() {
         String name = "SUBMISSIONS_PER_COUNTRY";
@@ -87,11 +81,7 @@ public class StatsController {
     }
 
 
-    @ApiOperation(notes = "Retrieve all statistics keys and names", value = "statistics", nickname = "getStatNames", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Retrieve all statistics keys and names", tags = {"stats"})
     @RequestMapping(value = "/stats/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<Object> getStatisticsNames() {
 
@@ -115,11 +105,7 @@ public class StatsController {
         });
     }
 
-    @ApiOperation(notes = "Retrieve month wise submissions count", value = "submissions-monthly", nickname = "submissions-monthly", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Retrieve month wise submissions count", tags = {"stats"})
     @RequestMapping(value = "/stats/submissions-monthly", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Object> submissionsMonthly() throws IOException {
 
@@ -128,7 +114,7 @@ public class StatsController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
-    @ApiOperation(notes = "Retrieve month wise submissions count", value = "submissions-monthly-tsv", nickname = "submissions-monthly-tsv", tags = {"stats"})
+    @Operation(description = "Retrieve month wise submissions count", tags = {"stats"})
     @RequestMapping(value = "/stats/submissions-monthly-tsv", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity<Object> submissionsMonthlyTsv() throws IOException {
 
@@ -140,7 +126,7 @@ public class StatsController {
         return new ResponseEntity<>(statsBuilder.toString(), HttpStatus.OK);
     }
 
-//    @ApiOperation(notes = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"})
+//    @Operation(description = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"})
 //    @ApiResponses({
 //            @ApiResponse(code = 200, message = "OK", response = APIError.class),
 //            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
@@ -153,7 +139,7 @@ public class StatsController {
 //        return new ResponseEntity<>(results, HttpStatus.OK);
 //    }
 
-    @ApiOperation(notes = "Retrieve month wise submissions data size", value = "submissions-data-size-monthly", nickname = "submissions-data-size-monthly", tags = {"stats"})
+    @Operation(description = "Retrieve month wise submissions data size", tags = {"stats"})
     @RequestMapping(value = "/stats/submitted-data", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity<Object> getSubmittedDataStats() throws IOException {
         String submittedDataStats = statRepoClient.getSubmittedDataStats();

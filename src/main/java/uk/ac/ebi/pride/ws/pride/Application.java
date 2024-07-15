@@ -17,7 +17,6 @@ import org.springframework.hateoas.server.LinkRelationProvider;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.core.EvoInflectorLinkRelationProvider;
 import org.springframework.stereotype.Component;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
 import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
 import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
@@ -28,7 +27,6 @@ import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
  * @author ypriverol
  */
 
-@EnableSwagger2
 @SpringBootApplication
 @ComponentScan({"uk.ac.ebi.pride"})
 @Slf4j

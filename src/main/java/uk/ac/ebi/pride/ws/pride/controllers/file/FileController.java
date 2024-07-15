@@ -1,9 +1,7 @@
 package uk.ac.ebi.pride.ws.pride.controllers.file;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
@@ -17,13 +15,11 @@ import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
 import uk.ac.ebi.pride.archive.mongo.commons.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
-import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 /**
  * @author ypriverol
@@ -39,7 +35,7 @@ public class FileController {
         this.fileMongoClient = fileMongoClient;
     }
 
-//    @ApiOperation(notes = "Get a File from PRIDE database by FileName", value = "files", nickname = "fileByName", tags = {"files"})
+//    @Operation(description = "Get a File from PRIDE database by FileName", value = "files", nickname = "fileByName", tags = {"files"})
 //    @ApiResponses({
 //            @ApiResponse(code = 200, message = "OK", response = APIError.class),
 //            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
@@ -69,14 +65,10 @@ public class FileController {
 //        return new ResponseEntity(resource, HttpStatus.OK);
 //    }
 
-    @ApiOperation(notes = "Get a File from PRIDE database", value = "files", nickname = "getFile", tags = {"files"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Get a File from PRIDE database", tags = {"files"})
     @RequestMapping(value = "/files/{file_accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<HttpEntity<PrideFileResource>> getFile(
-            @ApiParam(value = "file accession id", required = true, defaultValue = "")
+            @Parameter(name = "file accession id", required = true)
             @PathVariable(value = "file_accession") String accession) {
 
         Mono<MongoPrideFile> fileMono = fileMongoClient.findByAccession(accession);
@@ -93,12 +85,7 @@ public class FileController {
     }
 
 
-    @ApiOperation(notes = "Get an SDRF file from project accession", value = "files", nickname = "sdrfByProjectAccession", tags = {"files"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
-            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
-    })
+    @Operation(description = "Get an SDRF file from project accession", tags = {"files"})
     @RequestMapping(value = "/files/sdrf/{projectAccession}", method = RequestMethod.GET,
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<List<String>> getSDRFFilesByProjectAccession(@PathVariable(value = "projectAccession") String projectAccession) {
@@ -153,12 +140,7 @@ public class FileController {
 //        return new ResponseEntity(resource, HttpStatus.OK);
 //    }
 
-    @ApiOperation(notes = "Get count of each file types in a project by accession", value = "files", nickname = "getCountOfFilesByType", tags = {"files"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class),
-            @ApiResponse(code = 204, message = "Content not found with the given parameters", response = APIError.class)
-    })
+    @Operation(description = "Get count of each file types in a project by accession", tags = {"files"})
     @RequestMapping(value = "/files/getCountOfFilesByType/{projectAccession}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity> getCountOfFilesByType(@PathVariable(value = "projectAccession") String projectAccession) {
 
