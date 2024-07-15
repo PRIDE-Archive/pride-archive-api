@@ -45,7 +45,9 @@ public class Application {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
             enable(SerializationFeature.INDENT_OUTPUT);
-
+        }
+        public CustomObjectMapper copy() {
+            return new CustomObjectMapper();
         }
     }
 
