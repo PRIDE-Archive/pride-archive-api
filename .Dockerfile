@@ -15,4 +15,5 @@ WORKDIR /app
 COPY --from=build-env /app/target/${JAR_FILE_NAME}.jar ./
 #COPY ${APM_AGENT_JAR} ./
 
-ENTRYPOINT java ${APM_AGENT_OPTS} ${JAVA_OPTS} -jar ${JAR_FILE_NAME}.jar
+#ENTRYPOINT java ${APM_AGENT_OPTS} ${JAVA_OPTS} -jar ${JAR_FILE_NAME}.jar
+ENTRYPOINT java ${JAVA_OPTS} -jar ${JAR_FILE_NAME}.jar

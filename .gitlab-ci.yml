@@ -30,7 +30,7 @@ docker_build:
   script:
     - apk add --update bash gettext tzdata coreutils ca-certificates wget
     - update-ca-certificates
-    - wget -O ${APM_AGENT_JAR} ${APM_AGENT_URL}
+#    - wget -O ${APM_AGENT_JAR} ${APM_AGENT_URL}
     - ls
     - envsubst '${JAR_FILE_NAME} ${APM_AGENT_JAR} ${NFS_UID} ${NFS_GID} ${NFS_GID2}' < .Dockerfile > Dockerfile
     - cat Dockerfile
