@@ -48,6 +48,10 @@ kube_deploy_prod_hx:
   environment: prod-k8s-hx
   extends: .kube_deploy_script
 
+dev_kube_deploy_hh:
+  environment: dev-k8s-hh
+  extends: .kube_deploy_script
+
 .kube_deploy_script:
   stage: deploy
   image: dtzar/helm-kubectl
@@ -77,44 +81,44 @@ kube_deploy_prod_hx:
     - kubectl -n $k8s_namespace apply -f kubernetes.yml
   when: manual
 
-.deploy_script:
-  stage: deploy
-  image: maven:3.3.9-jdk-8-alpine
-  script:
-    - apk add --update openssh-client bash openssl rsync gettext tzdata
-    - eval $(ssh-agent -s)
-    - echo $SSH_KEY | base64 -d | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir ~/.ssh
-    - chmod 700 ~/.ssh
-    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
-    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/*; done
-    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
-    - envsubst < config/.application.yml > config/application.yml
-    - chmod -R 700 config
-    - (rm src/main/resources/application.properties || true)
-    - export HOSTNAME=$HOSTNAME_BCKUP
-    - mvn $MAVEN_CLI_OPTS clean package -DjarFinalName=${JAR_FILE_NAME}
-    - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
-    - mkdir $DEPLOY_DIR
-    - cp -r target/${JAR_FILE_NAME}.jar config $DEPLOY_DIR/
-    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
-    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && mkdir -p $DEPLOY_PATH"
-    - rsync -a $DEPLOY_DIR $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]}:$DEPLOY_PATH/
-    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current"
-    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh $SERVER_USER@$i "bash && cd $DEPLOY_PATH && (bash -l $STOP_SCRIPT || true) && (bash -l $START_SCRIPT > /dev/null 2>&1 &) && exit"; sleep 2m; done
-    #  only:
-    ##    - master
-
-deploy_prod:
-  environment: prod
-  extends: .deploy_script
-  #  only:
-  #    - master
-  when: manual
-
-deploy_dev:
-  environment: dev
-  extends: .deploy_script
-  #  only:
-  #    - master
-  when: manual
+#.deploy_script:
+#  stage: deploy
+#  image: maven:3.3.9-jdk-8-alpine
+#  script:
+#    - apk add --update openssh-client bash openssl rsync gettext tzdata
+#    - eval $(ssh-agent -s)
+#    - echo $SSH_KEY | base64 -d | tr -d '\r' | ssh-add - > /dev/null
+#    - mkdir ~/.ssh
+#    - chmod 700 ~/.ssh
+#    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
+#    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh-keyscan $i >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/*; done
+#    - export HOSTNAME_BCKUP=$HOSTNAME && export HOSTNAME='${HOSTNAME}'
+#    - envsubst < config/.application.yml > config/application.yml
+#    - chmod -R 700 config
+#    - (rm src/main/resources/application.properties || true)
+#    - export HOSTNAME=$HOSTNAME_BCKUP
+#    - mvn $MAVEN_CLI_OPTS clean package -DjarFinalName=${JAR_FILE_NAME}
+#    - DEPLOY_DIR=$(date +"%Y%m%d_%H%M%S")
+#    - mkdir $DEPLOY_DIR
+#    - cp -r target/${JAR_FILE_NAME}.jar config $DEPLOY_DIR/
+#    - DEPLOY_SERVERS_ARRAY=(`echo $DEPLOY_SERVER | tr ',' ' '`)
+#    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && mkdir -p $DEPLOY_PATH"
+#    - rsync -a $DEPLOY_DIR $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]}:$DEPLOY_PATH/
+#    - ssh $SERVER_USER@${DEPLOY_SERVERS_ARRAY[0]} "bash && cd $DEPLOY_PATH && ln -snf $DEPLOY_DIR current"
+#    - for i in "${DEPLOY_SERVERS_ARRAY[@]}"; do ssh $SERVER_USER@$i "bash && cd $DEPLOY_PATH && (bash -l $STOP_SCRIPT || true) && (bash -l $START_SCRIPT > /dev/null 2>&1 &) && exit"; sleep 2m; done
+#    #  only:
+#    ##    - master
+#
+#deploy_prod:
+#  environment: prod
+#  extends: .deploy_script
+#  #  only:
+#  #    - master
+#  when: manual
+#
+#deploy_dev:
+#  environment: dev
+#  extends: .deploy_script
+#  #  only:
+#  #    - master
+#  when: manual
