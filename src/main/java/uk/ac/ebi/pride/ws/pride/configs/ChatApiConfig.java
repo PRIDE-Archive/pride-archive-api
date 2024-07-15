@@ -13,29 +13,29 @@ import java.net.Proxy;
 @Component
 public class ChatApiConfig {
 
-    @Value("${chat-api.base-url}")
-    @Getter
-    private String chatApiBaseUrl;
-
-    @Value(("${slack.app.token}"))
-    @Getter
-    private String slackAppToken;
-
-    @Value("${proxy-host}")
-    private String proxyHost;
-
-    @Value("${proxy-port}")
-    private Integer proxyPort;
-
-    @Bean("proxyRestTemplate")
-    public RestTemplate restTemplate() {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        if (proxyHost != null && proxyPort != null) {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-            requestFactory.setProxy(proxy);
-        }
-        return new RestTemplate(requestFactory);
-    }
+//    @Value("${chat-api.base-url}")
+//    @Getter
+//    private String chatApiBaseUrl;
+//
+//    @Value(("${slack.app.token}"))
+//    @Getter
+//    private String slackAppToken;
+//
+//    @Value("${proxy-host}")
+//    private String proxyHost;
+//
+//    @Value("${proxy-port}")
+//    private Integer proxyPort;
+//
+//    @Bean("proxyRestTemplate")
+//    public RestTemplate restTemplate() {
+//        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+//        if (proxyHost != null && proxyPort != null) {
+//            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+//            requestFactory.setProxy(proxy);
+//        }
+//        return new RestTemplate(requestFactory);
+//    }
 
 //    @Bean("proxyWebClient")
 //    public WebClient getProxyWebClient() {
