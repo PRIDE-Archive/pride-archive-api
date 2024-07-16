@@ -14,22 +14,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-@EnableSolrRepositories(basePackages = "uk.ac.ebi.pride.solr.indexes.repository")
+//@EnableSolrRepositories(basePackages = "uk.ac.ebi.pride.solr.indexes.repository")
 @ComponentScan(basePackages = "uk.ac.ebi.pride.solr.indexes.services")
 public class SolrCloudConfig {
 
     @Value("${spring.data.solr.host}")
     private String solrURls;
 
-    @Bean
-    public SolrClient solrClient() {
-        List<String> urls = Arrays.stream(solrURls.split(",")).map(String::trim).collect(Collectors.toList());
-        return new CloudSolrClient.Builder().withSolrUrl(urls).build();
-    }
+//    @Bean
+//    public SolrClient solrClient() {
+//        List<String> urls = Arrays.stream(solrURls.split(",")).map(String::trim).collect(Collectors.toList());
+//        return new CloudSolrClient.Builder(urls).build();
+//    }
 
-    @Bean
-    public SolrTemplate solrTemplate(SolrClient solrClient) {
-        return new SolrTemplate(solrClient);
-    }
+//    @Bean
+//    public SolrTemplate solrTemplate(SolrClient solrClient) {
+//        return new SolrTemplate(solrClient);
+//    }
 
 }

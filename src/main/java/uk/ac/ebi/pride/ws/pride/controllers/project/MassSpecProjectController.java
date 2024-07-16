@@ -17,7 +17,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import uk.ac.ebi.pride.archive.elastic.client.service.ElasticQueryClientService;
+//import uk.ac.ebi.pride.archive.elastic.client.service.ElasticQueryClientService;
 import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
 import uk.ac.ebi.pride.archive.mongo.client.ImportedProjectMongoClient;
 import uk.ac.ebi.pride.archive.mongo.client.ProjectMongoClient;
@@ -73,7 +73,7 @@ public class MassSpecProjectController extends PagedModel {
     private final ImportedProjectMongoClient importedProjectMongoClient;
     private final ReanalysisMongoClient reanalysisMongoClient;
     private final ProjectRepoClient projectRepoClient;
-    private final ElasticQueryClientService elasticQueryClientService;
+//    private final ElasticQueryClientService elasticQueryClientService;
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -82,7 +82,7 @@ public class MassSpecProjectController extends PagedModel {
                                      ImportedProjectMongoClient importedProjectMongoClient,
                                      ReanalysisMongoClient reanalysisMongoClient,
                                      ProjectRepoClient projectRepoClient,
-                                     ElasticQueryClientService elasticQueryClientService,
+//                                     ElasticQueryClientService elasticQueryClientService,
                                      ObjectMapper objectMapper) {
         this.solrProjectService = solrProjectService;
         this.fileMongoClient = fileMongoClient;
@@ -90,7 +90,7 @@ public class MassSpecProjectController extends PagedModel {
         this.importedProjectMongoClient = importedProjectMongoClient;
         this.reanalysisMongoClient = reanalysisMongoClient;
         this.projectRepoClient = projectRepoClient;
-        this.elasticQueryClientService = elasticQueryClientService;
+//        this.elasticQueryClientService = elasticQueryClientService;
         this.objectMapper = objectMapper;
     }
 
@@ -495,31 +495,31 @@ public class MassSpecProjectController extends PagedModel {
 
     }
 
-    @Operation(description = "List of all data", tags = {"projects"})
-    @RequestMapping(value = "/projects/stream", method = RequestMethod.GET, produces = {MediaType.APPLICATION_STREAM_JSON_VALUE})
-    public Flux<Map<String, Object>> getProjectsStream(@RequestParam(name = "fieldsToReturn") String fieldsToReturn) {
-
-        int batchSize = 1;
-        List<String> fields = Arrays.asList(fieldsToReturn.split(","));
-
-        AtomicInteger offset = new AtomicInteger(0);
-
-        Map<String, Object> a = new HashMap<>();
-        a.put("Error", "Error in fieldsToReturn");
-
-        return Flux.
-                defer(() -> elasticQueryClientService.findAllBy(batchSize, 0, fields)) // Initial call with offset 0
-                .expand(batch -> {
-                    if (batch.isEmpty()) {
-                        return Mono.empty(); // Stop expanding if the batch is empty
-                    }
-                    int nextOffset = offset.addAndGet(batchSize);
-                    return elasticQueryClientService.findAllBy(batchSize, nextOffset, fields); // Fetch the next batch
-                })
-                .flatMap(Flux::fromIterable)
-                .map(item -> getFieldValues(item, fields))
-                .onErrorReturn(a);
-    }
+//    @Operation(description = "List of all data", tags = {"projects"})
+//    @RequestMapping(value = "/projects/stream", method = RequestMethod.GET, produces = {MediaType.APPLICATION_STREAM_JSON_VALUE})
+//    public Flux<Map<String, Object>> getProjectsStream(@RequestParam(name = "fieldsToReturn") String fieldsToReturn) {
+//
+//        int batchSize = 1;
+//        List<String> fields = Arrays.asList(fieldsToReturn.split(","));
+//
+//        AtomicInteger offset = new AtomicInteger(0);
+//
+//        Map<String, Object> a = new HashMap<>();
+//        a.put("Error", "Error in fieldsToReturn");
+//
+//        return Flux.
+//                defer(() -> elasticQueryClientService.findAllBy(batchSize, 0, fields)) // Initial call with offset 0
+//                .expand(batch -> {
+//                    if (batch.isEmpty()) {
+//                        return Mono.empty(); // Stop expanding if the batch is empty
+//                    }
+//                    int nextOffset = offset.addAndGet(batchSize);
+//                    return elasticQueryClientService.findAllBy(batchSize, nextOffset, fields); // Fetch the next batch
+//                })
+//                .flatMap(Flux::fromIterable)
+//                .map(item -> getFieldValues(item, fields))
+//                .onErrorReturn(a);
+//    }
 
     public static Map<String, Object> getFieldValues(Object obj, List<String> fields) {
         Map<String, Object> fieldValues = new HashMap<>();
