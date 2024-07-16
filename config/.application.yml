@@ -1,4 +1,11 @@
-spring.application.name: $app_name
+spring:
+  application.name: $app_name
+  #  webflux:
+  #    base-path: /pride/ws/archive/v2
+  data:
+    solr:
+      host: $solr_pridedb_urls
+  jackson.default-property-inclusion: NON_NULL # To avoid errors while parsing null values in objects
 
 server:
   port: $port
@@ -20,9 +27,6 @@ logging:
         SQL: INFO
         type.descriptor.sql.BasicBinder: INFO
 
-# To avoid errors while parsing null values in objects
-spring.jackson.default-property-inclusion: NON_NULL
-
 pride-repo.api:
   baseUrl: $repo_api_base_url
   keyName: $repo_api_key_name
@@ -32,12 +36,6 @@ mongo-ws:
   baseUrl: $mongo_ws_base_url
   keyName: $mongo_ws_key_name
   keyValue: $mongo_ws_key_value
-
-##### Solr CLoud #####
-spring:
-  data:
-    solr:
-      host: $solr_pridedb_urls
 
 chat-api.base-url: $chat_api_base_url
 proxy-host: $http_proxy_host
