@@ -15,7 +15,6 @@ import uk.ac.ebi.pride.archive.mongo.client.StatsMongoClient;
 import uk.ac.ebi.pride.archive.mongo.commons.model.stats.MongoPrideStats;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.client.StatRepoClient;
-import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.io.IOException;
 import java.util.ArrayList;

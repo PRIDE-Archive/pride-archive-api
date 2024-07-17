@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.ws.pride.controllers.project;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,20 +90,6 @@ public class MassSpecProjectController {
                     }
                 })
                 .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + projectAccession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
-
-//        Optional<MongoPrideProject> project = mongoProjectService.findByAccession(accession);
-//        if (!project.isPresent()) {
-//            Optional<MongoImportedProject> mongoImportedProjectOptional = importedProjectMongoService.findByAccession(accession);
-//            if (mongoImportedProjectOptional.isPresent()) {
-//                MongoPrideProject mongoImportedProject = mongoImportedProjectOptional.get();
-//                project = Optional.of(mongoImportedProject);
-//            }
-//        }
-//        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class,
-//                ProjectResource.class, mongoFileService);
-//        return project.<ResponseEntity<Object>>map(mongoPrideProject -> new ResponseEntity<>(assembler.toModel(mongoPrideProject), HttpStatus.OK))
-//                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
-
     }
 
     @Operation(description = "Return the FTP path of the dataset's files", tags = {"projects"})
@@ -124,12 +109,6 @@ public class MassSpecProjectController {
                 }
                 ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
             }
-//            if (ftpPath == null) {
-//                Date publicationDate = mongoPrideProject.getPublicationDate();
-//                SimpleDateFormat year = new SimpleDateFormat("YYYY");
-//                SimpleDateFormat month = new SimpleDateFormat("MM");
-//                ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
-//            }
             return ftpPath;
         });
     }
@@ -148,13 +127,6 @@ public class MassSpecProjectController {
                     }
                 })
                 .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + projectAccession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
-
-
-//        Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
-//        PrideReanalysisProjectResourceAssembler assembler = new PrideReanalysisProjectResourceAssembler(MassSpecProjectController.class, ProjectReanalysisResource.class);
-//        ResponseEntity<Object> responseEntity = project.<ResponseEntity<Object>>map(reanalysisProject -> new ResponseEntity<>(assembler.toModel(reanalysisProject), HttpStatus.OK))
-//                .orElseGet(() -> new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, new HttpHeaders(), HttpStatus.BAD_REQUEST));
-
     }
 
     @Operation(description = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
@@ -183,55 +155,6 @@ public class MassSpecProjectController {
         return projectMongoClient.countAllBySubmissionTypeIn(submissionType);
     }
 
-//        return allProjectsPageMono.map(mongoProjectsPage -> {
-//            CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjectsPage.getContent());
-//
-//            long totalElements = mongoProjectsPage.getTotalElements();
-//            int totalPages = mongoProjectsPage.getTotalPages();
-//            PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSizeFinal, pageFinal, totalElements, totalPages);
-//
-//            PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-//                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, pageFinal, sortDirectionFinal.name(), sortFields)).withSelfRel(),
-//                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, WsUtils.validatePage(pageFinal + 1, totalPages), sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.next.name()),
-//                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, WsUtils.validatePage(pageFinal - 1, totalPages), sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.previous.name()),
-//                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, 0, sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.first.name()),
-//                    linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSizeFinal, WsUtils.validatePage(totalPages - 1, totalPages), sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.last.name())
-//            );
-//
-//            return new HttpEntity<>(pagedResources);
-//
-//        });
-
-//        Page<MongoPrideProject> mongoProjects = mongoProjectService.findAll(PageRequest.of(page, pageSize, direction, sortFields.split(",")));
-//        List<MongoPrideProject> filteredList = mongoProjects.stream().filter(project -> project.getSubmissionType().equals("COMPLETE") || project.getSubmissionType().equals("PARTIAL")).collect(Collectors.toList());
-//        mongoProjects = new PageImpl<>(filteredList, PageRequest.of(page, pageSize, direction, sortFields.split(",")), filteredList.size());
-//        PrideProjectResourceAssembler assembler = new PrideProjectResourceAssembler(MassSpecProjectController.class, ProjectResource.class, mongoFileService);
-//
-//        CollectionModel<ProjectResource> resources = assembler.toCollectionModel(mongoProjects);
-//
-//        long totalElements = mongoProjects.getTotalElements();
-//        long totalPages = mongoProjects.getTotalPages();
-//        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
-//
-//        PagedModel<ProjectResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, page, sortDirection, sortFields)).withSelfRel(),
-//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.next.name()),
-//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.previous.name()),
-//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, 0, sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.first.name()),
-//                linkTo(methodOn(MassSpecProjectController.class).getProjects(pageSize, (int) totalPages, sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.last.name())
-//        );
-//
-//        return new HttpEntity<>(pagedResources);
-//    }
-
     @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
     @RequestMapping(value = "/projects/{projectAccession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideFile> getFilesByProject(
@@ -257,53 +180,6 @@ public class MassSpecProjectController {
         return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
     }
 
-
-//        return mongoFilesPageMono.map(projectFilesPage -> {
-//            CollectionModel<PrideFileResource> resources = assembler.toCollectionModel(projectFilesPage.getContent());
-//            long totalElements = projectFilesPage.getTotalElements();
-//            int totalPages = projectFilesPage.getTotalPages();
-//            PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSizeFinal, pageFinal, totalElements, totalPages);
-//
-//            PagedModel<PrideFileResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-//                    linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filenameFilter, pageSizeFinal, pageFinal, sortDirectionFinal.name(), sortFields)).withSelfRel(),
-//                    linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filenameFilter, pageSizeFinal, WsUtils.validatePage(pageFinal + 1, totalPages), sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.next.name()),
-//                    linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filenameFilter, pageSizeFinal, WsUtils.validatePage(pageFinal - 1, totalPages), sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.previous.name()),
-//                    linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filenameFilter, pageSizeFinal, 0, sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.first.name()),
-//                    linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filenameFilter, pageSizeFinal, WsUtils.validatePage(totalPages - 1, totalPages), sortDirectionFinal.name(), sortFields))
-//                            .withRel(WsContastants.HateoasEnum.last.name())
-//            );
-//
-//            return new HttpEntity<>(pagedResources);
-//        });
-
-
-//        Page<MongoPrideFile> projectFiles = mongoFileService.findFilesByProjectAccessionAndFiler(projectAccession, filter, PageRequest.of(page, pageSize, direction, sortFields.split(",")));
-//        ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
-//
-//        CollectionModel<PrideFileResource> resources = assembler.toCollectionModel(projectFiles);
-//
-//        long totalElements = projectFiles.getTotalElements();
-//        long totalPages = projectFiles.getTotalPages();
-//        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(pageSize, page, totalElements, totalPages);
-//
-//        PagedModel<PrideFileResource> pagedResources = PagedModel.of(resources.getContent(), pageMetadata,
-//                linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, page, sortDirection, sortFields)).withSelfRel(),
-//                linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, (int) WsUtils.validatePage(page + 1, totalPages), sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.next.name()),
-//                linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, (int) WsUtils.validatePage(page - 1, totalPages), sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.previous.name()),
-//                linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, 0, sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.first.name()),
-//                linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(projectAccession, filter, pageSize, (int) totalPages, sortDirection, sortFields))
-//                        .withRel(WsContastants.HateoasEnum.last.name())
-//        );
-//
-//        return new HttpEntity<>(pagedResources);
-//    }
-
     @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
     public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
         ProjectStatus status = projectRepoClient.getProjectStatus(accession);
@@ -321,45 +197,7 @@ public class MassSpecProjectController {
 
         Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.getAllProjects(pageSize, page);
         return allProjectsFlux.map(project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessing(), project.getDataProcessing()));
-//        return allProjectsPageMono.map(allProjectsPage -> {
-//            List<MongoPrideProject> projects = allProjectsPage.getContent();
-//            return projects.stream().map(
-//                    project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessing(), project.getDataProcessing())
-//            ).toList();
-//        });
-
-
-//        return mongoProjectService.findAll(PageRequest.of(page, pageSize)).stream().map(
-//                project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessingProtocol(), project.getDataProcessingProtocol())
-//        ).collect(Collectors.toList());
-
     }
-
-//    @Operation(description = "List of all data", tags = {"projects"})
-//    @RequestMapping(value = "/projects/stream", method = RequestMethod.GET, produces = {MediaType.APPLICATION_STREAM_JSON_VALUE})
-//    public Flux<Map<String, Object>> getProjectsStream(@RequestParam(name = "fieldsToReturn") String fieldsToReturn) {
-//
-//        int batchSize = 1;
-//        List<String> fields = Arrays.asList(fieldsToReturn.split(","));
-//
-//        AtomicInteger offset = new AtomicInteger(0);
-//
-//        Map<String, Object> a = new HashMap<>();
-//        a.put("Error", "Error in fieldsToReturn");
-//
-//        return Flux.
-//                defer(() -> elasticQueryClientService.findAllBy(batchSize, 0, fields)) // Initial call with offset 0
-//                .expand(batch -> {
-//                    if (batch.isEmpty()) {
-//                        return Mono.empty(); // Stop expanding if the batch is empty
-//                    }
-//                    int nextOffset = offset.addAndGet(batchSize);
-//                    return elasticQueryClientService.findAllBy(batchSize, nextOffset, fields); // Fetch the next batch
-//                })
-//                .flatMap(Flux::fromIterable)
-//                .map(item -> getFieldValues(item, fields))
-//                .onErrorReturn(a);
-//    }
 
     public static Map<String, Object> getFieldValues(Object obj, List<String> fields) {
         Map<String, Object> fieldValues = new HashMap<>();
