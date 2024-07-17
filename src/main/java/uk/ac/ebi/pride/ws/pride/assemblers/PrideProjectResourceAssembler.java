@@ -1,33 +1,15 @@
 package uk.ac.ebi.pride.ws.pride.assemblers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.UriTemplate;
-import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
-import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
-import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
-import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
-import uk.ac.ebi.pride.archive.mongo.commons.model.PrideArchiveField;
-import uk.ac.ebi.pride.archive.mongo.commons.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
-import uk.ac.ebi.pride.ws.pride.controllers.project.MassSpecProjectController;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
-import uk.ac.ebi.pride.ws.pride.models.dataset.ProjectResource;
-import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
-import java.lang.reflect.Method;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -35,58 +17,32 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  * @author ypriverol
  */
 @Slf4j
-public class PrideProjectResourceAssembler extends RepresentationModelAssemblerSupport<MongoPrideProject, ProjectResource> {
+public class PrideProjectResourceAssembler {
 
-    private FileMongoClient fileMongoClient;
-
-    public PrideProjectResourceAssembler(Class<?> controllerClass, Class<ProjectResource> resourceType,
-                                         FileMongoClient fileMongoClient) {
-        super(controllerClass, resourceType);
-        this.fileMongoClient = fileMongoClient;
+    public static PrideProject toModel(MongoPrideProject mongoPrideProject) {
+        return transform(mongoPrideProject);
     }
 
-    @Override
-    public ProjectResource toModel(MongoPrideProject mongoPrideProject) {
-        List<Link> links = new ArrayList<>();
-        links.add(linkTo(methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-
-        Method method = null;
-        try {
-            method = MassSpecProjectController.class.getMethod("getFilesByProject", String.class, String.class, Integer.class, Integer.class, String.class, String.class);
-            Link link = linkTo(method, mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE).withRel(WsContastants.HateoasEnum.files.name());
-            links.add(link);
-            links.add(Link.of(UriTemplate.of(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
-        } catch (NoSuchMethodException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return new ProjectResource(transform(mongoPrideProject), links);
-    }
-
-    private String getFtpPath(MongoPrideProject mongoPrideProject) {
-        //Due to this issue : https://github.com/PRIDE-Archive/pride-archive-api/issues/108 (Datasets made public on 30-12-2021 gets wrong FTP path)
-        //We have get FTP path from files ftp path stored in mongo
-        Mono<Page<MongoPrideFile>> filePageMono = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(mongoPrideProject.getAccession(), "", 1, 0);
-        return filePageMono.map(page -> {
-            String ftpPath = null;
-            List<MongoPrideFile> mongoFiles = page.getContent();
-            if (mongoFiles != null && !mongoFiles.isEmpty()) {
-                MongoPrideFile mongoPrideFile = mongoFiles.get(0);
-                Set<? extends CvParamProvider> publicFileLocations = mongoPrideFile.getPublicFileLocations();
-                Optional<String> ftpPathOptional = publicFileLocations.stream().filter(l -> l.getAccession().equals("PRIDE:0000469")).map(ParamProvider::getValue).findFirst();
-                if (ftpPathOptional.isPresent()) {
-                    ftpPath = ftpPathOptional.get();
-                }
-                ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
-            }
-            if (ftpPath == null) {
-                Date publicationDate = mongoPrideProject.getPublicationDate();
-                SimpleDateFormat year = new SimpleDateFormat("YYYY");
-                SimpleDateFormat month = new SimpleDateFormat("MM");
-                ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
-            }
-            return ftpPath;
-        }).block();
+//        return filePageMono.map(page -> {
+//            String ftpPath = null;
+//            List<MongoPrideFile> mongoFiles = page.getContent();
+//            if (mongoFiles != null && !mongoFiles.isEmpty()) {
+//                MongoPrideFile mongoPrideFile = mongoFiles.get(0);
+//                Set<? extends CvParamProvider> publicFileLocations = mongoPrideFile.getPublicFileLocations();
+//                Optional<String> ftpPathOptional = publicFileLocations.stream().filter(l -> l.getAccession().equals("PRIDE:0000469")).map(ParamProvider::getValue).findFirst();
+//                if (ftpPathOptional.isPresent()) {
+//                    ftpPath = ftpPathOptional.get();
+//                }
+//                ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
+//            }
+//            if (ftpPath == null) {
+//                Date publicationDate = mongoPrideProject.getPublicationDate();
+//                SimpleDateFormat year = new SimpleDateFormat("YYYY");
+//                SimpleDateFormat month = new SimpleDateFormat("MM");
+//                ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
+//            }
+//            return ftpPath;
+//        }).block();
 //        List<MongoPrideFile> mongoFiles = mongoFileService.findFilesByProjectAccession(mongoPrideProject.getAccession());
 //        if (mongoFiles != null && !mongoFiles.isEmpty()) {
 //            MongoPrideFile mongoPrideFile = mongoFiles.get(0);
@@ -105,32 +61,6 @@ public class PrideProjectResourceAssembler extends RepresentationModelAssemblerS
 //            ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
 //        }
 //        return ftpPath;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public CollectionModel<ProjectResource> toCollectionModel(Iterable<? extends MongoPrideProject> entities) {
-
-        List<ProjectResource> projects = new ArrayList<>();
-
-        for (MongoPrideProject mongoPrideProject : entities) {
-            PrideProject project = transform(mongoPrideProject);
-            List<Link> links = new ArrayList<>();
-            links.add(linkTo(methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            links.add(linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0,"DESC",PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
-            Date publicationDate = mongoPrideProject.getPublicationDate();
-            SimpleDateFormat year = new SimpleDateFormat("YYYY");
-            SimpleDateFormat month = new SimpleDateFormat("MM");
-            String ftpPath = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/" + year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + mongoPrideProject.getAccession();
-            links.add(Link.of(UriTemplate.of(ftpPath), "datasetFtpUrl"));
-            links.add(linkTo(methodOn(MassSpecProjectController.class).getProject(mongoPrideProject.getAccession())).withSelfRel());
-            links.add(linkTo(methodOn(MassSpecProjectController.class).getFilesByProject(mongoPrideProject.getAccession(), "", WsContastants.MAX_PAGINATION_SIZE, 0, "DESC", PrideArchiveField.SUBMISSION_DATE)).withRel(WsContastants.HateoasEnum.files.name()));
-            links.add(Link.of(UriTemplate.of(getFtpPath(mongoPrideProject)), "datasetFtpUrl"));
-            projects.add(new ProjectResource(project, links));
-        }
-
-        return CollectionModel.of(projects);
-    }
 
     /**
      * Transform the original mongo Project to {@link PrideProject} that is used to external users.
@@ -138,7 +68,7 @@ public class PrideProjectResourceAssembler extends RepresentationModelAssemblerS
      * @param mongoPrideProject {@link MongoPrideProject}
      * @return Pride Project
      */
-    public PrideProject transform(MongoPrideProject mongoPrideProject) {
+    public static PrideProject transform(MongoPrideProject mongoPrideProject) {
         Collection<CvParam> additionalAttributes = mongoPrideProject.getAttributes();
         String license = null;
         try {
@@ -150,7 +80,7 @@ public class PrideProjectResourceAssembler extends RepresentationModelAssemblerS
         if (additionalAttributes == null)
             additionalAttributes = new ArrayList<>();
 
-        additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", getFtpPath(mongoPrideProject)));
+//        additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", getFtpPath(mongoPrideProject)));
 
         return PrideProject.builder()
                 .accession(mongoPrideProject.getAccession())

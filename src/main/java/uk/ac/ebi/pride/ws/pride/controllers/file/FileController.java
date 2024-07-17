@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
 import uk.ac.ebi.pride.archive.mongo.commons.model.files.MongoPrideFile;
 import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
-import uk.ac.ebi.pride.ws.pride.models.file.PrideFileResource;
+import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
 
 import java.util.List;
 import java.util.Map;
@@ -67,15 +67,14 @@ public class FileController {
 
     @Operation(description = "Get a File from PRIDE database", tags = {"files"})
     @RequestMapping(value = "/files/{file_accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<HttpEntity<PrideFileResource>> getFile(
+    public Mono<PrideFile> getFile(
             @Parameter(name = "file accession id", required = true)
             @PathVariable(value = "file_accession") String accession) {
 
         Mono<MongoPrideFile> fileMono = fileMongoClient.findByAccession(accession);
         return fileMono.map(file -> {
-            ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler(FileController.class, PrideFileResource.class);
-            PrideFileResource resource = assembler.toModel(file);
-            return new HttpEntity<>(resource);
+            ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler();
+            return assembler.toModel(file);
         });
 
 //        Optional<MongoPrideFile> file = mongoFileService.findByFileAccession(accession);
@@ -90,21 +89,29 @@ public class FileController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<List<String>> getSDRFFilesByProjectAccession(@PathVariable(value = "projectAccession") String projectAccession) {
 
-        Mono<Page<MongoPrideFile>> filesPageMono = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase
+        Flux<MongoPrideFile> filesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase
                 (projectAccession, ".tsv", 99999, 0);
 
-        return filesPageMono.map(filesPage -> {
-            List<MongoPrideFile> files = filesPage.getContent();
-            return files.stream()
-                    .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584"))
-                    .map(f -> {
-                        Optional<CvParam> ftpURLCvParam = f.getPublicFileLocations().stream()
-                                .filter(cvParam -> cvParam.getAccession().equalsIgnoreCase("PRIDE:0000469"))
-                                .findFirst();
-                        return ftpURLCvParam.map(cvParam -> cvParam.getValue().trim()).orElse("");
-                    }).filter(s->!s.trim().isEmpty()).toList();
-        });
+        return filesFlux.filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584")).map(f -> {
+            Optional<CvParam> ftpURLCvParam = f.getPublicFileLocations().stream()
+                    .filter(cvParam -> cvParam.getAccession().equalsIgnoreCase("PRIDE:0000469"))
+                    .findFirst();
+            return ftpURLCvParam.map(cvParam -> cvParam.getValue().trim()).orElse("");
+        }).filter(s -> !s.trim().isEmpty()).collectList();
     }
+
+//        return filesPageMono.map(filesPage -> {
+//            List<MongoPrideFile> files = filesPage.getContent();
+//            return files.stream()
+//                    .filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584"))
+//                    .map(f -> {
+//                        Optional<CvParam> ftpURLCvParam = f.getPublicFileLocations().stream()
+//                                .filter(cvParam -> cvParam.getAccession().equalsIgnoreCase("PRIDE:0000469"))
+//                                .findFirst();
+//                        return ftpURLCvParam.map(cvParam -> cvParam.getValue().trim()).orElse("");
+//                    }).filter(s->!s.trim().isEmpty()).toList();
+//        });
+//    }
 
 //        List<MongoPrideFile> files = mongoFileService.findFilesByProjectAccession(accession);
 //        List<MongoPrideFile> sdrfFiles = files.stream()

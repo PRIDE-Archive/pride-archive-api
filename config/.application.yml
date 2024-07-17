@@ -2,9 +2,6 @@ spring:
   application.name: $app_name
   #  webflux:
   #    base-path: /pride/ws/archive/v2
-  data:
-    solr:
-      host: $solr_pridedb_urls
   jackson.default-property-inclusion: NON_NULL # To avoid errors while parsing null values in objects
 
 server:

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import org.springframework.hateoas.server.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 @XmlRootElement(name = "sampleMSRun")
 @JsonRootName("sampleMSRun")
 @JsonTypeName("sampleMSRun")
-@Relation(collectionRelation = "sampleMSRuns")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SampleMSRunRow implements ISampleMSRunRow {
 

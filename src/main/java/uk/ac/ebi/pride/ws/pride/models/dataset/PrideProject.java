@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.hateoas.server.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.reference.Reference;
 import uk.ac.ebi.pride.archive.dataprovider.user.ContactProvider;
@@ -32,7 +31,6 @@ import java.util.*;
 @XmlRootElement(name = "project")
 @JsonRootName("project")
 @JsonTypeName("project")
-@Relation(collectionRelation = "projects")
 public class PrideProject {
     @XmlElement
     private String accession;
