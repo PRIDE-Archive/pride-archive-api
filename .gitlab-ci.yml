@@ -43,10 +43,14 @@ docker_build:
 kube_deploy_prod_hh:
   environment: prod-k8s-hh
   extends: .kube_deploy_script
+  only:
+    - master
 
 kube_deploy_prod_hx:
   environment: prod-k8s-hx
   extends: .kube_deploy_script
+  only:
+    - master
 
 dev_kube_deploy_hh:
   environment: dev-k8s-hh
