@@ -68,6 +68,10 @@
                     <artifactId>spring-boot-starter-security</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>uk.ac.ebi.pride.archive</groupId>
                     <artifactId>data-provider-api</artifactId>
                 </exclusion>

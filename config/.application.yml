@@ -1,12 +1,11 @@
 spring:
   application.name: $app_name
-  #  webflux:
-  #    base-path: /pride/ws/archive/v2
+  webflux:
+    base-path: $contextPath
   jackson.default-property-inclusion: NON_NULL # To avoid errors while parsing null values in objects
 
 server:
   port: $port
-  servlet.contextPath: $contextPath
 
 app.vhost: $app_vhost
 

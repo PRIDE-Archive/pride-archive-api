@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 @SpringBootApplication
 @ComponentScan({"uk.ac.ebi.pride"})
 @Slf4j
-@OpenAPIDefinition
 public class Application {
 
     public static void main(String[] args) {

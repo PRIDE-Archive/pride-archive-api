@@ -2,11 +2,23 @@ package uk.ac.ebi.pride.ws.pride.configs;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import java.net.URI;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 public class OpenApiConfig {
+
+    @Value("${spring.webflux.base-path}")
+    private String basePath;
+
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "PrideBearerAuth";
@@ -27,5 +39,12 @@ public class OpenApiConfig {
 //                                                .bearerFormat("JWT")
 //                                )
 //                )
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> routerFunction() {
+        return route(GET("/"), req ->
+                ServerResponse.permanentRedirect(URI.create(basePath + "/swagger-ui.html")).build()
+        );
     }
 }
