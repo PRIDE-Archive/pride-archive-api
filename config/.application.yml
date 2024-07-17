@@ -7,6 +7,11 @@ spring:
 server:
   port: $port
 
+management:
+  health:
+    mongo:
+      enabled: false
+
 app.vhost: $app_vhost
 
 # LOGGING Properties
