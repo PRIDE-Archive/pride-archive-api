@@ -66,12 +66,11 @@ public class FileController {
 //    }
 
     @Operation(description = "Get a File from PRIDE database", tags = {"files"})
-    @RequestMapping(value = "/files/{file_accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/files/{fileAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<PrideFile> getFile(
-            @Parameter(name = "file accession id", required = true)
-            @PathVariable(value = "file_accession") String accession) {
+            @PathVariable(value = "fileAccession") String fileAccession) {
 
-        Mono<MongoPrideFile> fileMono = fileMongoClient.findByAccession(accession);
+        Mono<MongoPrideFile> fileMono = fileMongoClient.findByAccession(fileAccession);
         return fileMono.map(file -> {
             ProjectFileResourceAssembler assembler = new ProjectFileResourceAssembler();
             return assembler.toModel(file);

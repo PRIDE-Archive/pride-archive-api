@@ -77,13 +77,12 @@ public class MassSpecProjectController {
 
 
     @Operation(description = "Return the dataset for a given accession", tags = {"projects"})
-    @RequestMapping(value = "/projects/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/projects/{projectAccession}", method = RequestMethod.GET)
     public Mono<ResponseEntity<String>> getProject(
-            @Parameter(name = "The Accession id associated with this project")
-            @PathVariable(value = "accession", name = "accession") String accession) {
+            @PathVariable String projectAccession) {
 
-        Mono<MongoPrideProject> byAccession = projectMongoClient.findByAccession(accession);
-        byAccession = byAccession.switchIfEmpty(importedProjectMongoClient.findByAccession(accession));
+        Mono<MongoPrideProject> byAccession = projectMongoClient.findByAccession(projectAccession);
+        byAccession = byAccession.switchIfEmpty(importedProjectMongoClient.findByAccession(projectAccession));
         return byAccession.map(project -> {
                     try {
                         return new ResponseEntity<>(objectMapper.writeValueAsString(PrideProjectResourceAssembler.toModel(project)), HttpStatus.OK);
@@ -91,7 +90,7 @@ public class MassSpecProjectController {
                         throw new RuntimeException(e);
                     }
                 })
-                .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
+                .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + projectAccession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
 
 //        Optional<MongoPrideProject> project = mongoProjectService.findByAccession(accession);
 //        if (!project.isPresent()) {
@@ -109,11 +108,11 @@ public class MassSpecProjectController {
     }
 
     @Operation(description = "Return the FTP path of the dataset's files", tags = {"projects"})
-    @RequestMapping(value = "/projects/ftp-path/{accession}", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
-    public Mono<String> getFtpPath(@PathVariable String accession) {
+    @RequestMapping(value = "/projects/ftp-path/{projectAccession}", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    public Mono<String> getFtpPath(@PathVariable String projectAccession) {
         //Due to this issue : https://github.com/PRIDE-Archive/pride-archive-api/issues/108 (Datasets made public on 30-12-2021 gets wrong FTP path)
         //We have get FTP path from files ftp path stored in mongo
-        Flux<MongoPrideFile> filesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(accession, "", 1, 0);
+        Flux<MongoPrideFile> filesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, "", 1, 0);
         return filesFlux.collectList().map(mongoFiles -> {
             String ftpPath = "";
             if (mongoFiles != null && !mongoFiles.isEmpty()) {
@@ -136,12 +135,11 @@ public class MassSpecProjectController {
     }
 
     @Operation(description = "Return the list of publications that have re-used the specified dataset", tags = {"projects"})
-    @RequestMapping(value = "/projects/reanalysis/{accession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/projects/reanalysis/{projectAccession}", method = RequestMethod.GET)
     public Mono<ResponseEntity<String>> getReanalysisProject(
-            @Parameter(name = "The Accession id associated with this project")
-            @PathVariable(value = "accession", name = "accession") String accession) {
+            @PathVariable String projectAccession) {
 
-        Mono<MongoPrideReanalysisProject> prideReanalysisProjectMono = reanalysisMongoClient.findByAccession(accession);
+        Mono<MongoPrideReanalysisProject> prideReanalysisProjectMono = reanalysisMongoClient.findByAccession(projectAccession);
         return prideReanalysisProjectMono.map(project -> {
                     try {
                         return new ResponseEntity<>(objectMapper.writeValueAsString(prideReanalysisProjectMono), HttpStatus.OK);
@@ -149,7 +147,7 @@ public class MassSpecProjectController {
                         throw new RuntimeException(e);
                     }
                 })
-                .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + accession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
+                .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + projectAccession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
 
 
 //        Optional<MongoPrideReanalysisProject> project = prideReanalysisMongoService.findByAccession(accession);
@@ -163,9 +161,7 @@ public class MassSpecProjectController {
             "list is Paginated using the _pageSize_ and _page_.", tags = {"projects"})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideProject> getProjects(
-            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
-            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "page", defaultValue = "0", required = false) int page) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -237,14 +233,11 @@ public class MassSpecProjectController {
 //    }
 
     @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
-    @RequestMapping(value = "/projects/{accession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/projects/{projectAccession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideFile> getFilesByProject(
-            @Parameter(name = "The Accession id associated with this project")
-            @PathVariable(value = "accession") String projectAccession,
+            @PathVariable(value = "projectAccession") String projectAccession,
             @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter,
-            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) Integer pageSize,
-            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
@@ -256,10 +249,9 @@ public class MassSpecProjectController {
     }
 
     @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
-    @RequestMapping(value = "/projects/{accession}/files/count", method = RequestMethod.GET)
+    @RequestMapping(value = "/projects/{projectAccession}/files/count", method = RequestMethod.GET)
     public Mono<Long> getFilesCountByProject(
-            @Parameter(name = "The Accession id associated with this project")
-            @PathVariable(value = "accession") String projectAccession,
+            @PathVariable String projectAccession,
             @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter) {
 
         return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
@@ -320,10 +312,8 @@ public class MassSpecProjectController {
 
     @Operation(description = "List of paged PRIDE Archive Projects with metadata", tags = {"projects"})
     @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Flux<PrideProjectMetadata> getProjectsMetadata(@Parameter(name = "Identifies which page of results to fetch")
-                                                                @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                          @Parameter(name = "Number of results to fetch in a page")
-                                                                @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+    public Flux<PrideProjectMetadata> getProjectsMetadata(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                          @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();

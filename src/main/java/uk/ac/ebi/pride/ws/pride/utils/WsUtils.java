@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class WsUtils {
 
     public static Tuple<Integer, Integer> validatePageLimit(int start, int size) {
-        if(size > WsContastants.MAX_PAGINATION_SIZE || size < 0 )
+        if(size > WsContastants.MAX_PAGINATION_SIZE || size <= 0 )
             size = WsContastants.MAX_PAGINATION_SIZE;
         if(start < 0)
             start = 0;
@@ -37,7 +37,7 @@ public class WsUtils {
     }
 
     public static Tuple<Integer, Integer> validatePageLimit(int start, int size, int maxPageSize) {
-        if(size > maxPageSize || size < 0 )
+        if(size > maxPageSize || size <= 0 )
             size = maxPageSize;
         if(start < 0)
             start = 0;

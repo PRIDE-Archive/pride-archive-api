@@ -48,9 +48,7 @@ public class AffinityProjectController {
             "list is Paginated using the _pageSize_ and _page_.", tags = {"affinity-projects"})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideProject> getProjects(
-            @Parameter(name = "Number of results to fetch in a page")
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
-            @Parameter(name = "Identifies which page of results to fetch")
             @RequestParam(value = "page", defaultValue = "0", required = false) int page) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
