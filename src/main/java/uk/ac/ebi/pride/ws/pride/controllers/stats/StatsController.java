@@ -15,6 +15,7 @@ import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.client.StatRepoClient;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,6 +50,14 @@ public class StatsController {
     @Operation(description = "Retrieve statistics by Name", tags = {"stats"})
     @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET)
     public Mono<ResponseEntity> statistics(@PathVariable String name) {
+        String[] supportedStats = {"SUBMISSIONS_PER_YEAR", "SUBMISSIONS_PER_MONTH",
+                "SUBMISSIONS_PER_INSTRUMENT", "SUBMISSIONS_PER_ORGANISM", "SUBMISSIONS_PER_MODIFICATIONS",
+                "SUBMISSIONS_PER_ORGANISM_PART", "SUBMISSIONS_PER_DISEASES", "SUBMISSIONS_PER_COUNTRY", "SUBMISSIONS_PER_CATEGORIES"};
+        name = name.trim().toUpperCase();
+        boolean contains = Arrays.asList(supportedStats).contains(name);
+        if (!contains) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Stats not found for: " + name));
+        }
         Mono<Object> statsByName = statsMongoClient.getStatsByName(name);
         return statsByName.map(ResponseEntity::ok);
     }
