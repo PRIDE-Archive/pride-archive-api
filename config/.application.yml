@@ -3,6 +3,8 @@ spring:
   webflux:
     base-path: $contextPath
   jackson.default-property-inclusion: NON_NULL # To avoid errors while parsing null values in objects
+  codec:
+    max-in-memory-size: 10MB
 
 server:
   port: $port
