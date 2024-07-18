@@ -10,16 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import reactor.core.publisher.Mono;
-import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.mongo.client.StatsMongoClient;
-import uk.ac.ebi.pride.archive.mongo.commons.model.stats.MongoPrideStats;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.client.StatRepoClient;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This code is licensed under the Apache License, Version 2.0 (the
@@ -51,58 +47,51 @@ public class StatsController {
     }
 
     @Operation(description = "Retrieve statistics by Name", tags = {"stats"})
-    @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<Object> statistics(@PathVariable(value = "name", name = "name") String name) {
-
-        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
-        return lastGeneratedStats.map(s -> {
-            List<Tuple<String, Integer>> stats = s.getSubmissionsCount().get(name);
-            if (stats == null || stats.isEmpty()) {
-                return s.getComplexStats().get(name);
-            }
-            return stats;
-        });
+    @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET)
+    public Mono<ResponseEntity> statistics(@PathVariable String name) {
+        Mono<Object> statsByName = statsMongoClient.getStatsByName(name);
+        return statsByName.map(ResponseEntity::ok);
     }
 
-    @Operation(description = "Retrieve submissions count per country as TSV", tags = {"stats"})
-    @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
-    public Mono<String> submissionsPerCountry() {
-        String name = "SUBMISSIONS_PER_COUNTRY";
-        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
-        return lastGeneratedStats.map(s -> {
-            List<Tuple<String, Integer>> stats = s.getSubmissionsCount().get(name);
-            StringBuilder statsBuilder = new StringBuilder("Country\tNumber_of_submissions");
-            for (Tuple<String, Integer> tuple : stats) {
-                statsBuilder.append("\n").append(tuple.getKey()).append("\t").append(tuple.getValue());
-            }
-            return statsBuilder.toString();
-        });
-    }
+//    @Operation(description = "Retrieve submissions count per country as TSV", tags = {"stats"})
+//    @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+//    public Mono<String> submissionsPerCountry() {
+//        String name = "SUBMISSIONS_PER_COUNTRY";
+//        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
+//        return lastGeneratedStats.map(s -> {
+//            List<Tuple<String, Integer>> stats = s.getSubmissionsCount().get(name);
+//            StringBuilder statsBuilder = new StringBuilder("Country\tNumber_of_submissions");
+//            for (Tuple<String, Integer> tuple : stats) {
+//                statsBuilder.append("\n").append(tuple.getKey()).append("\t").append(tuple.getValue());
+//            }
+//            return statsBuilder.toString();
+//        });
+//    }
 
 
-    @Operation(description = "Retrieve all statistics keys and names", tags = {"stats"})
-    @RequestMapping(value = "/stats/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<Object> getStatisticsNames() {
-
-        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
-        return lastGeneratedStats.hasElement().flatMap(isPresent -> {
-            if(isPresent) {
-                return lastGeneratedStats.map(s -> {
-                    List<String> statNames = new ArrayList<>();
-                    Map<String, List<Tuple<String, Integer>>> submissionsCount = s.getSubmissionsCount();
-                    if (submissionsCount != null)
-                        statNames.addAll(new ArrayList<>(submissionsCount.keySet()));
-
-                    Map<String, Object> complexStats = s.getComplexStats();
-                    if (complexStats != null)
-                        statNames.addAll(new ArrayList<>(complexStats.keySet()));
-
-                    return statNames;
-                });
-            }
-            return Mono.empty();
-        });
-    }
+//    @Operation(description = "Retrieve all statistics keys and names", tags = {"stats"})
+//    @RequestMapping(value = "/stats/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public Mono<Object> getStatisticsNames() {
+//
+//        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
+//        return lastGeneratedStats.hasElement().flatMap(isPresent -> {
+//            if(isPresent) {
+//                return lastGeneratedStats.map(s -> {
+//                    List<String> statNames = new ArrayList<>();
+//                    Map<String, List<Tuple<String, Integer>>> submissionsCount = s.getSubmissionsCount();
+//                    if (submissionsCount != null)
+//                        statNames.addAll(new ArrayList<>(submissionsCount.keySet()));
+//
+//                    Map<String, Object> complexStats = s.getComplexStats();
+//                    if (complexStats != null)
+//                        statNames.addAll(new ArrayList<>(complexStats.keySet()));
+//
+//                    return statNames;
+//                });
+//            }
+//            return Mono.empty();
+//        });
+//    }
 
     @Operation(description = "Retrieve month wise submissions count", tags = {"stats"})
     @RequestMapping(value = "/stats/submissions-monthly", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
