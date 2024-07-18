@@ -2,7 +2,9 @@ package uk.ac.ebi.pride.ws.pride.controllers.project;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,6 +15,7 @@ import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
+import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.util.Collections;
@@ -45,7 +48,7 @@ public class AffinityProjectController {
     @Operation(description = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
             "list is Paginated using the _pageSize_ and _page_.", tags = {"affinity-projects"})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Flux<PrideProject> getProjects(
+    public Mono<ResponseEntity<Flux<PrideProject>>> getProjects(
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page) {
 
@@ -54,7 +57,13 @@ public class AffinityProjectController {
         final int pageSizeFinal = pageParams.getValue();
         List<String> submissionType = Collections.singletonList("AFFINITY");
         Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.findAllBySubmissionTypeIn(submissionType, pageSizeFinal, pageFinal);
-        return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
+        HttpHeaders headers = new HttpHeaders();
+        Mono<Long> countMono = projectMongoClient.countAllBySubmissionTypeIn(submissionType);
+        return countMono.map(c -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, c.toString());
+            return ResponseEntity.ok().headers(headers).body(allProjectsFlux.map(PrideProjectResourceAssembler::toModel));
+        });
+
     }
 
     @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})

@@ -132,7 +132,7 @@ public class MassSpecProjectController {
     @Operation(description = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
             "list is Paginated using the _pageSize_ and _page_.", tags = {"projects"})
     @RequestMapping(value = "/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Flux<PrideProject> getProjects(
+    public Mono<ResponseEntity<Flux<PrideProject>>> getProjects(
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) int pageSize,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page) {
 
@@ -143,7 +143,12 @@ public class MassSpecProjectController {
         submissionType.add("COMPLETE");
         submissionType.add("PARTIAL");
         Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.findAllBySubmissionTypeIn(submissionType, pageSizeFinal, pageFinal);
-        return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
+        HttpHeaders headers = new HttpHeaders();
+        Mono<Long> countMono = projectMongoClient.countAllBySubmissionTypeIn(submissionType);
+        return countMono.map(c -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, c.toString());
+            return ResponseEntity.ok().headers(headers).body(allProjectsFlux.map(PrideProjectResourceAssembler::toModel));
+        });
     }
 
     @Operation(description = "List of all PRIDE Archive Projects", tags = {"projects"})
@@ -164,7 +169,7 @@ public class MassSpecProjectController {
 
     @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
     @RequestMapping(value = "/projects/{projectAccession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Flux<PrideFile> getFilesByProject(
+    public Mono<ResponseEntity<Flux<PrideFile>>> getFilesByProject(
             @PathVariable(value = "projectAccession") String projectAccession,
             @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter,
             @RequestParam(value = "pageSize", defaultValue = "100", required = false) Integer pageSize,
@@ -175,7 +180,12 @@ public class MassSpecProjectController {
         final int pageSizeFinal = pageParams.getValue();
 
         Flux<MongoPrideFile> mongoFilesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter, pageSizeFinal, pageFinal);
-        return mongoFilesFlux.map(ProjectFileResourceAssembler::toModel);
+        HttpHeaders headers = new HttpHeaders();
+        Mono<Long> countMono = fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
+        return countMono.map(c -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, c.toString());
+            return ResponseEntity.ok().headers(headers).body(mongoFilesFlux.map(ProjectFileResourceAssembler::toModel));
+        });
     }
 
     @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
@@ -205,16 +215,22 @@ public class MassSpecProjectController {
 
     @Operation(description = "List of paged PRIDE Archive Projects with metadata", tags = {"projects"})
     @RequestMapping(value = "/projects/metadata", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Flux<PrideProjectMetadata> getProjectsMetadata(@RequestParam(value = "page", defaultValue = "0") Integer page,
-                                                          @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+    public Mono<ResponseEntity<Flux<PrideProjectMetadata>>> getProjectsMetadata(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                                @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
         Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.getAllProjects(pageSize, page);
-        return allProjectsFlux.map(project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessing(), project.getDataProcessing()));
-    }
+        Flux<PrideProjectMetadata> prideProjectMetadataFlux = allProjectsFlux.map(project -> new PrideProjectMetadata(project.getAccession(), project.getTitle(), project.getSubmissionType(), project.getDescription(), project.getSampleProcessing(), project.getDataProcessing()));
+
+        HttpHeaders headers = new HttpHeaders();
+        Mono<Long> countMono = projectMongoClient.count();
+        return countMono.map(c -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, c.toString());
+            return ResponseEntity.ok().headers(headers).body(prideProjectMetadataFlux);
+        });}
 
     public static Map<String, Object> getFieldValues(Object obj, List<String> fields) {
         Map<String, Object> fieldValues = new HashMap<>();

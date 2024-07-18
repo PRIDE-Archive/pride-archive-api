@@ -5,6 +5,8 @@ package uk.ac.ebi.pride.ws.pride.utils;
  */
 public class WsContastants {
 
+    public static final String TOTAL_RECORDS_HEADER = "total_records";
+
     public enum HateoasEnum {
         next, previous, last, first, facets, files, peptideevidences, psms;
     }
