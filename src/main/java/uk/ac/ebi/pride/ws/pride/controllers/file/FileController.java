@@ -45,6 +45,12 @@ public class FileController {
         });
     }
 
+    @Operation(description = "Get all files from PRIDE database", tags = {"files"})
+    @RequestMapping(value = "/files/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Flux<PrideFile> getAllFiles() {
+        Flux<MongoPrideFile> fileMono = fileMongoClient.getAll();
+        return fileMono.map(ProjectFileResourceAssembler::toModel);
+    }
 
     @Operation(description = "Get an SDRF file from project accession", tags = {"files"})
     @RequestMapping(value = "/files/sdrf/{projectAccession}", method = RequestMethod.GET,

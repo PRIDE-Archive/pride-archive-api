@@ -146,6 +146,13 @@ public class MassSpecProjectController {
         return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
     }
 
+    @Operation(description = "List of all PRIDE Archive Projects", tags = {"projects"})
+    @RequestMapping(value = "/projects/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Flux<PrideProject> getAllProjects() {
+        Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.getAllProjects();
+        return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
+    }
+
     @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
     @RequestMapping(value = "/projects/count", method = RequestMethod.GET)
     public Mono<Long> getProjectsCount() {
@@ -168,6 +175,16 @@ public class MassSpecProjectController {
         final int pageSizeFinal = pageParams.getValue();
 
         Flux<MongoPrideFile> mongoFilesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter, pageSizeFinal, pageFinal);
+        return mongoFilesFlux.map(ProjectFileResourceAssembler::toModel);
+    }
+
+    @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
+    @RequestMapping(value = "/projects/{projectAccession}/files/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Flux<PrideFile> getAllFilesByProject(
+            @PathVariable(value = "projectAccession") String projectAccession,
+            @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter) {
+
+        Flux<MongoPrideFile> mongoFilesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
         return mongoFilesFlux.map(ProjectFileResourceAssembler::toModel);
     }
 
