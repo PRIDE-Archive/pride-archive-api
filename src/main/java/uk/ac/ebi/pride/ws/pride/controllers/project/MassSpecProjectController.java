@@ -158,14 +158,14 @@ public class MassSpecProjectController {
         return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
     }
 
-    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
-    @RequestMapping(value = "/projects/count", method = RequestMethod.GET)
-    public Mono<Long> getProjectsCount() {
-        List<String> submissionType = new ArrayList<>(2);
-        submissionType.add("COMPLETE");
-        submissionType.add("PARTIAL");
-        return projectMongoClient.countAllBySubmissionTypeIn(submissionType);
-    }
+//    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
+//    @RequestMapping(value = "/projects/count", method = RequestMethod.GET)
+//    public Mono<Long> getProjectsCount() {
+//        List<String> submissionType = new ArrayList<>(2);
+//        submissionType.add("COMPLETE");
+//        submissionType.add("PARTIAL");
+//        return projectMongoClient.countAllBySubmissionTypeIn(submissionType);
+//    }
 
     @Operation(description = "Get all the Files for an specific project in PRIDE.", tags = {"projects"})
     @RequestMapping(value = "/projects/{projectAccession}/files", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -198,14 +198,14 @@ public class MassSpecProjectController {
         return mongoFilesFlux.map(ProjectFileResourceAssembler::toModel);
     }
 
-    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
-    @RequestMapping(value = "/projects/{projectAccession}/files/count", method = RequestMethod.GET)
-    public Mono<Long> getFilesCountByProject(
-            @PathVariable String projectAccession,
-            @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter) {
-
-        return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
-    }
+//    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
+//    @RequestMapping(value = "/projects/{projectAccession}/files/count", method = RequestMethod.GET)
+//    public Mono<Long> getFilesCountByProject(
+//            @PathVariable String projectAccession,
+//            @RequestParam(value = "filenameFilter", required = false, defaultValue = "") String filenameFilter) {
+//
+//        return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
+//    }
 
     @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
     public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {

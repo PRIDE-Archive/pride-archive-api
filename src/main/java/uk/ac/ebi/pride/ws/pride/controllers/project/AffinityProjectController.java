@@ -66,10 +66,10 @@ public class AffinityProjectController {
 
     }
 
-    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"affinity-projects"})
-    @RequestMapping(value = "/projects/count", method = RequestMethod.GET)
-    public Mono<Long> getProjectsCount() {
-        List<String> submissionType = Collections.singletonList("AFFINITY");
-        return projectMongoClient.countAllBySubmissionTypeIn(submissionType);
-    }
+//    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"affinity-projects"})
+//    @RequestMapping(value = "/projects/count", method = RequestMethod.GET)
+//    public Mono<Long> getProjectsCount() {
+//        List<String> submissionType = Collections.singletonList("AFFINITY");
+//        return projectMongoClient.countAllBySubmissionTypeIn(submissionType);
+//    }
 }
