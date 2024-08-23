@@ -81,7 +81,7 @@ public class AffinityProjectController {
 //        return projectMongoClient.countAllBySubmissionTypeIn(submissionType);
 //    }
 
-    @Operation(description = "Get Similar projects taking into account the metadata", tags = {"projects"})
+    @Operation(description = "Get Similar projects taking into account the metadata", tags = {"affinity-projects"})
     @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<CustomPageImpl<ElasticPrideProject>> getSimilarProjects(
             @Parameter(name = "The Accession id associated with this project")
@@ -101,7 +101,7 @@ public class AffinityProjectController {
 
     @Operation(description = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains both keywords. The _filter_ parameter provides allows the method " +
-            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"affinity-projects"})
     @RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<List<String>> projects(
             @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")
@@ -112,7 +112,7 @@ public class AffinityProjectController {
 
     @Operation(description = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
-            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"affinity-projects"})
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<CustomPageImpl<ElasticPrideProject>> projects(
             @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")
@@ -138,7 +138,7 @@ public class AffinityProjectController {
     }
 
     @Operation(description = "Return the facets for an specific search query. This method is " +
-            "fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _pageSize_, _page_. ", tags = {"projects"})
+            "fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _pageSize_, _page_. ", tags = {"affinity-projects"})
     @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<Map<String, Map<String, Long>>> facets(
             @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")

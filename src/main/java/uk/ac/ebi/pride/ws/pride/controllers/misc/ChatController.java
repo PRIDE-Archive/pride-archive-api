@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.ws.pride.controllers.misc;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,7 @@ public class ChatController {
     @PostMapping(path = "/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String chat(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -62,6 +64,7 @@ public class ChatController {
     @PostMapping(path = "/chat_px", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String pride_search(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -119,6 +122,7 @@ public class ChatController {
     @PostMapping(path = "/saveBenchmark", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String saveBenchmark(@RequestBody @NotNull Benchmark benchmark) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -150,6 +154,7 @@ public class ChatController {
     @GetMapping(path = "/getBenchmark")
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String getBenchmark(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page,
                                @RequestParam(defaultValue = "5", name = "iteration") @NotNull int iteration) throws HttpClientErrorException {
 
@@ -185,6 +190,7 @@ public class ChatController {
     @GetMapping(path = "/similarProjects")
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String similarProjects(String accessions) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -216,6 +222,7 @@ public class ChatController {
     @PostMapping(path = "/saveQueryFeedback", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String saveQueryFeedback(@RequestBody @NotNull Feedback feedback) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -247,6 +254,7 @@ public class ChatController {
     @GetMapping(path = "/getQueryFeedback")
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String getQueryFeedback(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -277,6 +285,7 @@ public class ChatController {
     @GetMapping(path = "/load")
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String load() {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -306,6 +315,7 @@ public class ChatController {
     @GetMapping(path = "/delete_all")
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String deleteAll() {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -335,6 +345,7 @@ public class ChatController {
     @GetMapping(path = "/get_tree")
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String get_tree() {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -364,6 +375,7 @@ public class ChatController {
     @PostMapping(path = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String delete(@RequestBody @NotNull FileN fileN) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
@@ -395,6 +407,7 @@ public class ChatController {
     @PostMapping(path = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseBody
     @CrossOrigin(origins = "*")
+    @Operation(hidden = true)
     public String upload(@RequestPart("files") List<MultipartFile> files) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
