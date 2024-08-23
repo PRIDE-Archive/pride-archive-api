@@ -6,12 +6,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.param.ParamProvider;
+import uk.ac.ebi.pride.archive.elastic.client.ElasticProjectClient;
+import uk.ac.ebi.pride.archive.elastic.commons.models.ElasticPrideProject;
+import uk.ac.ebi.pride.archive.elastic.commons.util.CustomPageImpl;
+import uk.ac.ebi.pride.archive.elastic.commons.util.PrideArchiveType;
 import uk.ac.ebi.pride.archive.mongo.client.FileMongoClient;
 import uk.ac.ebi.pride.archive.mongo.client.ImportedProjectMongoClient;
 import uk.ac.ebi.pride.archive.mongo.client.ProjectMongoClient;
@@ -22,8 +29,10 @@ import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideReanalysis
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.util.ProjectStatus;
 import uk.ac.ebi.pride.utilities.util.Tuple;
-import uk.ac.ebi.pride.ws.pride.assemblers.*;
-import uk.ac.ebi.pride.ws.pride.models.dataset.*;
+import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
+import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
+import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProjectMetadata;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
@@ -43,20 +52,13 @@ import java.util.*;
 @Slf4j
 public class MassSpecProjectController {
 
-
-    private final String PARTIAL_SUBMISSION_TYPE_FILTER = "project_submission_type==PARTIAL";
-
-    private final String COMPLETE_SUBMISSION_TYPE_FILTER = "project_submission_type==COMPLETE";
-
-    private final String DEFAULT_MASS_SPEC_PROJECT_TYPE_FILTER = PARTIAL_SUBMISSION_TYPE_FILTER + ","
-            + COMPLETE_SUBMISSION_TYPE_FILTER;
-
     private final FileMongoClient fileMongoClient;
     private final ProjectMongoClient projectMongoClient;
     private final ImportedProjectMongoClient importedProjectMongoClient;
     private final ReanalysisMongoClient reanalysisMongoClient;
     private final ProjectRepoClient projectRepoClient;
     private final ObjectMapper objectMapper;
+    private final ElasticProjectClient elasticProjectClient;
 
     @Autowired
     public MassSpecProjectController(FileMongoClient fileMongoClient,
@@ -64,7 +66,7 @@ public class MassSpecProjectController {
                                      ImportedProjectMongoClient importedProjectMongoClient,
                                      ReanalysisMongoClient reanalysisMongoClient,
                                      ProjectRepoClient projectRepoClient,
-//                                     ElasticQueryClientService elasticQueryClientService,
+                                     ElasticProjectClient elasticProjectClient,
                                      ObjectMapper objectMapper) {
         this.fileMongoClient = fileMongoClient;
         this.projectMongoClient = projectMongoClient;
@@ -72,6 +74,7 @@ public class MassSpecProjectController {
         this.reanalysisMongoClient = reanalysisMongoClient;
         this.projectRepoClient = projectRepoClient;
         this.objectMapper = objectMapper;
+        this.elasticProjectClient = elasticProjectClient;
     }
 
 
@@ -230,7 +233,8 @@ public class MassSpecProjectController {
         return countMono.map(c -> {
             headers.set(WsContastants.TOTAL_RECORDS_HEADER, c.toString());
             return ResponseEntity.ok().headers(headers).body(prideProjectMetadataFlux);
-        });}
+        });
+    }
 
     public static Map<String, Object> getFieldValues(Object obj, List<String> fields) {
         Map<String, Object> fieldValues = new HashMap<>();
@@ -254,5 +258,75 @@ public class MassSpecProjectController {
         }
 
         return fieldValues;
+    }
+
+
+    @Operation(description = "Get Similar projects taking into account the metadata", tags = {"projects"})
+    @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<CustomPageImpl<ElasticPrideProject>> getSimilarProjects(
+            @PathVariable(value = "accession") String projectAccession,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
+
+        return elasticProjectClient.findSimilarProjects(projectAccession, PrideArchiveType.MS, pageSize, page);
+    }
+
+
+    @Operation(description = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
+            " if keywords: proteome, cancer are provided the search looks for all the datasets that contains both keywords. The _filter_ parameter provides allows the method " +
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
+    @RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+    public Mono<List<String>> projects(
+            @RequestParam(name = "keyword") String keyword) {
+        return elasticProjectClient.autoComplete(PrideArchiveType.MS, keyword);
+    }
+
+    @Operation(description = "Search all public projects in PRIDE Archive. The _keywords_ are used to search all the projects that at least contains one of the keyword. For example " +
+            " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
+            " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
+    @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<CustomPageImpl<ElasticPrideProject>> projects(
+
+            @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
+
+            @RequestParam(name = "filter", required = false) String filter,
+
+            @RequestParam(name = "pageSize", defaultValue = "100") int pageSize,
+
+            @RequestParam(name = "page", defaultValue = "0") int page,
+
+            @RequestParam(name = "dateGap", defaultValue = "") String dateGap,
+
+            @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
+
+            @RequestParam(value = "sortFields", defaultValue = "submissionDate", required = false) String sortFields) {
+
+        Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
+        page = pageParams.getKey();
+        pageSize = pageParams.getValue();
+
+        return elasticProjectClient.findAllByKeyword(keyword, filter, PrideArchiveType.MS, pageSize, page, sortFields, sortDirection);
+    }
+
+    @Operation(description = "Return the facets for an specific search query. This method is " +
+            "fully-aligned to the entry point search/projects with the parameters: _keywords_, _filter_, _pageSize_, _page_. ", tags = {"projects"})
+    @RequestMapping(value = "/facet/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<Map<String, Map<String, Long>>> facets(
+            @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
+            @RequestParam(value = "filter", required = false) String filter,
+            @RequestParam(value = "facetPageSize", defaultValue = "100", required = false) int facetPageSize,
+            @RequestParam(value = "facetPage", defaultValue = "0", required = false) int facetPage,
+            @RequestParam(value = "dateGap", defaultValue = "", required = false) String dateGap) {
+
+        Tuple<Integer, Integer> facetPageParams = WsUtils.validatePageLimit(facetPage, facetPageSize);
+        facetPage = facetPageParams.getKey();
+        facetPageSize = facetPageParams.getValue();
+
+        Mono<Map<String, Map<String, Long>>> elasticProjects = elasticProjectClient.findFacetByKeyword(keyword, filter, PrideArchiveType.MS, facetPageSize, facetPage, dateGap);
+        return elasticProjects;
     }
 }
