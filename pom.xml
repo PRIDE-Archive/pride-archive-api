@@ -105,6 +105,12 @@
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-elastic-client</artifactId>
             <version>${uk.ac.ebi.pride.archive.pride-elastic-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
