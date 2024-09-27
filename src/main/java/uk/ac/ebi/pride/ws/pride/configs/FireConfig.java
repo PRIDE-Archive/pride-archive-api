@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+
 @Configuration
 public class FireConfig {
 
@@ -17,6 +20,13 @@ public class FireConfig {
 
     @Value("${fire.password}")
     private String firePasswd;
+
+    @Value("${proxy-host}")
+    private String proxyHost;
+
+    @Value("${proxy-port}")
+    private Integer proxyPort;
+
     public FireConfig() {
     }
 
@@ -36,6 +46,10 @@ public class FireConfig {
     public RestTemplate restTemplate() {
         final RestTemplate restTemplate = new RestTemplate();
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        if (proxyHost != null && proxyPort != null) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+            requestFactory.setProxy(proxy);
+        }
         restTemplate.setRequestFactory(requestFactory);
         return restTemplate;
     }
