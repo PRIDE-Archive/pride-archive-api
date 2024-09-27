@@ -345,7 +345,7 @@ public class MassSpecProjectController {
         return elasticProjects;
     }
 
-    @Operation(description = "Get count of each file types in a project by accession", tags = {"projects"})
+    @Operation(description = "Get md5Checksum of all the files in a project", tags = {"projects"})
     @RequestMapping(value = "/files/checksum/{projectAccession}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public Mono<String> getCheckSumOfFiles(@PathVariable(value = "projectAccession") String projectAccession) {
         Mono<MongoPrideProject> mongoPrideProject = projectMongoClient.findByAccession(projectAccession);
