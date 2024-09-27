@@ -95,14 +95,15 @@ public class MassSpecProjectController {
                 .switchIfEmpty(Mono.just(new ResponseEntity<>(WsContastants.PX_PROJECT_NOT_FOUND + projectAccession + WsContastants.CONTACT_PRIDE, HttpStatus.NOT_FOUND)));
     }
 
-    @Operation(description = "Return the FTP path of the dataset's files", tags = {"projects"})
-    @RequestMapping(value = "/projects/ftp-path/{projectAccession}", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+    @Operation(description = "Return the path of the dataset's files", tags = {"projects"})
+    @RequestMapping(value = "/projects/files-path/{projectAccession}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<String> getFtpPath(@PathVariable String projectAccession) {
         //Due to this issue : https://github.com/PRIDE-Archive/pride-archive-api/issues/108 (Datasets made public on 30-12-2021 gets wrong FTP path)
         //We have get FTP path from files ftp path stored in mongo
         Flux<MongoPrideFile> filesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, "", 1, 0);
         return filesFlux.collectList().map(mongoFiles -> {
             String ftpPath = "";
+            String globusPath = "";
             if (mongoFiles != null && !mongoFiles.isEmpty()) {
                 MongoPrideFile mongoPrideFile = mongoFiles.getFirst();
                 Set<? extends CvParamProvider> publicFileLocations = mongoPrideFile.getPublicFileLocations();
@@ -111,8 +112,13 @@ public class MassSpecProjectController {
                     ftpPath = ftpPathOptional.get();
                 }
                 ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
+                String[] split = ftpPath.split("/");
+//                String accession = split[split.length - 1];
+                String month = split[split.length - 2];
+                String year = split[split.length - 3];
+                globusPath = "https://app.globus.org/file-manager?origin_id=47772002-3e5b-4fd3-b97c-18cee38d6df2&origin_path=/pride-archive/" + year + "/" + month + "/" +projectAccession;
             }
-            return ftpPath;
+            return "{\"ftp\": \"" + ftpPath + "\", \"globus\": \""+ globusPath +"\"}";
         });
     }
 
@@ -154,7 +160,7 @@ public class MassSpecProjectController {
         });
     }
 
-    @Operation(description = "List of all PRIDE Archive Projects", tags = {"projects"})
+    @Operation(description = "List of all PRIDE Archive Projects. ** DON'T TRY THIS API IN THE WEB BROWSER. USE CURL **", tags = {"projects"})
     @RequestMapping(value = "/projects/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideProject> getAllProjects() {
         Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.getAllProjects();
@@ -210,6 +216,7 @@ public class MassSpecProjectController {
 //        return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
 //    }
 
+    @Operation(description = "Check if the dataset is public/private in PRIDE.", tags = {"projects"})
     @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
     public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
         ProjectStatus status = projectRepoClient.getProjectStatus(accession);

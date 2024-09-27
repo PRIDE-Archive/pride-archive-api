@@ -45,7 +45,7 @@ public class FileController {
         });
     }
 
-    @Operation(description = "Get all files from PRIDE database", tags = {"files"})
+    @Operation(description = "Get all files from PRIDE database. ** DON'T TRY THIS API IN THE WEB BROWSER. USE CURL **", tags = {"files"})
     @RequestMapping(value = "/files/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideFile> getAllFiles() {
         Flux<MongoPrideFile> fileMono = fileMongoClient.getAll();
