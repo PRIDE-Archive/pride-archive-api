@@ -70,19 +70,19 @@ public class FireService {
     }
 
     public static String toCsv(List<FireObject> fireObjects) {
-        StringBuilder csvBuilder = new StringBuilder();
-        csvBuilder.append("fileName,objectMd5,objectSize\n");
+        StringBuilder tsvBuilder = new StringBuilder();
+        tsvBuilder.append("File-Name\tFile-MD5Checksum\tFile-Size\n");
 
         for (FireObject fireObject : fireObjects) {
-            csvBuilder.append(fireObject.getFilesystemEntry().getPath().split("/")[4])
-                    .append(",")
+            tsvBuilder.append(fireObject.getFilesystemEntry().getPath().split("/")[4])
+                    .append("\t")
                     .append(fireObject.getObjectMd5())
-                    .append(",")
+                    .append("\t")
                     .append(fireObject.getObjectSize())
                     .append("\n");
         }
 
-        return csvBuilder.toString();
+        return tsvBuilder.toString();
     }
 
     private HttpHeaders getCommomHeaders() {
