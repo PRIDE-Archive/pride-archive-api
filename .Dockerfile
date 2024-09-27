@@ -9,7 +9,7 @@ COPY pom.xml ./
 RUN mvn clean package -DjarFinalName=${JAR_FILE_NAME}
 
 # Package stage
-FROM maven:3.9-eclipse-temurin-21-alpine
+FROM maven:3.9.8-amazoncorretto-21
 
 WORKDIR /app
 COPY --from=build-env /app/target/${JAR_FILE_NAME}.jar ./
