@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
@@ -34,11 +36,13 @@ import uk.ac.ebi.pride.ws.pride.assemblers.ProjectFileResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProjectMetadata;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
+import uk.ac.ebi.pride.ws.pride.service.FireService;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -60,6 +64,8 @@ public class MassSpecProjectController {
     private final ObjectMapper objectMapper;
     private final ElasticProjectClient elasticProjectClient;
 
+    private final FireService fireService;
+
     @Autowired
     public MassSpecProjectController(FileMongoClient fileMongoClient,
                                      ProjectMongoClient projectMongoClient,
@@ -67,6 +73,7 @@ public class MassSpecProjectController {
                                      ReanalysisMongoClient reanalysisMongoClient,
                                      ProjectRepoClient projectRepoClient,
                                      ElasticProjectClient elasticProjectClient,
+                                     FireService fireService,
                                      ObjectMapper objectMapper) {
         this.fileMongoClient = fileMongoClient;
         this.projectMongoClient = projectMongoClient;
@@ -75,6 +82,7 @@ public class MassSpecProjectController {
         this.projectRepoClient = projectRepoClient;
         this.objectMapper = objectMapper;
         this.elasticProjectClient = elasticProjectClient;
+        this.fireService = fireService;
     }
 
 
@@ -335,5 +343,18 @@ public class MassSpecProjectController {
 
         Mono<Map<String, Map<String, Long>>> elasticProjects = elasticProjectClient.findFacetByKeyword(keyword, filter, PrideArchiveType.MS, facetPageSize, facetPage, dateGap);
         return elasticProjects;
+    }
+
+    @Operation(description = "Get count of each file types in a project by accession", tags = {"projects"})
+    @RequestMapping(value = "/files/checksum/{projectAccession}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+    public Mono<String> getCheckSumOfFiles(@PathVariable(value = "projectAccession") String projectAccession) {
+        Mono<MongoPrideProject> mongoPrideProject = projectMongoClient.findByAccession(projectAccession);
+        return mongoPrideProject.map(project -> {
+           Date publicationDate =  project.getPublicationDate();
+           SimpleDateFormat year = new SimpleDateFormat("YYYY");
+           SimpleDateFormat month = new SimpleDateFormat("MM");
+           String projectPath = year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + projectAccession + "/";
+           return fireService.getcheckSumOfFiles(projectPath);
+        });
     }
 }

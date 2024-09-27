@@ -62,3 +62,10 @@ elastic-ws:
   keyName: $elastic_api_key_name
   keyValue: $elastic_api_key_value
 
+fire:
+  url: $fireUrl
+  user: $fireUser
+  password: $firePassword
+
+
+
