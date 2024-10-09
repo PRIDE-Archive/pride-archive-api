@@ -6,13 +6,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
@@ -124,9 +122,9 @@ public class MassSpecProjectController {
 //                String accession = split[split.length - 1];
                 String month = split[split.length - 2];
                 String year = split[split.length - 3];
-                globusPath = "https://app.globus.org/file-manager?origin_id=47772002-3e5b-4fd3-b97c-18cee38d6df2&origin_path=/pride-archive/" + year + "/" + month + "/" +projectAccession;
+                globusPath = "https://app.globus.org/file-manager?origin_id=47772002-3e5b-4fd3-b97c-18cee38d6df2&origin_path=/pride-archive/" + year + "/" + month + "/" + projectAccession;
             }
-            return "{\"ftp\": \"" + ftpPath + "\", \"globus\": \""+ globusPath +"\"}";
+            return "{\"ftp\": \"" + ftpPath + "\", \"globus\": \"" + globusPath + "\"}";
         });
     }
 
@@ -251,34 +249,10 @@ public class MassSpecProjectController {
         });
     }
 
-    public static Map<String, Object> getFieldValues(Object obj, List<String> fields) {
-        Map<String, Object> fieldValues = new HashMap<>();
-
-        for (String field : fields) {
-            try {
-                // Construct the getter method name
-                String getterName = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-
-                // Get the method from the class
-                Method getterMethod = obj.getClass().getMethod(getterName);
-
-                // Invoke the getter method on the object
-                Object value = getterMethod.invoke(obj);
-
-                // Add the field name and value to the map
-                fieldValues.put(field, value);
-            } catch (Exception e) {
-                log.error("Issue with fields passed", e.getMessage());
-            }
-        }
-
-        return fieldValues;
-    }
-
 
     @Operation(description = "Get Similar projects taking into account the metadata", tags = {"projects"})
     @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<CustomPageImpl<ElasticPrideProject>> getSimilarProjects(
+    public Mono<ResponseEntity<List<ElasticPrideProject>>> getSimilarProjects(
             @PathVariable(value = "accession") String projectAccession,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize) {
@@ -286,8 +260,16 @@ public class MassSpecProjectController {
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
+        HttpHeaders headers = new HttpHeaders();
 
-        return elasticProjectClient.findSimilarProjects(projectAccession, PrideArchiveType.MS, pageSize, page);
+        Mono<CustomPageImpl<ElasticPrideProject>> customPageMono = elasticProjectClient.findSimilarProjects(projectAccession, PrideArchiveType.MS, pageSize, page);
+
+        return customPageMono.map(elasticPrideProjects -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalElements()));
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(elasticPrideProjects.getContent());
+        });
     }
 
 
@@ -304,7 +286,7 @@ public class MassSpecProjectController {
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
             " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"projects"})
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<CustomPageImpl<ElasticPrideProject>> projects(
+    public Mono<ResponseEntity<List<ElasticPrideProject>>> projects(
 
             @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
 
@@ -324,7 +306,16 @@ public class MassSpecProjectController {
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
-        return elasticProjectClient.findAllByKeyword(keyword, filter, PrideArchiveType.MS, pageSize, page, sortFields, sortDirection);
+        Mono<CustomPageImpl<ElasticPrideProject>> customPageMono = elasticProjectClient.findAllByKeyword(keyword, filter, PrideArchiveType.MS, pageSize, page, sortFields, sortDirection);
+
+        HttpHeaders headers = new HttpHeaders();
+
+        return customPageMono.map(elasticPrideProjects -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalElements()));
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(elasticPrideProjects.getContent());
+        });
     }
 
     @Operation(description = "Return the facets for an specific search query. This method is " +
@@ -350,11 +341,11 @@ public class MassSpecProjectController {
     public Mono<String> getCheckSumOfFiles(@PathVariable(value = "projectAccession") String projectAccession) {
         Mono<MongoPrideProject> mongoPrideProject = projectMongoClient.findByAccession(projectAccession);
         return mongoPrideProject.map(project -> {
-           Date publicationDate =  project.getPublicationDate();
-           SimpleDateFormat year = new SimpleDateFormat("YYYY");
-           SimpleDateFormat month = new SimpleDateFormat("MM");
-           String projectPath = year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + projectAccession + "/";
-           return fireService.getcheckSumOfFiles(projectPath);
+            Date publicationDate = project.getPublicationDate();
+            SimpleDateFormat year = new SimpleDateFormat("YYYY");
+            SimpleDateFormat month = new SimpleDateFormat("MM");
+            String projectPath = year.format(publicationDate).toUpperCase() + "/" + month.format(publicationDate).toUpperCase() + "/" + projectAccession + "/";
+            return fireService.getcheckSumOfFiles(projectPath);
         });
     }
 }
