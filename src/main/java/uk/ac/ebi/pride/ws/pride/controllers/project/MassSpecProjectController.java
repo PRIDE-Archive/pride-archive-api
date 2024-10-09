@@ -265,7 +265,7 @@ public class MassSpecProjectController {
         Mono<CustomPageImpl<ElasticPrideProject>> customPageMono = elasticProjectClient.findSimilarProjects(projectAccession, PrideArchiveType.MS, pageSize, page);
 
         return customPageMono.map(elasticPrideProjects -> {
-            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalElements()));
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalHits()));
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(elasticPrideProjects.getContent());
@@ -311,7 +311,7 @@ public class MassSpecProjectController {
         HttpHeaders headers = new HttpHeaders();
 
         return customPageMono.map(elasticPrideProjects -> {
-            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalElements()));
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalHits()));
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(elasticPrideProjects.getContent());
