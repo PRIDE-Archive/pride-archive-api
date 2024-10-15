@@ -52,6 +52,12 @@ public class FileController {
         return fileMono.map(ProjectFileResourceAssembler::toModel);
     }
 
+    @Operation(description = "Count of all PRIDE Archive Files", tags = {"files"})
+    @RequestMapping(value = "/files/count", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<Long> getCountOfAllFiles() {
+        return fileMongoClient.countAllFiles();
+    }
+
     @Operation(description = "Get an SDRF file from project accession", tags = {"files"})
     @RequestMapping(value = "/files/sdrf/{projectAccession}", method = RequestMethod.GET,
             produces = {MediaType.APPLICATION_JSON_VALUE})
