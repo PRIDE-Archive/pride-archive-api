@@ -173,6 +173,12 @@ public class MassSpecProjectController {
         return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
     }
 
+    @Operation(description = "Count of all PRIDE Archive Projects", tags = {"projects"})
+    @RequestMapping(value = "/projects/count", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<Long> getCountOfAllProjects() {
+        return projectMongoClient.count();
+    }
+
 //    @Operation(description = "Get total number all the Files for an specific project in PRIDE.", tags = {"projects"})
 //    @RequestMapping(value = "/projects/count", method = RequestMethod.GET)
 //    public Mono<Long> getProjectsCount() {
