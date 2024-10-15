@@ -221,7 +221,7 @@ public class MassSpecProjectController {
 
     @Operation(description = "Count of PRIDE project Files", tags = {"projects"})
     @RequestMapping(value = "/projects/{projectAccession}/files/count", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<Long> getCountOfProjectFiles(String projectAccession) {
+    public Mono<Long> getCountOfProjectFiles(@PathVariable(value = "projectAccession") String projectAccession) {
         return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, null);
     }
 
