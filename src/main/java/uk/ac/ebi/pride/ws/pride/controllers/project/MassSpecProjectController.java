@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +41,7 @@ import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -166,11 +168,38 @@ public class MassSpecProjectController {
         });
     }
 
-    @Operation(description = "List of all PRIDE Archive Projects. ** DON'T TRY THIS API IN THE WEB BROWSER. USE CURL **", tags = {"projects"})
+    @Operation(description = "Get all PRIDE Archive Projects. ** DON'T TRY THIS API IN THE WEB BROWSER. USE CURL **", tags = {"projects"})
     @RequestMapping(value = "/projects/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Flux<PrideProject> getAllProjects() {
         Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.getAllProjects();
         return allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
+    }
+
+    @Operation(description = "download all PRIDE Archive Projects", tags = {"projects"})
+    @RequestMapping(value = "/projects/download", method = RequestMethod.GET)
+    public ResponseEntity<Flux<DataBuffer>> downloadAllProjects() {
+        Flux<MongoPrideProject> allProjectsFlux = projectMongoClient.getAllProjects();
+        Flux<PrideProject> prideProjectFlux = allProjectsFlux.map(PrideProjectResourceAssembler::toModel);
+        Flux<DataBuffer> dataBufferFlux = prideProjectFlux
+                .map(this::convertObjectToJson)
+                .map(json -> json + "\n") // Adding newline for better readability in the JSON output
+                .map(json -> {
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    return new DefaultDataBufferFactory().wrap(bytes);
+                });
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"pride_datasets.json\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(dataBufferFlux);
+    }
+
+    private String convertObjectToJson(PrideProject object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting object to JSON", e);
+        }
     }
 
     @Operation(description = "Count of all PRIDE Archive Projects", tags = {"projects"})
