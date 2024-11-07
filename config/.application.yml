@@ -9,8 +9,6 @@ spring:
 server:
   port: $port
 
-app.vhost: $app_vhost
-
 # LOGGING Properties
 logging:
   path: $logspath/logs_${HOSTNAME}/
