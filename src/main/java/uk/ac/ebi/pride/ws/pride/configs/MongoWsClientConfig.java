@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import uk.ac.ebi.pride.archive.mongo.client.*;
 
 @Configuration
-public class MongoConfig {
+public class MongoWsClientConfig {
 
     private final PrideMongoClientFactory prideMongoClientFactory;
     private final ProjectMongoClient projectMongoClient;
@@ -15,9 +15,9 @@ public class MongoConfig {
     private final StatsMongoClient statsMongoClient;
     private final ReanalysisMongoClient reanalysisMongoClient;
 
-    public MongoConfig(@Value("${mongo-ws.baseUrl}") String apiBaseUrl,
-                       @Value("${mongo-ws.keyName}") String apiKeyName,
-                       @Value("${mongo-ws.keyValue}") String apiKeyValue) {
+    public MongoWsClientConfig(@Value("${mongo-ws.baseUrl}") String apiBaseUrl,
+                               @Value("${mongo-ws.keyName}") String apiKeyName,
+                               @Value("${mongo-ws.keyValue}") String apiKeyValue) {
 
         this.prideMongoClientFactory = new PrideMongoClientFactory(apiBaseUrl, apiKeyName, apiKeyValue, "pride-api");
 

@@ -19,8 +19,8 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <uk.ac.ebi.pride.archive.pride-mongo-client.version>0.0.1-SNAPSHOT </uk.ac.ebi.pride.archive.pride-mongo-client.version>
-        <uk.ac.ebi.pride.archive.pride-elastic-client.version>0.0.1-SNAPSHOT </uk.ac.ebi.pride.archive.pride-elastic-client.version>
+        <pride-mongo-client.version>0.0.1-SNAPSHOT </pride-mongo-client.version>
+        <pride-elastic-client.version>0.0.1-SNAPSHOT </pride-elastic-client.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
         <pride-repo-client>21-0.0.0-SNAPSHOT</pride-repo-client>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-mongo-client</artifactId>
-            <version>${uk.ac.ebi.pride.archive.pride-mongo-client.version}</version>
+            <version>${pride-mongo-client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>uk.ac.ebi.pride.archive</groupId>
@@ -104,7 +104,7 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
             <artifactId>pride-elastic-client</artifactId>
-            <version>${uk.ac.ebi.pride.archive.pride-elastic-client.version}</version>
+            <version>${pride-elastic-client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>

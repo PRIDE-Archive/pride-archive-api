@@ -7,15 +7,15 @@ import uk.ac.ebi.pride.archive.elastic.client.ElasticClientFactory;
 import uk.ac.ebi.pride.archive.elastic.client.ElasticProjectClient;
 
 @Configuration
-public class ElasticWsConfig {
+public class ElasticWsClientConfig {
 
     private final ElasticClientFactory elasticClientFactory;
 
     private final ElasticProjectClient elasticProjectClient;
 
-    public ElasticWsConfig(@Value("${elastic-ws.baseUrl}") String apiBaseUrl,
-                           @Value("${elastic-ws.keyName}") String apiKeyName,
-                           @Value("${elastic-ws.keyValue}") String apiKeyValue) {
+    public ElasticWsClientConfig(@Value("${elastic-ws.baseUrl}") String apiBaseUrl,
+                                 @Value("${elastic-ws.keyName}") String apiKeyName,
+                                 @Value("${elastic-ws.keyValue}") String apiKeyValue) {
 
         this.elasticClientFactory = new ElasticClientFactory(apiBaseUrl, apiKeyName, apiKeyValue, "pride-api");
         this.elasticProjectClient = elasticClientFactory.getProjectElasticClient();
