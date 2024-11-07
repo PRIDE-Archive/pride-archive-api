@@ -202,7 +202,6 @@ public class MassSpecProjectController {
                                                                          @RequestParam(value = "sortFields", defaultValue = "submissionDate", required = false) String sortFields,
 
                                                                          @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection) {
-
         Flux<ElasticPrideProject> allProjectsFlux = elasticProjectClient.streamAllByKeyword(keyword, filter, PrideArchiveType.MS, sortFields, sortDirection);
         Flux<DataBuffer> dataBufferFlux = allProjectsFlux
                 .map(this::convertElasticObjectToJson)
