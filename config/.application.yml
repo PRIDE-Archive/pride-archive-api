@@ -9,11 +9,6 @@ spring:
 server:
   port: $port
 
-management:
-  health:
-    mongo:
-      enabled: false
-
 app.vhost: $app_vhost
 
 # LOGGING Properties
@@ -25,10 +20,6 @@ logging:
       springframework:
         web: INFO
         boot: INFO
-      apache.solr: INFO
-      hibernate:
-        SQL: INFO
-        type.descriptor.sql.BasicBinder: INFO
 
 pride-repo.api:
   baseUrl: $repo_api_base_url
@@ -40,23 +31,6 @@ mongo-ws:
   keyName: $mongo_ws_key_name
   keyValue: $mongo_ws_key_value
 
-chat-api.base-url: $chat_api_base_url
-proxy-host: $http_proxy_host
-proxy-port: $http_proxy_port
-
-#tomcat access logs
-server.tomcat.accesslog:
-  buffered: false
-  directory: /tmp/access
-  enabled: true
-  file-date-format: .yyyy-MM-dd
-  pattern: common
-  prefix: access_log
-  rotate: true
-  suffix: .log
-
-slack.app.token: $slack_app_token
-
 elastic-ws:
   baseUrl: $elastic_api_url
   keyName: $elastic_api_key_name
@@ -66,6 +40,11 @@ fire:
   url: $fireUrl
   user: $fireUser
   password: $firePassword
+
+chat-api.base-url: $chat_api_base_url
+proxy-host: $http_proxy_host
+proxy-port: $http_proxy_port
+slack.app.token: $slack_app_token
 
 
 
