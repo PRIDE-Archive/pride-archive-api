@@ -194,7 +194,39 @@ public class MassSpecProjectController {
                 .body(dataBufferFlux);
     }
 
+    @Operation(description = "download all PRIDE Archive Projects by keyword", tags = {"projects"})
+    @RequestMapping(value = "/projects/download/by/keyword", method = RequestMethod.GET)
+    public ResponseEntity<Flux<DataBuffer>> downloadAllProjectsByKeyword(@RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
+
+                                                                         @RequestParam(name = "filter", required = false) String filter,
+                                                                         @RequestParam(value = "sortFields", defaultValue = "submissionDate", required = false) String sortFields,
+
+                                                                         @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection) {
+
+        Flux<ElasticPrideProject> allProjectsFlux = elasticProjectClient.streamAllByKeyword(keyword, filter, PrideArchiveType.MS, sortfields, sortdirection);
+        Flux<DataBuffer> dataBufferFlux = allProjectsFlux
+                .map(this::convertElasticObjectToJson)
+                .map(json -> json + "\n") // Adding newline for better readability in the JSON output
+                .map(json -> {
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    return new DefaultDataBufferFactory().wrap(bytes);
+                });
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"pride_filter_datasets.json\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(dataBufferFlux);
+    }
+
     private String convertObjectToJson(PrideProject object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting object to JSON", e);
+        }
+    }
+
+    private String convertElasticObjectToJson(ElasticPrideProject object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
