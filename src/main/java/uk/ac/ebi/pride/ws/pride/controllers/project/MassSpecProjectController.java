@@ -203,7 +203,7 @@ public class MassSpecProjectController {
 
                                                                          @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection) {
 
-        Flux<ElasticPrideProject> allProjectsFlux = elasticProjectClient.streamAllByKeyword(keyword, filter, PrideArchiveType.MS, sortfields, sortdirection);
+        Flux<ElasticPrideProject> allProjectsFlux = elasticProjectClient.streamAllByKeyword(keyword, filter, PrideArchiveType.MS, sortFields, sortDirection);
         Flux<DataBuffer> dataBufferFlux = allProjectsFlux
                 .map(this::convertElasticObjectToJson)
                 .map(json -> json + "\n") // Adding newline for better readability in the JSON output
