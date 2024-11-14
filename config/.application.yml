@@ -44,5 +44,6 @@ proxy-host: $http_proxy_host
 proxy-port: $http_proxy_port
 slack.app.token: $slack_app_token
 
+bluesky-posts-url: $bluesky_posts_url
 
 
