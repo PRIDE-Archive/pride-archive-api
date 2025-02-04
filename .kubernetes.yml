@@ -50,7 +50,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: $port
-          env:
+#          env:
 #            - name: JAVA_OPTS
 #              value: "-Dhttp.proxyHost=$http_proxy_host -Dhttp.proxyPort=$http_proxy_port -Dhttps.proxyHost=$http_proxy_host -Dhttps.proxyPort=$http_proxy_port -Dhttp.nonProxyHosts=$non_proxy_hosts"
 #            - name: HTTP_PROXY
@@ -61,8 +61,8 @@ spec:
 #              value: "http://$http_proxy_host:$http_proxy_port"
 #            - name: https_proxy
 #              value: "http://$http_proxy_host:$http_proxy_port"
-            - name: APM_AGENT_OPTS
-              value: "-javaagent:${APM_AGENT_JAR} -Delastic.apm.service_name=${app_name} -Delastic.apm.application_packages=${APM_PACKAGE} -Delastic.apm.server_urls=${APM_SERVER}"
+#            - name: APM_AGENT_OPTS
+#              value: "-javaagent:${APM_AGENT_JAR} -Delastic.apm.service_name=${app_name} -Delastic.apm.application_packages=${APM_PACKAGE} -Delastic.apm.server_urls=${APM_SERVER}"
           volumeMounts:
             - name: application-config
               mountPath: "/app/config/"

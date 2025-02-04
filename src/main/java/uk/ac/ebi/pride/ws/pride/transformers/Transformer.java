@@ -7,8 +7,6 @@ import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 import uk.ac.ebi.pride.archive.dataprovider.sample.ISampleMSRunRow;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
-import uk.ac.ebi.pride.mongodb.archive.model.msrun.MongoPrideMSRun;
-import uk.ac.ebi.pride.ws.pride.models.file.PrideMSRun;
 import uk.ac.ebi.pride.ws.pride.models.sample.Sample;
 import uk.ac.ebi.pride.ws.pride.models.sample.SampleMSRunRow;
 
@@ -28,35 +26,35 @@ import java.util.stream.Collectors;
  */
 public class Transformer {
 
-    /**
-     * Transform a Mongo {@link MongoPrideMSRun} to a Web service {@link PrideMSRun}
-     * @param mongoFile msRun from mongo database
-     * @return msrun
-     */
-    public static PrideMSRun transformMSRun(MongoPrideMSRun mongoFile){
-        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), null, null, null, mongoFile.getFileSizeBytes(), null, mongoFile.getFileName(), false,null,null,null, mongoFile.getAdditionalAttributes());
-
-        if(mongoFile.getFileProperties() != null)
-            msRun.setFileProperties(mongoFile.getFileProperties()
-                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toSet()));
-        if(mongoFile.getInstrumentProperties() != null)
-            msRun.setInstrumentProperties(mongoFile.getInstrumentProperties()
-                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toSet()));
-        if(mongoFile.getMsData() != null)
-            msRun.setMsData(mongoFile.getMsData()
-                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toSet()));
-        if(mongoFile.getScanSettings() != null)
-            msRun.setScanSettings(mongoFile.getScanSettings()
-                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
-                    .collect(Collectors.toSet()));
-        if(mongoFile.getIdSettings() != null)
-            msRun.setIdSettings(new ArrayList<>(mongoFile.getIdSettings()));
-
-        return msRun;
-    }
+//    /**
+//     * Transform a Mongo {@link MongoPrideMSRun} to a Web service {@link PrideMSRun}
+//     * @param mongoFile msRun from mongo database
+//     * @return msrun
+//     */
+//    public static PrideMSRun transformMSRun(MongoPrideMSRun mongoFile){
+//        PrideMSRun msRun = new PrideMSRun(mongoFile.getProjectAccessions(), mongoFile.getAnalysisAccessions(), mongoFile.getAccession(), null, null, null, mongoFile.getFileSizeBytes(), null, mongoFile.getFileName(), false,null,null,null, mongoFile.getAdditionalAttributes());
+//
+//        if(mongoFile.getFileProperties() != null)
+//            msRun.setFileProperties(mongoFile.getFileProperties()
+//                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+//                    .collect(Collectors.toSet()));
+//        if(mongoFile.getInstrumentProperties() != null)
+//            msRun.setInstrumentProperties(mongoFile.getInstrumentProperties()
+//                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+//                    .collect(Collectors.toSet()));
+//        if(mongoFile.getMsData() != null)
+//            msRun.setMsData(mongoFile.getMsData()
+//                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+//                    .collect(Collectors.toSet()));
+//        if(mongoFile.getScanSettings() != null)
+//            msRun.setScanSettings(mongoFile.getScanSettings()
+//                    .stream().map(x-> new CvParam(x.getCvLabel(), x.getAccession(), x.getName(), x.getValue()))
+//                    .collect(Collectors.toSet()));
+//        if(mongoFile.getIdSettings() != null)
+//            msRun.setIdSettings(new ArrayList<>(mongoFile.getIdSettings()));
+//
+//        return msRun;
+//    }
 
 
     public static SampleMSRunRow transformSampleMSrun(ISampleMSRunRow mongoSampleMSrun){

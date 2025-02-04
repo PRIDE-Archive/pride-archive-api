@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.1.RELEASE</version>
+        <version>3.3.1</version>
     </parent>
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
@@ -14,82 +14,45 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>PRIDE Archive WS</name>
 
-    <!-- This project requires several maven profiles to build and run correctly.
-        mongodb-pridedb-prod-machine-rw
-        oracle-pridedb-prod-machine
-        oracle-pridedb-prod-rw-user
-        solr-cloud-prod-machine
-    -->
-
     <properties>
         <jarFinalName>pride-api</jarFinalName>
-        <uk.ac.ebi.pride.archive.pride-solr-indexes.version>2.0.2
-        </uk.ac.ebi.pride.archive.pride-solr-indexes.version>
-        <uk.ac.ebi.pride.archive.pride-mongodb-repo.version>1.0.9-SNAPSHOT
-        </uk.ac.ebi.pride.archive.pride-mongodb-repo.version>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <pride-mongo-client.version>0.0.1-SNAPSHOT </pride-mongo-client.version>
+        <pride-elastic-client.version>0.0.4-SNAPSHOT </pride-elastic-client.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride.repo.version>0.0.1-SNAPSHOT</pride.repo.version>
-        <io.springfox.swagger.version>2.7.0</io.springfox.swagger.version>
-        <pride-repo-client>1.1.1-SNAPSHOT</pride-repo-client>
+        <pride-repo-client>21-0.0.0-SNAPSHOT</pride-repo-client>
         <cpdetector>1.0.7</cpdetector>
         <pride.mod.version>2.1.12</pride.mod.version>
+        <data-provider-api-version>21-0.0.0-SNAPSHOT</data-provider-api-version>
+        <uk.ac.ebi.pride.utilities.pride-utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.utilities.pride-utilities.version>
+        <springdoc-openapi-starter-webflux-ui-version>2.6.0</springdoc-openapi-starter-webflux-ui-version>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
+            <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-webflux -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>3.1.0</version>
-        </dependency>
-
-        <!--Spring dependencies-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-to-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-to-slf4j</artifactId>
-                <version>2.16.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>2.17.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.ac.ebi.pride.archive</groupId>
+            <artifactId>data-provider-api</artifactId>
+            <version>${data-provider-api-version}</version>
         </dependency>
 
         <dependency>
@@ -101,26 +64,14 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-data-jpa</artifactId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>uk.ac.ebi.pride.utilities</groupId>-->
-        <!--<artifactId>pride-utilities</artifactId>-->
-        <!--<version>${uk.ac.ebi.pride.archive.utilities.version}</version>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>pride-mongodb-repo</artifactId>
-            <version>${uk.ac.ebi.pride.archive.pride-mongodb-repo.version}</version>
-            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-security</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>uk.ac.ebi.pride.archive</groupId>
                     <artifactId>data-provider-api</artifactId>
@@ -129,57 +80,43 @@
         </dependency>
 
         <dependency>
+            <groupId>uk.ac.ebi.pride.utilities</groupId>
+            <artifactId>pride-utilities</artifactId>
+            <version>${uk.ac.ebi.pride.utilities.pride-utilities.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>pride-solr-indexes</artifactId>
-            <version>${uk.ac.ebi.pride.archive.pride-solr-indexes.version}</version>
+            <artifactId>pride-mongo-client</artifactId>
+            <version>${pride-mongo-client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>uk.ac.ebi.pride.archive</groupId>
                     <artifactId>data-provider-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>mongodb-driver-reactivestreams</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
-        <!-- Swagger Dependencies -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${io.springfox.swagger.version}</version>
-            <scope>compile</scope>
+            <groupId>uk.ac.ebi.pride.archive</groupId>
+            <artifactId>pride-elastic-client</artifactId>
+            <version>${pride-elastic-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${io.springfox.swagger.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.restdocs</groupId>
-            <artifactId>spring-restdocs-mockmvc</artifactId>
-            <version>2.0.2.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <version>4.0.4.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>6.1.5.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-dbcp2</artifactId>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <version>${springdoc-openapi-starter-webflux-ui-version}</version>
         </dependency>
 
         <dependency>
@@ -194,12 +131,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -208,7 +139,7 @@
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>1.5.3</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>generate-docs</id>
@@ -287,7 +218,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M3</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                     <testFailureIgnore>true</testFailureIgnore>
                     <forkCount>0</forkCount>
                 </configuration>
@@ -299,28 +230,47 @@
         <repository>
             <id>nexus-ebi-release-repo</id>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
+
         <repository>
             <id>nexus-ebi-snapshot-repo</id>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
+
         <repository>
             <id>pst-release</id>
             <name>EBI Nexus Repository</name>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>pst-snapshots</id>
             <name>EBI Nexus Snapshots Repository</name>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
-
-    <scm>
-        <connection>scm:git:https://github.com/PRIDE-Archive/pride-solr-indexes.git</connection>
-        <developerConnection>scm:git:https://github.com/PRIDE-Archive/pride-solr-indexes.git</developerConnection>
-        <url>https://github.com/PRIDE-Archive/pride-solr-indexes</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>
 

@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.hateoas.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.sample.SampleProvider;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
 @XmlRootElement(name = "sample")
 @JsonRootName("sample")
 @JsonTypeName("sample")
-@Relation(collectionRelation = "samples")
 public class Sample implements SampleProvider {
 
     public String accession;

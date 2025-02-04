@@ -5,13 +5,12 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.hateoas.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.archive.dataprovider.reference.ReferenceProvider;
+import uk.ac.ebi.pride.archive.dataprovider.reference.Reference;
 import uk.ac.ebi.pride.archive.dataprovider.user.ContactProvider;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
 /**
@@ -32,7 +31,6 @@ import java.util.*;
 @XmlRootElement(name = "project")
 @JsonRootName("project")
 @JsonTypeName("project")
-@Relation(collectionRelation = "projects")
 public class PrideProject {
     @XmlElement
     private String accession;
@@ -64,6 +62,6 @@ public class PrideProject {
     private Collection<CvParamProvider> organisms = new ArrayList<>();
     private Collection<CvParamProvider> organismParts = new ArrayList<>();
     private Collection<CvParamProvider> diseases = new ArrayList<>();
-    private Set<ReferenceProvider> references = new HashSet<>();
+    private Set<Reference> references = new HashSet<>();
     private Set<CvParamProvider> identifiedPTMStrings = new HashSet<>();
 }

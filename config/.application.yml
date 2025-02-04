@@ -1,10 +1,13 @@
-spring.application.name: $app_name
+spring:
+  application.name: $app_name
+  webflux:
+    base-path: $contextPath
+  jackson.default-property-inclusion: NON_NULL # To avoid errors while parsing null values in objects
+  codec:
+    max-in-memory-size: 10MB
 
 server:
   port: $port
-  servlet.contextPath: $contextPath
-
-app.vhost: $app_vhost
 
 # LOGGING Properties
 logging:
@@ -15,57 +18,32 @@ logging:
       springframework:
         web: INFO
         boot: INFO
-      apache.solr: INFO
-      hibernate:
-        SQL: INFO
-        type.descriptor.sql.BasicBinder: INFO
-
-# To avoid errors while parsing null values in objects
-spring.jackson.default-property-inclusion: NON_NULL
 
 pride-repo.api:
   baseUrl: $repo_api_base_url
   keyName: $repo_api_key_name
   keyValue: $repo_api_key_value
 
-# Configuration for MongoDB
-mongodb:
-  project:
-    database: $mongodb_db
-    app:
-      user: $NOT_USED
-      password: $NOT_USED
-      authenticationDatabase: $NOT_USED
-      machine.port: $NOT_USED
-  projects:
-    replicate:
-      hosts: $NOT_USED
-      ports: $NOT_USED
-    single.machine.host: $NOT_USED
-    machine.uri: $mongodb_machine_uri
+mongo-ws:
+  baseUrl: $mongo_ws_base_url
+  keyName: $mongo_ws_key_name
+  keyValue: $mongo_ws_key_value
 
-mongo.single.machine: $NOT_USED
+elastic-ws:
+  baseUrl: $elastic_api_url
+  keyName: $elastic_api_key_name
+  keyValue: $elastic_api_key_value
 
-##### Solr CLoud #####
-spring:
-  data:
-    solr:
-      host: $solr_pridedb_urls
+fire:
+  url: $fireUrl
+  user: $fireUser
+  password: $firePassword
 
 chat-api.base-url: $chat_api_base_url
 proxy-host: $http_proxy_host
 proxy-port: $http_proxy_port
-
-#tomcat access logs
-server.tomcat.accesslog:
-  buffered: false
-  directory: /tmp/access
-  enabled: true
-  file-date-format: .yyyy-MM-dd
-  pattern: common
-  prefix: access_log
-  rotate: true
-  suffix: .log
-
 slack.app.token: $slack_app_token
+
+bluesky-posts-url: $bluesky_posts_url
+
 

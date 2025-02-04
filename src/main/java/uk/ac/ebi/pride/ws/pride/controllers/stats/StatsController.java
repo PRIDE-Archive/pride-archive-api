@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.ws.pride.controllers.stats;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,18 +9,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import uk.ac.ebi.pride.archive.dataprovider.common.Tuple;
+import reactor.core.publisher.Mono;
+import uk.ac.ebi.pride.archive.mongo.client.StatsMongoClient;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.archive.repo.client.StatRepoClient;
-import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPeptidomeStats;
-import uk.ac.ebi.pride.mongodb.archive.model.stats.MongoPrideStats;
-import uk.ac.ebi.pride.mongodb.archive.service.stats.PeptidomeStatsMongoService;
-import uk.ac.ebi.pride.mongodb.archive.service.stats.PrideStatsMongoService;
-import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.utils.APIError;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,78 +34,75 @@ import java.util.List;
 @Controller
 public class StatsController {
 
-    final PrideStatsMongoService mongoStatsService;
-    final PeptidomeStatsMongoService peptidomeStatsMongoService;
-
-    final CustomPagedResourcesAssembler customPagedResourcesAssembler;
+    final StatsMongoClient statsMongoClient;
 
     final ProjectRepoClient projectRepoClient;
 
     final StatRepoClient statRepoClient;
 
     @Autowired
-    public StatsController(PrideStatsMongoService mongoStatsService, PeptidomeStatsMongoService peptidomeStatsMongoService, CustomPagedResourcesAssembler customPagedResourcesAssembler, ProjectRepoClient projectRepoClient, StatRepoClient statRepoClient) {
-        this.mongoStatsService = mongoStatsService;
-        this.peptidomeStatsMongoService = peptidomeStatsMongoService;
-        this.customPagedResourcesAssembler = customPagedResourcesAssembler;
+    public StatsController(StatsMongoClient statsMongoClient, ProjectRepoClient projectRepoClient, StatRepoClient statRepoClient) {
+        this.statsMongoClient = statsMongoClient;
         this.projectRepoClient = projectRepoClient;
         this.statRepoClient = statRepoClient;
     }
 
-
-    @ApiOperation(notes = "Retrieve statistics by Name", value = "statistics", nickname = "getStatsByName", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
-    @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> statistics(@PathVariable(value = "name", name = "name") String name) {
-
-        Object stats = mongoStatsService.findLastGeneratedStats().getSubmissionsCount().get(name);
-        if (stats == null || ((List) stats).size() == 0)
-            stats = mongoStatsService.findLastGeneratedStats().getComplexStats().get(name);
-
-        return new ResponseEntity<>(stats, HttpStatus.OK);
-    }
-
-    @ApiOperation(notes = "Retrieve submissions count per country as TSV", value = "submissions-per-country", nickname = "submissions-per-country", tags = {"stats"})
-    @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
-    public ResponseEntity<Object> submissionsPerCountry() {
-        String name = "SUBMISSIONS_PER_COUNTRY";
-        List<Tuple<String, Integer>> stats = mongoStatsService.findLastGeneratedStats().getSubmissionsCount().get(name);
-        StringBuilder statsBuilder = new StringBuilder("Country\tNumber_of_submissions");
-        for (Tuple<String, Integer> tuple : stats) {
-            statsBuilder.append("\n").append(tuple.getKey()).append("\t").append(tuple.getValue());
+    @Operation(description = "Retrieve statistics by Name", tags = {"stats"})
+    @RequestMapping(value = "/stats/{name}", method = RequestMethod.GET)
+    public Mono<ResponseEntity> statistics(@PathVariable String name) {
+        String[] supportedStats = {"SUBMISSIONS_PER_YEAR", "SUBMISSIONS_PER_MONTH",
+                "SUBMISSIONS_PER_INSTRUMENT", "SUBMISSIONS_PER_ORGANISM", "SUBMISSIONS_PER_MODIFICATIONS",
+                "SUBMISSIONS_PER_ORGANISM_PART", "SUBMISSIONS_PER_DISEASES", "SUBMISSIONS_PER_COUNTRY", "SUBMISSIONS_PER_CATEGORIES"};
+        name = name.trim().toUpperCase();
+        boolean contains = Arrays.asList(supportedStats).contains(name);
+        if (!contains) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Stats not found for: " + name));
         }
-        return new ResponseEntity<>(statsBuilder.toString(), HttpStatus.OK);
+        Mono<Object> statsByName = statsMongoClient.getStatsByName(name);
+        return statsByName.map(ResponseEntity::ok);
     }
 
+//    @Operation(description = "Retrieve submissions count per country as TSV", tags = {"stats"})
+//    @RequestMapping(value = "/submissions-per-country", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
+//    public Mono<String> submissionsPerCountry() {
+//        String name = "SUBMISSIONS_PER_COUNTRY";
+//        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
+//        return lastGeneratedStats.map(s -> {
+//            List<Tuple<String, Integer>> stats = s.getSubmissionsCount().get(name);
+//            StringBuilder statsBuilder = new StringBuilder("Country\tNumber_of_submissions");
+//            for (Tuple<String, Integer> tuple : stats) {
+//                statsBuilder.append("\n").append(tuple.getKey()).append("\t").append(tuple.getValue());
+//            }
+//            return statsBuilder.toString();
+//        });
+//    }
 
-    @ApiOperation(notes = "Retrieve all statistics keys and names", value = "statistics", nickname = "getStatNames", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
-    @RequestMapping(value = "/stats/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> getStatisticsNames() {
 
-        List<String> statNames = new ArrayList<>();
-        MongoPrideStats stats = mongoStatsService.findLastGeneratedStats();
-        if (stats != null) {
-            if (stats.getSubmissionsCount() != null)
-                statNames.addAll(new ArrayList<>(stats.getSubmissionsCount().keySet()));
-            if (stats.getComplexStats() != null)
-                statNames.addAll(new ArrayList<>(stats.getComplexStats().keySet()));
-        }
+//    @Operation(description = "Retrieve all statistics keys and names", tags = {"stats"})
+//    @RequestMapping(value = "/stats/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public Mono<Object> getStatisticsNames() {
+//
+//        Mono<MongoPrideStats> lastGeneratedStats = statsMongoClient.findLastGeneratedStats();
+//        return lastGeneratedStats.hasElement().flatMap(isPresent -> {
+//            if(isPresent) {
+//                return lastGeneratedStats.map(s -> {
+//                    List<String> statNames = new ArrayList<>();
+//                    Map<String, List<Tuple<String, Integer>>> submissionsCount = s.getSubmissionsCount();
+//                    if (submissionsCount != null)
+//                        statNames.addAll(new ArrayList<>(submissionsCount.keySet()));
+//
+//                    Map<String, Object> complexStats = s.getComplexStats();
+//                    if (complexStats != null)
+//                        statNames.addAll(new ArrayList<>(complexStats.keySet()));
+//
+//                    return statNames;
+//                });
+//            }
+//            return Mono.empty();
+//        });
+//    }
 
-        return new ResponseEntity<>(statNames, HttpStatus.OK);
-    }
-
-    @ApiOperation(notes = "Retrieve month wise submissions count", value = "submissions-monthly", nickname = "submissions-monthly", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
+    @Operation(description = "Retrieve month wise submissions count", tags = {"stats"})
     @RequestMapping(value = "/stats/submissions-monthly", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Object> submissionsMonthly() throws IOException {
 
@@ -121,7 +111,7 @@ public class StatsController {
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 
-    @ApiOperation(notes = "Retrieve month wise submissions count", value = "submissions-monthly-tsv", nickname = "submissions-monthly-tsv", tags = {"stats"})
+    @Operation(description = "Retrieve month wise submissions count", tags = {"stats"})
     @RequestMapping(value = "/stats/submissions-monthly-tsv", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity<Object> submissionsMonthlyTsv() throws IOException {
 
@@ -133,20 +123,20 @@ public class StatsController {
         return new ResponseEntity<>(statsBuilder.toString(), HttpStatus.OK);
     }
 
-    @ApiOperation(notes = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = APIError.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
-    })
-    @RequestMapping(value = "/stats/peptidome-stats", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> peptidomeStats() throws IOException {
+//    @Operation(description = "Retrieve peptidome stats", value = "peptidome-stats", nickname = "peptidome-stats", tags = {"stats"})
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "OK", response = APIError.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = APIError.class)
+//    })
+//    @RequestMapping(value = "/stats/peptidome-stats", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+//    public ResponseEntity<Object> peptidomeStats() throws IOException {
+//
+//        List<MongoPeptidomeStats> results = peptidomeStatsMongoService.findall();
+//
+//        return new ResponseEntity<>(results, HttpStatus.OK);
+//    }
 
-        List<MongoPeptidomeStats> results = peptidomeStatsMongoService.findall();
-
-        return new ResponseEntity<>(results, HttpStatus.OK);
-    }
-
-    @ApiOperation(notes = "Retrieve month wise submissions data size", value = "submissions-data-size-monthly", nickname = "submissions-data-size-monthly", tags = {"stats"})
+    @Operation(description = "Retrieve month wise submissions data size", tags = {"stats"})
     @RequestMapping(value = "/stats/submitted-data", method = RequestMethod.GET, produces = {MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity<Object> getSubmittedDataStats() throws IOException {
         String submittedDataStats = statRepoClient.getSubmittedDataStats();

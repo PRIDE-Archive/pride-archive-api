@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.hateoas.core.Relation;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.Set;
 @XmlRootElement(name = "file")
 @JsonRootName("file")
 @JsonTypeName("file")
-@Relation(collectionRelation = "files")
 @AllArgsConstructor
 public class PrideFile implements Serializable {
     Set<String> projectAccessions;

@@ -2,8 +2,8 @@ package uk.ac.ebi.pride.ws.pride.utils;
 
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParam;
 import uk.ac.ebi.pride.archive.dataprovider.param.CvParamProvider;
-import uk.ac.ebi.pride.solr.commons.Utils.StringUtils;
-import uk.ac.ebi.pride.utilities.pridemod.ModReader;
+//import uk.ac.ebi.pride.solr.commons.Utils.StringUtils;
+//import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.Triple;
 import uk.ac.ebi.pride.utilities.util.Tuple;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class WsUtils {
 
     public static Tuple<Integer, Integer> validatePageLimit(int start, int size) {
-        if(size > WsContastants.MAX_PAGINATION_SIZE || size < 0 )
+        if(size > WsContastants.MAX_PAGINATION_SIZE || size <= 0 )
             size = WsContastants.MAX_PAGINATION_SIZE;
         if(start < 0)
             start = 0;
@@ -37,14 +37,14 @@ public class WsUtils {
     }
 
     public static Tuple<Integer, Integer> validatePageLimit(int start, int size, int maxPageSize) {
-        if(size > maxPageSize || size < 0 )
+        if(size > maxPageSize || size <= 0 )
             size = maxPageSize;
         if(start < 0)
             start = 0;
         return new Tuple<>(start, size);
     }
 
-    public static long validatePage(int page, long totalPages) {
+    public static int validatePage(int page, int totalPages) {
         if(page < 0)
             return 0;
         if(page > totalPages)
@@ -113,8 +113,13 @@ public class WsUtils {
         Set<CvParamProvider> resultTerms = new HashSet<>();
         samplesDescription.stream()
                 .filter(x -> x.getKey().getAccession().equalsIgnoreCase(efoTerm.getAccession()))
-                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new CvParam(z.getCvLabel(), z.getAccession(), StringUtils.convertSentenceStyle(z.getName()), z.getValue()))));
+                .forEach( y-> y.getValue().forEach(z-> resultTerms.add( new CvParam(z.getCvLabel(), z.getAccession(), convertSentenceStyle(z.getName()), z.getValue()))));
         return resultTerms;
+    }
+
+    public static String convertSentenceStyle(String sentence) {
+        sentence = sentence.toLowerCase().trim();
+        return org.apache.commons.lang3.StringUtils.capitalize(sentence);
     }
 
 //    public static Map<String, String[]> peptideSummaryEnhancePtmsMap(PrideMongoPeptideSummary mongoPeptideSummary) {

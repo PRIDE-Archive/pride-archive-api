@@ -5,31 +5,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
-import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
-import org.springframework.hateoas.RelProvider;
-import org.springframework.hateoas.ResourceAssembler;
-import org.springframework.hateoas.core.EvoInflectorRelProvider;
 import org.springframework.stereotype.Component;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import uk.ac.ebi.pride.solr.commons.PrideSolrProject;
-import uk.ac.ebi.pride.ws.pride.hateoas.CustomPagedResourcesAssembler;
-import uk.ac.ebi.pride.ws.pride.hateoas.FacetsResourceAssembler;
 
 /**
  * Retrieve the projects {@link uk.ac.ebi.pride.archive.dataprovider.project.ProjectProvider} from PRIDE Archive and the corresponding information.
  *
  * @author ypriverol
- *
  */
-
-@EnableSwagger2
 
 @SpringBootApplication
 @ComponentScan({"uk.ac.ebi.pride"})
@@ -49,33 +37,11 @@ public class Application {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
             enable(SerializationFeature.INDENT_OUTPUT);
-
+            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            registerModule(new JavaTimeModule());
         }
-    }
-
-    @Bean
-    public RelProvider relProvider() {
-        return new EvoInflectorRelProvider();
-    }
-
-    @Bean
-    public ResourceAssembler facetResourceAssembler(){
-        return new FacetsResourceAssembler();
-    }
-
-    @Bean
-    public HateoasPageableHandlerMethodArgumentResolver pageableResolver() {
-        return new HateoasPageableHandlerMethodArgumentResolver(sortResolver());
-    }
-
-    @Bean
-    public HateoasSortHandlerMethodArgumentResolver sortResolver() {
-        return new HateoasSortHandlerMethodArgumentResolver();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Bean
-    public CustomPagedResourcesAssembler<PrideSolrProject> customPagedResourcesAssembler(){
-        return new CustomPagedResourcesAssembler<PrideSolrProject>(pageableResolver(), facetResourceAssembler());
+        public CustomObjectMapper copy() {
+            return new CustomObjectMapper();
+        }
     }
 }
