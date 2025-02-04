@@ -64,4 +64,5 @@ public class PrideProject {
     private Collection<CvParamProvider> diseases = new ArrayList<>();
     private Set<Reference> references = new HashSet<>();
     private Set<CvParamProvider> identifiedPTMStrings = new HashSet<>();
+    private long totalFileDownloads;
 }

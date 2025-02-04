@@ -24,19 +24,19 @@ import java.util.Set;
 @JsonTypeName("file")
 @AllArgsConstructor
 public class PrideFile implements Serializable {
-    Set<String> projectAccessions;
-    Set<String> analysisAccessions;
-    String accession;
-    CvParamProvider fileCategory;
-    String checksum;
-    Set<? extends CvParamProvider> publicFileLocations;
-    long fileSizeBytes;
-    String fileExtension;
+    private Set<String> projectAccessions;
+    private Set<String> analysisAccessions;
+    private String accession;
+    private CvParamProvider fileCategory;
+    private String checksum;
+    private Set<? extends CvParamProvider> publicFileLocations;
+    private long fileSizeBytes;
+    private String fileExtension;
     private String fileName;
     private boolean compress;
     private Date submissionDate;
     private Date publicationDate;
     private Date updatedDate;
-    Set<? extends CvParamProvider> additionalAttributes;
-
+    private Set<? extends CvParamProvider> additionalAttributes;
+    private long totalDownloads;
 }

@@ -109,6 +109,7 @@ public class PrideProjectResourceAssembler {
                 .organismParts(WsUtils.getCvTermsValues(mongoPrideProject.getSamplesDescription(), CvTermReference.EFO_ORGANISM_PART))
                 .sampleAttributes(mongoPrideProject.getSamplesDescription() != null ? new ArrayList(mongoPrideProject.getSamplesDescription()) : Collections.emptyList())
                 .license(license)
+                .totalFileDownloads(mongoPrideProject.getTotalDownloads())
                 .build();
     }
 }

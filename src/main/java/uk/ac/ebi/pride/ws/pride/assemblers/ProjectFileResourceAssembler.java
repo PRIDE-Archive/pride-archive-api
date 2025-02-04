@@ -45,6 +45,7 @@ public class ProjectFileResourceAssembler {
                 .publicFileLocations(publicFileLocations)
                 .updatedDate(mongoFile.getUpdatedDate())
                 .submissionDate(mongoFile.getSubmissionDate())
+                .totalDownloads(mongoFile.getTotalFileDownloads())
                 .build();
     }
 
