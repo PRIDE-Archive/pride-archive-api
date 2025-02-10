@@ -11,7 +11,7 @@ server:
 
 # LOGGING Properties
 logging:
-  path: $logspath/logs_${HOSTNAME}/
+  file.path: $logspath/logs_${HOSTNAME}/
   level:
     root: INFO
     org:
