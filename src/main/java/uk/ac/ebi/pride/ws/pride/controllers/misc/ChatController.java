@@ -68,6 +68,7 @@ public class ChatController {
     public String pride_search(@RequestBody @NotNull Chat query) throws HttpClientErrorException {
 
         String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        query.setModel_name("google");
         if (!chatApiBaseUrl.endsWith("/")) {
             chatApiBaseUrl += "/";
         }
@@ -97,7 +98,7 @@ public class ChatController {
             headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + chatApiConfig.getSlackAppToken());
-            String slackPayload = "{\"text\": \"Question: " + query.getPrompt() + "\nAnswer: " +
+            String slackPayload = "{\"text\": \"Question: " + query.getQuery() + "\nAnswer: " +
                     result + "\", \"channel\": \"pride-chatbot\"}";
             requestEntity = new HttpEntity(slackPayload, headers);
             log.info("Posting to slack " + query);
@@ -154,7 +155,7 @@ public class ChatController {
     @GetMapping(path = "/getBenchmark")
     @ResponseBody
     @CrossOrigin(origins = "*")
-    @Operation(hidden = true)
+    @Operation
     public String getBenchmark(@RequestParam(defaultValue = "0", name = "page_num") int page_num, @RequestParam(defaultValue = "100", name = "items_per_page") @NotNull int items_per_page,
                                @RequestParam(defaultValue = "5", name = "iteration") @NotNull int iteration) throws HttpClientErrorException {
 
@@ -186,6 +187,37 @@ public class ChatController {
         return body;
     }
 
+
+
+    @GetMapping(path = "/getChatHistory")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    @Operation
+    public String getChatHistory() throws HttpClientErrorException {
+
+        String chatApiBaseUrl = chatApiConfig.getChatApiBaseUrl();
+        if (!chatApiBaseUrl.endsWith("/")) {
+            chatApiBaseUrl += "/";
+        }
+
+        String url = chatApiBaseUrl + "chat_history";
+
+        ResponseEntity<String> response;
+        try {
+            //  create headers
+            HttpHeaders headers = new HttpHeaders();
+            // build the request
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity(headers);
+
+            log.info("GET Request to get chat history-api ");
+            response = getStringResponseEntity(url, requestEntity);
+        } catch (RestClientException e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        String body = response.getBody();
+        return body;
+    }
 
     @GetMapping(path = "/similarProjects")
     @ResponseBody
@@ -489,14 +521,14 @@ public class ChatController {
     @Data
     public static class Chat {
 
-        String prompt;
+        String query;
 
         String model_name;
 
         @Override
         public String toString() {
             return "{" +
-                    "prompt='" + prompt + '\'' +
+                    "query='" + query + '\'' +
                     ", model_name='" + model_name + '\'' +
                     '}';
         }
