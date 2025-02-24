@@ -98,7 +98,7 @@ public class ChatController {
             headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + chatApiConfig.getSlackAppToken());
-            String slackPayload = "{\"text\": \"Question: " + query.getQuery() + "\nAnswer: " +
+            String slackPayload = "{\"text\": \"Question: " + query.getPrompt() + "\nAnswer: " +
                     result + "\", \"channel\": \"pride-chatbot\"}";
             requestEntity = new HttpEntity(slackPayload, headers);
             log.info("Posting to slack " + query);
@@ -521,14 +521,14 @@ public class ChatController {
     @Data
     public static class Chat {
 
-        String query;
+        String prompt;
 
         String model_name;
 
         @Override
         public String toString() {
             return "{" +
-                    "query='" + query + '\'' +
+                    "query='" + prompt + '\'' +
                     ", model_name='" + model_name + '\'' +
                     '}';
         }
