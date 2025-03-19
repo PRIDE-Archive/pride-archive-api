@@ -64,7 +64,7 @@ public class FileController {
     public Mono<List<String>> getSDRFFilesByProjectAccession(@PathVariable(value = "projectAccession") String projectAccession) {
 
         Flux<MongoPrideFile> filesFlux = fileMongoClient.findByProjectAccessionsAndFileNameContainsIgnoreCase
-                (projectAccession, ".tsv", 99999, 0);
+                (projectAccession, ".tsv");
 
         return filesFlux.filter(file -> file.getFileCategory().getAccession().equals("PRIDE:0000584")).map(f -> {
             Optional<CvParam> ftpURLCvParam = f.getPublicFileLocations().stream()
