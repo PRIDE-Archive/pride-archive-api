@@ -20,6 +20,7 @@ import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.ws.pride.assemblers.PrideProjectResourceAssembler;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
+import uk.ac.ebi.pride.ws.pride.transformers.ElasticPrideProjectMapper;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
@@ -41,16 +42,18 @@ public class AffinityProjectController {
     final FileMongoClient fileMongoClient;
 
     private final ElasticProjectClient elasticProjectClient;
+    private final ElasticPrideProjectMapper elasticPrideProjectMapper;
 
     @Autowired
     public AffinityProjectController(ProjectMongoClient projectMongoClient,
                                      ProjectRepoClient projectRepoClient,
                                      ElasticProjectClient elasticProjectClient,
-                                     FileMongoClient fileMongoClient) {
+                                     FileMongoClient fileMongoClient, ElasticPrideProjectMapper elasticPrideProjectMapper) {
         this.fileMongoClient = fileMongoClient;
         this.projectMongoClient = projectMongoClient;
         this.projectRepoClient = projectRepoClient;
         this.elasticProjectClient = elasticProjectClient;
+        this.elasticPrideProjectMapper = elasticPrideProjectMapper;
     }
 
     @Operation(description = "List of PRIDE Archive Projects. The following method do not allows to perform search, for search functionality you will need to use the search/projects. The result " +
@@ -83,7 +86,7 @@ public class AffinityProjectController {
 
     @Operation(description = "Get Similar projects taking into account the metadata", tags = {"affinity-projects"})
     @RequestMapping(value = "/projects/{accession}/similarProjects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<CustomPageImpl<ElasticPrideProject>> getSimilarProjects(
+    public Mono<ResponseEntity<List<ElasticPrideProject>>> getSimilarProjects(
             @Parameter(name = "The Accession id associated with this project")
             @PathVariable(value = "accession") String projectAccession,
             @Parameter(name = "Identifies which page of results to fetch")
@@ -94,8 +97,15 @@ public class AffinityProjectController {
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
+        HttpHeaders headers = new HttpHeaders();
 
-        return elasticProjectClient.findSimilarProjects(projectAccession, PrideArchiveType.AP, pageSize, page);
+        Mono<CustomPageImpl<ElasticPrideProject>> customPageMono = elasticProjectClient.findSimilarProjects(projectAccession, PrideArchiveType.AP, pageSize, page);
+        return customPageMono.map(elasticPrideProjects -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalHits()));
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(elasticPrideProjects.getContent().stream().map(elasticPrideProjectMapper::toDto).toList());
+        });
     }
 
 
@@ -114,7 +124,7 @@ public class AffinityProjectController {
             " if keywords: proteome, cancer are provided the search looks for all the datasets that contains one or both keywords. The _filter_ parameter provides allows the method " +
             " to filter the results for specific values. The strcuture of the filter _is_: field1==value1, field2==value2.", tags = {"affinity-projects"})
     @RequestMapping(value = "/search/projects", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<CustomPageImpl<ElasticPrideProject>> projects(
+    public Mono<ResponseEntity<List<ElasticPrideProject>>> projects(
             @Parameter(name = "The entered word will be searched among the fields to fetch matching projects")
             @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
             @Parameter(name = "Parameters to filter the search results. The structure of the filter is: field1==value1, field2==value2. Example accession==PRD000001")
@@ -134,7 +144,16 @@ public class AffinityProjectController {
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
-        return elasticProjectClient.findAllByKeyword(keyword, filter, PrideArchiveType.AP, pageSize, page, sortFields, sortDirection);
+        Mono<CustomPageImpl<ElasticPrideProject>> customPageMono = elasticProjectClient.findAllByKeyword(keyword, filter, PrideArchiveType.AP, pageSize, page, sortFields, sortDirection);
+
+        HttpHeaders headers = new HttpHeaders();
+
+        return customPageMono.map(elasticPrideProjects -> {
+            headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalHits()));
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(elasticPrideProjects.getContent().stream().map(elasticPrideProjectMapper::toDto).toList());
+        });
     }
 
     @Operation(description = "Return the facets for an specific search query. This method is " +

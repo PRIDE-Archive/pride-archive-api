@@ -37,6 +37,7 @@ import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProject;
 import uk.ac.ebi.pride.ws.pride.models.dataset.PrideProjectMetadata;
 import uk.ac.ebi.pride.ws.pride.models.file.PrideFile;
 import uk.ac.ebi.pride.ws.pride.service.FireService;
+import uk.ac.ebi.pride.ws.pride.transformers.ElasticPrideProjectMapper;
 import uk.ac.ebi.pride.ws.pride.utils.WsContastants;
 import uk.ac.ebi.pride.ws.pride.utils.WsUtils;
 
@@ -63,6 +64,7 @@ public class MassSpecProjectController {
     private final ProjectRepoClient projectRepoClient;
     private final ObjectMapper objectMapper;
     private final ElasticProjectClient elasticProjectClient;
+    private final ElasticPrideProjectMapper elasticPrideProjectMapper;
 
     private final FireService fireService;
 
@@ -74,7 +76,8 @@ public class MassSpecProjectController {
                                      ProjectRepoClient projectRepoClient,
                                      ElasticProjectClient elasticProjectClient,
                                      FireService fireService,
-                                     ObjectMapper objectMapper) {
+                                     ObjectMapper objectMapper,
+                                     ElasticPrideProjectMapper elasticPrideProjectMapper) {
         this.fileMongoClient = fileMongoClient;
         this.projectMongoClient = projectMongoClient;
         this.importedProjectMongoClient = importedProjectMongoClient;
@@ -83,6 +86,7 @@ public class MassSpecProjectController {
         this.objectMapper = objectMapper;
         this.elasticProjectClient = elasticProjectClient;
         this.fireService = fireService;
+        this.elasticPrideProjectMapper = elasticPrideProjectMapper;
     }
 
 
@@ -204,7 +208,7 @@ public class MassSpecProjectController {
                                                                          @RequestParam(value = "sortDirection", defaultValue = "DESC", required = false) String sortDirection) {
         Flux<ElasticPrideProject> allProjectsFlux = elasticProjectClient.streamAllByKeyword(keyword, filter, PrideArchiveType.MS, sortFields, sortDirection);
         Flux<DataBuffer> dataBufferFlux = allProjectsFlux
-                .map(this::convertElasticObjectToJson)
+                .map(p -> (convertElasticObjectToJson(elasticPrideProjectMapper.toDto(p))))
                 .map(json -> json + "\n") // Adding newline for better readability in the JSON output
                 .map(json -> {
                     byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
@@ -340,7 +344,7 @@ public class MassSpecProjectController {
             headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalHits()));
             return ResponseEntity.ok()
                     .headers(headers)
-                    .body(elasticPrideProjects.getContent());
+                    .body(elasticPrideProjects.getContent().stream().map(elasticPrideProjectMapper::toDto).toList());
         });
     }
 
@@ -386,7 +390,7 @@ public class MassSpecProjectController {
             headers.set(WsContastants.TOTAL_RECORDS_HEADER, String.valueOf(elasticPrideProjects.getTotalHits()));
             return ResponseEntity.ok()
                     .headers(headers)
-                    .body(elasticPrideProjects.getContent());
+                    .body(elasticPrideProjects.getContent().stream().map(elasticPrideProjectMapper::toDto).toList());
         });
     }
 
