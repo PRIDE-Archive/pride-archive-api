@@ -82,6 +82,7 @@ public class PrideProjectResourceAssembler {
 
 //        additionalAttributes.add(new CvParam("PRIDE", "PRIDE:0000411", "Dataset FTP location", getFtpPath(mongoPrideProject)));
 
+        List<String> omicsLinks = mongoPrideProject.getOmicsLinks();
         return PrideProject.builder()
                 .accession(mongoPrideProject.getAccession())
                 .title(mongoPrideProject.getTitle())
@@ -110,7 +111,7 @@ public class PrideProjectResourceAssembler {
                 .sampleAttributes(mongoPrideProject.getSamplesDescription() != null ? new ArrayList(mongoPrideProject.getSamplesDescription()) : Collections.emptyList())
                 .license(license)
                 .totalFileDownloads(mongoPrideProject.getTotalDownloads())
-                .otherOmicsLinks(new HashSet<>(mongoPrideProject.getOmicsLinks()))
+                .otherOmicsLinks(omicsLinks == null ? null : new HashSet<>(omicsLinks))
                 .build();
     }
 }
