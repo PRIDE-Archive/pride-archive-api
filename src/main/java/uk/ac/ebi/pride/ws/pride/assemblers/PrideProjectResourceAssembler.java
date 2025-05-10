@@ -110,6 +110,7 @@ public class PrideProjectResourceAssembler {
                 .sampleAttributes(mongoPrideProject.getSamplesDescription() != null ? new ArrayList(mongoPrideProject.getSamplesDescription()) : Collections.emptyList())
                 .license(license)
                 .totalFileDownloads(mongoPrideProject.getTotalDownloads())
+                .otherOmicsLinks(new HashSet<>(mongoPrideProject.getOmicsLinks()))
                 .build();
     }
 }

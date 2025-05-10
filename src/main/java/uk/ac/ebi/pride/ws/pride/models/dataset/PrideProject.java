@@ -65,4 +65,5 @@ public class PrideProject {
     private Set<Reference> references = new HashSet<>();
     private Set<CvParamProvider> identifiedPTMStrings = new HashSet<>();
     private long totalFileDownloads;
+    private Set<String> otherOmicsLinks = new HashSet<>();
 }
