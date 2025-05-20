@@ -124,6 +124,7 @@ public class MassSpecProjectController {
                     ftpPath = ftpPathOptional.get();
                 }
                 ftpPath = ftpPath.substring(0, ftpPath.lastIndexOf("/"));
+                ftpPath = ftpPath.replace("generated/", ""); //ex: ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2017/07/PXD006084/generated/Biodiversity_R_pal
                 String[] split = ftpPath.split("/");
 //                String accession = split[split.length - 1];
                 String month = split[split.length - 2];
