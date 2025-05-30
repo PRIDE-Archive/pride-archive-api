@@ -491,8 +491,6 @@ public class ChatController {
 
     private ResponseEntity<String> getPostStringResponseEntity(String url, HttpEntity<MultiValueMap<String, String>> requestEntity) {
         ResponseEntity<String> response;
-        System.out.println(url);
-        System.out.println(requestEntity);
         response = proxyRestTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
         HttpStatusCode statusCode = response.getStatusCode();

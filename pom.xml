@@ -19,8 +19,8 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <pride-mongo-client.version>0.0.3-SNAPSHOT </pride-mongo-client.version>
-        <pride-elastic-client.version>0.0.4-SNAPSHOT </pride-elastic-client.version>
+        <pride-mongo-client.version>0.0.3-SNAPSHOT</pride-mongo-client.version>
+        <pride-elastic-client.version>0.0.6-SNAPSHOT</pride-elastic-client.version>
         <uk.ac.ebi.pride.archive.utilities.version>2.0.19-SNAPSHOT</uk.ac.ebi.pride.archive.utilities.version>
         <pride-repo-client>21-0.0.0-SNAPSHOT</pride-repo-client>
         <cpdetector>1.0.7</cpdetector>
