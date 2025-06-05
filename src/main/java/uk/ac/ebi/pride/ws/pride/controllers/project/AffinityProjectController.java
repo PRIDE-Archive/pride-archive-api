@@ -155,14 +155,17 @@ public class AffinityProjectController {
             @RequestParam(name = "projectAccession" , required = true) String projectAccession,
             @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword,
             @RequestParam(name = "pageSize", defaultValue = "100") int pageSize,
-            @RequestParam(name = "page", defaultValue = "0") int page) {
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "accession") String sortField,
+            @RequestParam(required = false, defaultValue = "ASC") String sortDirection) {
 
         Tuple<Integer, Integer> pageParams = WsUtils.validatePageLimit(page, pageSize);
         page = pageParams.getKey();
         pageSize = pageParams.getValue();
 
         // Call the Protein search WebClient method
-        Mono<CustomPageImpl<Protein>> customPageMono = elasticAPProjectClient.searchProteinsByKeyword(projectAccession, keyword, pageSize, page);
+        Mono<CustomPageImpl<Protein>> customPageMono = elasticAPProjectClient
+                .searchProteinsByKeyword(projectAccession, keyword, pageSize, page, sortField, sortDirection);
 
         HttpHeaders headers = new HttpHeaders();
 
