@@ -178,7 +178,7 @@ public class AffinityProjectController {
     }
 
     @Operation(description = "Get the project details by accession", tags = {"affinity-projects"})
-    @RequestMapping("/{accession}")
+    @RequestMapping(value = "/{accession}" , method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseEntity<ElasticPrideAPProject>> getProjectByAccession(@PathVariable String accession) {
         return elasticAPProjectClient.findByAccession(accession)
                 .map(ResponseEntity::ok)
