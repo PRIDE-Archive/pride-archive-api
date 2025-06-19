@@ -2,11 +2,15 @@ package uk.ac.ebi.pride.ws.pride.controllers.project;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import uk.ac.ebi.pride.archive.elastic.client.ElasticAPProjectClient;
 import uk.ac.ebi.pride.archive.elastic.commons.models.ElasticPrideAPProject;
@@ -28,10 +32,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/pride-ap")
+@Slf4j
 public class AffinityProjectController {
 
     private final ElasticAPProjectClient elasticAPProjectClient;
     private final ElasticPrideAPProjectMapper elasticAPPrideProjectMapper;
+
+    @Value("${ap.analysis.base.url:http://localhost:8000/ap-analysis}")
+    private String apAnalysisBaseUrl;
 
     @Autowired
     public AffinityProjectController(ElasticAPProjectClient elasticAPProjectClient,
@@ -183,6 +191,22 @@ public class AffinityProjectController {
         return elasticAPProjectClient.findByAccession(accession)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    @Operation(description = "Analyze project data using external AP analysis service", tags = {"affinity-projects"})
+    @RequestMapping(value = "/projects/{projectAccession}/analyze", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<ResponseEntity<String>> analyzeProject(@PathVariable(value = "projectAccession") String projectAccession) {
+        return Mono.fromCallable(() -> {
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                String externalApiUrl = apAnalysisBaseUrl + "/analyze/" + projectAccession;
+                String response = restTemplate.getForObject(externalApiUrl, String.class);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                log.error("Error calling external analysis API for project: " + projectAccession, e);
+                return new ResponseEntity<>("Error analyzing project: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        });
     }
 
 }

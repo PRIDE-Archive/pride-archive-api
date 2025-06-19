@@ -46,4 +46,5 @@ slack.app.token: $slack_app_token
 
 bluesky-posts-url: $bluesky_posts_url
 
+ap-analysis.base-url: $ap_analysis_base_url
 
