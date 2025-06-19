@@ -38,7 +38,8 @@ public class AffinityProjectController {
     private final ElasticAPProjectClient elasticAPProjectClient;
     private final ElasticPrideAPProjectMapper elasticAPPrideProjectMapper;
 
-    @Value("${ap.analysis.base.url:http://localhost:8000/ap-analysis}")
+
+    @Value("${ap-analysis.base-url:http://localhost:8000/ap-analysis}")
     private String apAnalysisBaseUrl;
 
     @Autowired
