@@ -26,6 +26,7 @@ import uk.ac.ebi.pride.archive.mongo.client.ImportedProjectMongoClient;
 import uk.ac.ebi.pride.archive.mongo.client.ProjectMongoClient;
 import uk.ac.ebi.pride.archive.mongo.client.ReanalysisMongoClient;
 import uk.ac.ebi.pride.archive.mongo.commons.model.files.MongoPrideFile;
+import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoImportedProject;
 import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideProject;
 import uk.ac.ebi.pride.archive.mongo.commons.model.projects.MongoPrideReanalysisProject;
 import uk.ac.ebi.pride.archive.repo.client.ProjectRepoClient;
@@ -303,6 +304,13 @@ public class MassSpecProjectController {
     @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
     public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
         ProjectStatus status = projectRepoClient.getProjectStatus(accession);
+        if (status == ProjectStatus.NOT_FOUND) {
+            // check in MongoDB Imported Projects as well
+            MongoImportedProject importedProject = importedProjectMongoClient.findByAccession(accession).block();
+            if (importedProject != null) {
+                status = ProjectStatus.PUBLIC;
+            }
+        }
         return status.name();
     }
 
