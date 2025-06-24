@@ -300,20 +300,6 @@ public class MassSpecProjectController {
 //        return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
 //    }
 
-//    @Operation(description = "Check if the dataset is public/private in PRIDE.", tags = {"projects"})
-//    @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
-//    public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
-//        ProjectStatus status = projectRepoClient.getProjectStatus(accession);
-//        if (status == ProjectStatus.NOT_FOUND) {
-//            // check in MongoDB Imported Projects as well
-//            MongoImportedProject importedProject = importedProjectMongoClient.findByAccession(accession).block();
-//            if (importedProject != null) {
-//                status = ProjectStatus.PUBLIC;
-//            }
-//        }
-//        return status.name();
-//    }
-
     @Operation(description = "Check if the dataset is public/private in PRIDE.", tags = {"projects"})
     @GetMapping(value = "/status/{accession}", produces = MediaType.TEXT_PLAIN_VALUE)
     public Mono<String> getProjectStatus(@Valid @PathVariable String accession) {
