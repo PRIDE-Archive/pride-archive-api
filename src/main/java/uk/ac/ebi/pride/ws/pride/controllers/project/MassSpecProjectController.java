@@ -300,18 +300,37 @@ public class MassSpecProjectController {
 //        return fileMongoClient.countByProjectAccessionsAndFileNameContainsIgnoreCase(projectAccession, filenameFilter);
 //    }
 
+//    @Operation(description = "Check if the dataset is public/private in PRIDE.", tags = {"projects"})
+//    @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
+//    public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
+//        ProjectStatus status = projectRepoClient.getProjectStatus(accession);
+//        if (status == ProjectStatus.NOT_FOUND) {
+//            // check in MongoDB Imported Projects as well
+//            MongoImportedProject importedProject = importedProjectMongoClient.findByAccession(accession).block();
+//            if (importedProject != null) {
+//                status = ProjectStatus.PUBLIC;
+//            }
+//        }
+//        return status.name();
+//    }
+
     @Operation(description = "Check if the dataset is public/private in PRIDE.", tags = {"projects"})
-    @GetMapping(value = "/status/{accession}", produces = {MediaType.TEXT_PLAIN_VALUE})
-    public String getProjectStatus(@Valid @PathVariable String accession) throws IOException {
-        ProjectStatus status = projectRepoClient.getProjectStatus(accession);
-        if (status == ProjectStatus.NOT_FOUND) {
-            // check in MongoDB Imported Projects as well
-            MongoImportedProject importedProject = importedProjectMongoClient.findByAccession(accession).block();
-            if (importedProject != null) {
-                status = ProjectStatus.PUBLIC;
-            }
-        }
-        return status.name();
+    @GetMapping(value = "/status/{accession}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public Mono<String> getProjectStatus(@Valid @PathVariable String accession) {
+        return Mono.fromCallable(() -> projectRepoClient.getProjectStatus(accession))
+                .onErrorResume(IOException.class, ex -> {
+                    // Log or handle IOException
+                    return Mono.just(ProjectStatus.NOT_FOUND);
+                })
+                .flatMap(status -> {
+                    if (status == ProjectStatus.NOT_FOUND) {
+                        return importedProjectMongoClient.findByAccession(accession)
+                                .map(project -> ProjectStatus.PUBLIC.name())
+                                .defaultIfEmpty(ProjectStatus.NOT_FOUND.name());
+                    } else {
+                        return Mono.just(status.name());
+                    }
+                });
     }
 
     @Operation(description = "List of paged PRIDE Archive Projects with metadata", tags = {"projects"})
