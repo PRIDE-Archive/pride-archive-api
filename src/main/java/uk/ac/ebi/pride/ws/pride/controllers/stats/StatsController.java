@@ -52,7 +52,8 @@ public class StatsController {
     public Mono<ResponseEntity> statistics(@PathVariable String name) {
         String[] supportedStats = {"SUBMISSIONS_PER_YEAR", "SUBMISSIONS_PER_MONTH",
                 "SUBMISSIONS_PER_INSTRUMENT", "SUBMISSIONS_PER_ORGANISM", "SUBMISSIONS_PER_MODIFICATIONS",
-                "SUBMISSIONS_PER_ORGANISM_PART", "SUBMISSIONS_PER_DISEASES", "SUBMISSIONS_PER_COUNTRY", "SUBMISSIONS_PER_CATEGORIES"};
+                "SUBMISSIONS_PER_ORGANISM_PART", "SUBMISSIONS_PER_DISEASES", "SUBMISSIONS_PER_COUNTRY",
+                "SUBMISSIONS_PER_CATEGORIES", "OTHER_OMICS_LINKS_STATS"};
         name = name.trim().toUpperCase();
         boolean contains = Arrays.asList(supportedStats).contains(name);
         if (!contains) {
