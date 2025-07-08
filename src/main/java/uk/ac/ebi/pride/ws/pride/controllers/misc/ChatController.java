@@ -45,6 +45,7 @@ public class ChatController {
         // this.webClient = webClient;
     }
 
+
     @PostMapping(path = "/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CrossOrigin(origins = "*")
